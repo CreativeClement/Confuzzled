@@ -13,7 +13,14 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isOutputMode, type OutputMode } from "@/lib/input-router";
-import type { FormattedOutput } from "@/lib/output-formatter";
+import type {
+  FlashcardItem,
+  FormattedOutput,
+  MermaidOutput,
+  SocraticItem,
+  StepItem,
+  TextOutput,
+} from "@/lib/output-formatter";
 import { cn } from "@/lib/utils";
 
 type ResultRendererProps = {
@@ -21,6 +28,30 @@ type ResultRendererProps = {
   mode: OutputMode | string;
   isLoading?: boolean;
 };
+
+function isRecord(value: FormattedOutput): value is MermaidOutput | TextOutput {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isMermaid(value: FormattedOutput): value is MermaidOutput {
+  return isRecord(value) && value.type === "mermaid";
+}
+
+function isText(value: FormattedOutput): value is TextOutput {
+  return isRecord(value) && value.type === "text";
+}
+
+function isFlashcards(value: FormattedOutput): value is FlashcardItem[] {
+  return Array.isArray(value) && value.every((item) => "front" in item && "back" in item);
+}
+
+function isSteps(value: FormattedOutput): value is StepItem[] {
+  return Array.isArray(value) && value.every((item) => "step" in item && "text" in item);
+}
+
+function isSocratic(value: FormattedOutput): value is SocraticItem[] {
+  return Array.isArray(value) && value.every((item) => "question" in item && "hint" in item);
+}
 
 function usePrefersReducedMotion(): boolean {
   const [reduced, setReduced] = useState(false);
@@ -219,46 +250,39 @@ export function ResultRenderer({ data, mode, isLoading = false }: ResultRenderer
     return null;
   }
 
-  if (data.type === "raw") {
-    return <RawFallback text={data.text} />;
-  }
+  const resolvedMode = isOutputMode(mode) ? mode : "tl_dr";
 
-  const resolvedMode: OutputMode = data.type === mode && isOutputMode(mode) ? mode : data.type;
-
-  if (resolvedMode === "tl_dr" && data.type === "tl_dr") {
+  if (resolvedMode === "flashcards" && isFlashcards(data)) {
+    if (data.length === 0) {
+      return <RawFallback text="No flashcards came back. Try another mode or a shorter source." />;
+    }
     return (
-      <Card className="border-primary/20 bg-gradient-to-br from-card to-accent/20">
-        <CardHeader className="flex-row items-start gap-3 space-y-0">
-          <Quote className="mt-0.5 h-5 w-5 text-primary" aria-hidden="true" />
-          <CardTitle className="text-base">The point</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <blockquote className="border-l-4 border-primary pl-4 text-lg font-semibold leading-relaxed">
-            {data.summary}
-          </blockquote>
-        </CardContent>
-      </Card>
+      <div className="grid gap-4 sm:grid-cols-2">
+        {data.map((card, index) => (
+          <Flashcard key={`${card.front}-${index}`} front={card.front} back={card.back} index={index} />
+        ))}
+      </div>
     );
   }
 
-  if (resolvedMode === "step_by_step" && data.type === "step_by_step") {
+  if (resolvedMode === "step_by_step" && isSteps(data)) {
+    if (data.length === 0) {
+      return <RawFallback text="No steps came back. Paste a bit more detail and try again." />;
+    }
     return (
       <ol className="space-y-3">
-        {data.steps.map((step, index) => (
-          <li key={`${step.title}-${index}`}>
+        {data.map((item) => (
+          <li key={`${item.step}-${item.text}`}>
             <Card className="transition-colors hover:border-primary/40">
               <CardContent className="flex gap-4 p-5">
                 <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-sm font-bold text-primary-foreground">
-                  {index + 1}
+                  {item.step}
                 </span>
                 <div className="space-y-1">
                   <p className="flex items-center gap-2 font-semibold leading-snug">
                     <ListOrdered className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
-                    {step.title}
+                    {item.text}
                   </p>
-                  {step.detail ? (
-                    <p className="text-sm leading-relaxed text-muted-foreground">{step.detail}</p>
-                  ) : null}
                 </div>
               </CardContent>
             </Card>
@@ -268,40 +292,10 @@ export function ResultRenderer({ data, mode, isLoading = false }: ResultRenderer
     );
   }
 
-  if (resolvedMode === "feynman" && data.type === "feynman") {
-    return (
-      <div className="grid gap-4 md:grid-cols-5">
-        <Card className="md:col-span-2">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Lightbulb className="h-4 w-4 text-accent-foreground" aria-hidden="true" />
-              Analogy
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-base font-medium leading-relaxed">
-              {data.analogy || "A comparison was not returned; the explanation still stands."}
-            </p>
-          </CardContent>
-        </Card>
-        <Card className="md:col-span-3">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <BookOpen className="h-4 w-4" aria-hidden="true" />
-              In plain words
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
-              {data.explanation}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  if (resolvedMode === "socratic" && data.type === "socratic") {
+  if (resolvedMode === "socratic" && isSocratic(data)) {
+    if (data.length === 0) {
+      return <RawFallback text="No questions came back. Try again with a clearer source." />;
+    }
     return (
       <Card>
         <CardHeader>
@@ -312,7 +306,7 @@ export function ResultRenderer({ data, mode, isLoading = false }: ResultRenderer
         </CardHeader>
         <CardContent>
           <Accordion type="single" collapsible className="w-full">
-            {data.items.map((item, index) => (
+            {data.map((item, index) => (
               <AccordionItem key={`${item.question}-${index}`} value={`item-${index}`}>
                 <AccordionTrigger>
                   <span>
@@ -320,7 +314,7 @@ export function ResultRenderer({ data, mode, isLoading = false }: ResultRenderer
                     {item.question}
                   </span>
                 </AccordionTrigger>
-                <AccordionContent>{item.answer || "Sit with the question — no answer was returned."}</AccordionContent>
+                <AccordionContent>{item.hint || "Sit with the question — no hint was returned."}</AccordionContent>
               </AccordionItem>
             ))}
           </Accordion>
@@ -329,28 +323,53 @@ export function ResultRenderer({ data, mode, isLoading = false }: ResultRenderer
     );
   }
 
-  if (resolvedMode === "visual" && data.type === "visual") {
+  if (resolvedMode === "visual" && isMermaid(data)) {
     return (
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Relationship map</CardTitle>
         </CardHeader>
         <CardContent>
-          <MermaidBlock chart={data.mermaid} />
+          <MermaidBlock chart={data.code} />
         </CardContent>
       </Card>
     );
   }
 
-  if (resolvedMode === "flashcards" && data.type === "flashcards") {
+  if (isText(data)) {
+    if (resolvedMode === "feynman") {
+      return (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Lightbulb className="h-4 w-4 text-accent-foreground" aria-hidden="true" />
+              In plain words
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="whitespace-pre-wrap text-base leading-relaxed">{data.content}</p>
+          </CardContent>
+        </Card>
+      );
+    }
+
     return (
-      <div className="grid gap-4 sm:grid-cols-2">
-        {data.cards.map((card, index) => (
-          <Flashcard key={`${card.front}-${index}`} front={card.front} back={card.back} index={index} />
-        ))}
-      </div>
+      <Card className="border-primary/20 bg-gradient-to-br from-card to-accent/20">
+        <CardHeader className="flex-row items-start gap-3 space-y-0">
+          <Quote className="mt-0.5 h-5 w-5 text-primary" aria-hidden="true" />
+          <CardTitle className="flex items-center gap-2 text-base">
+            <BookOpen className="h-4 w-4" aria-hidden="true" />
+            The point
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <blockquote className="border-l-4 border-primary pl-4 text-lg font-semibold leading-relaxed">
+            {data.content}
+          </blockquote>
+        </CardContent>
+      </Card>
     );
   }
 
-  return <RawFallback text={JSON.stringify(data)} />;
+  return <RawFallback text={typeof data === "string" ? data : JSON.stringify(data)} />;
 }
