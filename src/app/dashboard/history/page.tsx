@@ -17,7 +17,7 @@ export default function HistoryPage() {
       </div>
       <HistoryList
         items={ready ? history : []}
-        emptyMessage={ready ? "No clarifications yet. Generate one from the homepage." : "Loading history…"}
+        emptyMessage={ready ? "No clarifications yet. Generate one, or tap Try a sample on the homepage." : "Loading history…"}
       />
     </main>
   );

@@ -31,6 +31,7 @@ import {
 } from "@/lib/input-router";
 import type { FormattedOutput } from "@/lib/output-formatter";
 import { readUploadedFile } from "@/lib/uploads";
+import { SAMPLE_INPUT_TYPE, SAMPLE_MODE, SAMPLE_RESULT, SAMPLE_SOURCE } from "@/lib/sample";
 
 type ClarifySuccess = {
   success: true;
@@ -282,6 +283,34 @@ export default function HomePage() {
               >
                 {loading ? <Loader2 className="animate-spin" aria-hidden="true" /> : <Sparkles aria-hidden="true" />}
                 {loading ? "Untangling…" : "Generate"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={loading}
+                onClick={() => {
+                  setText(SAMPLE_SOURCE);
+                  setSelectedMode(SAMPLE_MODE);
+                  setModeTouched(true);
+                  setFileName("");
+                  setError(null);
+                  setProgress(100);
+                  setResult(SAMPLE_RESULT);
+                  setResultMode(SAMPLE_MODE);
+                  const saved = addClarification({
+                    source: SAMPLE_SOURCE,
+                    mode: SAMPLE_MODE,
+                    inputType: SAMPLE_INPUT_TYPE,
+                    result: SAMPLE_RESULT,
+                  });
+                  setHistoryId(saved?.id ?? null);
+                  toast.success("Sample loaded — no API key needed. Saved to your dashboard.");
+                  window.requestAnimationFrame(() => {
+                    resultsHeadingRef.current?.focus();
+                  });
+                }}
+              >
+                Try a sample
               </Button>
               <Button
                 type="button"

@@ -116,7 +116,8 @@ export default function DashboardPage() {
         {ready && recent.length === 0 ? (
           <Card>
             <CardContent className="p-6 text-sm text-muted-foreground">
-              Nothing saved yet. Generate a clarification and it will show up here.
+              Nothing saved yet. Generate a clarification, or tap <strong>Try a sample</strong> on the homepage
+              (no API key needed).
             </CardContent>
           </Card>
         ) : (
