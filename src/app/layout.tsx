@@ -20,20 +20,20 @@ export const metadata: Metadata = {
     template: "%s · Confuzzled",
   },
   description:
-    "Unconfuzzle anything. Paste dense text, a URL, or messy notes and get a TL;DR, Feynman explanation, Socratic dialogue, visual map, or flashcards.",
+    "Unconfuzzle anything. For every human who’s stuck — instructions, manuals, wiring notes, forms, emails, videos. Get a TL;DR, step-by-step, plain-English explanation, visual map, or flashcards.",
   applicationName: "Confuzzled",
   keywords: [
-    "AI summarizer",
-    "Feynman technique",
-    "flashcards",
-    "explain like I'm 12",
-    "clarity engine",
+    "AI clarity engine",
+    "explain confusing instructions",
+    "step-by-step AI",
+    "jargon translator",
+    "how-to simplifier",
   ],
   authors: [{ name: "Confuzzled" }],
   openGraph: {
     title: "Confuzzled — Universal AI Clarity Engine",
     description:
-      "Paste the muddle. Choose a lens. Get a version you can actually use.",
+      "Stuck on instructions, a job, or a wall of text? Paste it. Get a version you can actually follow.",
     type: "website",
     locale: "en_US",
     url: siteUrl,
@@ -42,7 +42,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary",
     title: "Confuzzled — Universal AI Clarity Engine",
-    description: "A universal AI clarity engine for dense text, talks, and tangled notes.",
+    description:
+      "A universal AI clarity engine for anyone who’s confused — from manuals to job-site notes.",
   },
   robots: {
     index: true,
@@ -79,7 +80,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body
         className={`${inter.className} min-h-dvh antialiased mesh-bg`}
-        aria-label="Confuzzled, a universal AI clarity engine"
+        aria-label="Confuzzled, a clarity engine for anyone who is confused"
       >
         <a href="#main" className="skip-link">
           Skip to content
@@ -97,7 +98,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <span>
                   Confuzzled
                   <span className="ml-2 hidden text-xs font-normal text-muted-foreground sm:inline">
-                    clarity engine
+                    for anyone stuck
                   </span>
                 </span>
               </a>
@@ -106,7 +107,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </header>
           <div className="flex-1">{children}</div>
           <footer className="border-t border-border/70 py-8 text-center text-sm text-muted-foreground">
-            <p>Confuzzled keeps the source honest. It will not invent quotes, numbers, or steps.</p>
+            <p>
+              For anyone stuck on instructions, a job, or a wall of text. We keep the source honest —
+              no invented quotes, numbers, or steps.
+            </p>
           </footer>
         </div>
       </body>

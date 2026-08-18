@@ -172,17 +172,22 @@ export default function HomePage() {
     <main id="main" className="container py-10 sm:py-14">
       <section aria-labelledby="hero-heading" className="mx-auto max-w-3xl text-center">
         <Badge variant="accent" className="mb-4">
-          Universal AI clarity engine
+          For every confused human
         </Badge>
         <h1
           id="hero-heading"
           className="text-balance text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl"
         >
-          From muddled to crystal.
+          Stuck on something? Unconfuzzle it.
         </h1>
         <p className="mx-auto mt-4 max-w-2xl text-pretty text-base text-muted-foreground sm:text-lg">
-          Paste a wall of text, a talk dump, a URL, or a messy idea. Pick a lens — TL;DR, Feynman,
-          Socratic, steps, a visual map, or flashcards — and get a version you can actually use.
+          Not a study app. A clarity engine for real life — assembly instructions, a wiring note, an
+          insurance letter, a recipe, a 40-page manual, a message you still don’t get. Paste the
+          thing that’s confusing you. Get it back in a form you can actually follow.
+        </p>
+        <p className="mx-auto mt-4 max-w-2xl text-sm text-muted-foreground">
+          Electricians, parents, first-timers, professionals, students, anyone staring at a wall of
+          words. If you’re lost, you’re in the right place.
         </p>
         <div className="mt-8 flex justify-center">
           <Button asChild size="lg">
@@ -196,13 +201,13 @@ export default function HomePage() {
           <CardHeader className="gap-2">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h2 id="workspace-heading" className="text-xl font-semibold leading-none tracking-tight">
-                Drop the tangle
+                Drop whatever’s confusing you
               </h2>
               <Badge variant="outline">{INPUT_TYPE_LABELS[detectedType]} detected</Badge>
             </div>
             <CardDescription>
-              Text files are read in full. PDFs, images, audio, and video are tagged by type so the
-              model can treat them honestly from filename and notes.
+              Instructions, a spec, an email, a photo of a label, a video, a PDF — paste it or upload
+              it. We tag the type so the answer stays honest to what you actually gave us.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -214,7 +219,7 @@ export default function HomePage() {
                 id="source-input"
                 value={content}
                 onChange={(event) => setContent(event.target.value)}
-                placeholder="Paste notes, a paragraph, a URL, or a transcript…"
+                placeholder="Paste instructions, a manual, a messy email, a wiring note, a URL…"
                 aria-describedby="source-hint"
               />
               <p id="source-hint" className="text-xs text-muted-foreground">

@@ -1,6 +1,8 @@
 # Confuzzled
 
-A universal AI clarity engine. Paste dense text, a URL, or messy notes and get a version you can actually use: TL;DR, step-by-step, Feynman, Socratic, a visual map, or flashcards.
+A clarity engine for **anyone who is confused** — not just students. Paste instructions, a spec, a wiring note, a form, a manual, a messy email, or a URL, and get a version you can actually follow: TL;DR, step-by-step, plain English, Socratic Q&A, a visual map, or flashcards.
+
+Electricians, parents, first-timers, professionals, kids, experts: if you’re stuck, this is for you.
 
 ## Stack
 
