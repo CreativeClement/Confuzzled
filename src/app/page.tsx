@@ -1,14 +1,29 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AlertCircle, Eraser, Loader2, Sparkles, Upload } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle,
+  Copy,
+  Eraser,
+  Lightbulb,
+  Loader2,
+  Quote,
+  Sparkles,
+  Upload,
+} from "lucide-react";
 import { toast } from "sonner";
 
-import { ResultRenderer } from "@/components/ResultRenderer";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import {
@@ -27,22 +42,27 @@ import {
   type InputType,
   type OutputMode,
 } from "@/lib/input-router";
-import type { FormattedOutput } from "@/lib/output-formatter";
+import type {
+  FlashcardItem,
+  FormattedOutput,
+  MermaidOutput,
+  SocraticItem,
+  StepItem,
+  TextOutput,
+} from "@/lib/output-formatter";
+import { cn } from "@/lib/utils";
 
 type ClarifySuccess = {
   success: true;
   data: FormattedOutput;
   mode: OutputMode;
   inputType: InputType;
-  truncated?: boolean;
 };
 
 type ClarifyFailure = {
   success: false;
   error: string;
   data: null;
-  mode: string | null;
-  inputType: string | null;
 };
 
 const INPUT_TYPE_LABELS: Record<InputType, string> = {
@@ -53,6 +73,37 @@ const INPUT_TYPE_LABELS: Record<InputType, string> = {
   audio: "Audio",
   image: "Image",
 };
+
+function isMermaid(value: FormattedOutput): value is MermaidOutput {
+  return typeof value === "object" && value !== null && !Array.isArray(value) && value.type === "mermaid";
+}
+
+function isText(value: FormattedOutput): value is TextOutput {
+  return typeof value === "object" && value !== null && !Array.isArray(value) && value.type === "text";
+}
+
+function isFlashcards(value: FormattedOutput): value is FlashcardItem[] {
+  return Array.isArray(value) && value.every((item) => "front" in item && "back" in item);
+}
+
+function isSteps(value: FormattedOutput): value is StepItem[] {
+  return Array.isArray(value) && value.every((item) => "step" in item && "text" in item);
+}
+
+function isSocratic(value: FormattedOutput): value is SocraticItem[] {
+  return Array.isArray(value) && value.every((item) => "question" in item && "hint" in item);
+}
+
+function splitFeynman(content: string): { analogy: string; explanation: string } {
+  const blocks = content
+    .split(/\n{2,}/)
+    .map((block) => block.trim())
+    .filter(Boolean);
+  if (blocks.length >= 2) {
+    return { analogy: blocks[0] ?? content, explanation: blocks.slice(1).join("\n\n") };
+  }
+  return { analogy: "Think of it in everyday terms.", explanation: content };
+}
 
 function markerForFile(file: File): string | null {
   const name = file.name.toLowerCase();
@@ -89,43 +140,205 @@ function readUploadedFile(file: File): Promise<string> {
   });
 }
 
-export default function HomePage() {
-  const [content, setContent] = useState("");
-  const [mode, setMode] = useState<OutputMode>("tl_dr");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<FormattedOutput | null>(null);
-  const [resultMeta, setResultMeta] = useState<{ mode: OutputMode; inputType: InputType } | null>(
-    null,
+function FlipCard({ front, back, index }: { front: string; back: string; index: number }) {
+  const [flipped, setFlipped] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setReducedMotion(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+
+  const label = flipped ? `Card ${index + 1} back` : `Card ${index + 1} front`;
+
+  return (
+    <button
+      type="button"
+      className="group h-48 w-full min-h-12 text-left [perspective:1200px] focus-visible:outline-none"
+      aria-pressed={flipped}
+      aria-label={`${label}. Activate to flip.`}
+      onClick={() => setFlipped((value) => !value)}
+    >
+      <span
+        className={cn(
+          "relative block h-full w-full rounded-2xl [transform-style:preserve-3d]",
+          !reducedMotion && "transition-transform duration-500",
+          flipped && "[transform:rotateY(180deg)]",
+        )}
+      >
+        <span className="absolute inset-0 flex flex-col justify-between rounded-2xl border bg-card p-4 shadow-sm ring-offset-background group-hover:border-primary/40 group-focus-visible:ring-2 group-focus-visible:ring-ring [backface-visibility:hidden]">
+          <Badge variant="secondary">Front</Badge>
+          <span className="text-base font-medium leading-snug">{front}</span>
+          <span className="text-xs text-muted-foreground">Tap to flip</span>
+        </span>
+        <span className="absolute inset-0 flex flex-col justify-between rounded-2xl border bg-primary p-4 text-primary-foreground shadow-sm [backface-visibility:hidden] [transform:rotateY(180deg)]">
+          <Badge variant="outline" className="w-fit border-primary-foreground/40 text-primary-foreground">
+            Back
+          </Badge>
+          <span className="text-sm leading-relaxed">{back}</span>
+          <span className="text-xs text-primary-foreground/80">Tap to flip back</span>
+        </span>
+      </span>
+    </button>
   );
+}
+
+function ResultView({
+  result,
+  selectedMode,
+}: {
+  result: FormattedOutput;
+  selectedMode: OutputMode;
+}) {
+  if (selectedMode === "tl_dr" && isText(result)) {
+    return (
+      <Card className="border-primary/20 bg-gradient-to-br from-card to-accent/20">
+        <CardHeader className="flex-row items-start gap-3 space-y-0">
+          <Quote className="mt-0.5 h-5 w-5 text-primary" aria-hidden="true" />
+          <CardTitle className="text-base">The point</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <blockquote className="border-l-4 border-primary pl-4 text-lg font-bold leading-relaxed">
+            {result.content}
+          </blockquote>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (selectedMode === "step_by_step" && isSteps(result)) {
+    return (
+      <ol className="space-y-3">
+        {result.map((item) => (
+          <li key={`${item.step}-${item.text}`}>
+            <Card className="transition-colors hover:border-primary/40">
+              <CardContent className="flex gap-4 p-5">
+                <CheckCircle className="mt-0.5 h-6 w-6 shrink-0 text-primary" aria-hidden="true" />
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    Step {item.step}
+                  </p>
+                  <p className="font-medium leading-relaxed">{item.text}</p>
+                </div>
+              </CardContent>
+            </Card>
+          </li>
+        ))}
+      </ol>
+    );
+  }
+
+  if (selectedMode === "feynman" && isText(result)) {
+    const { analogy, explanation } = splitFeynman(result.content);
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Lightbulb className="h-4 w-4 text-accent-foreground" aria-hidden="true" />
+            Analogy
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-base font-semibold leading-relaxed">{analogy}</p>
+          <p className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">{explanation}</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (selectedMode === "socratic" && isSocratic(result)) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Guided questions</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Accordion type="single" collapsible className="w-full">
+            {result.map((item, index) => (
+              <AccordionItem key={`${item.question}-${index}`} value={`item-${index}`}>
+                <AccordionTrigger>
+                  <span>
+                    <span className="mr-2 text-xs font-semibold text-muted-foreground">Q{index + 1}</span>
+                    {item.question}
+                  </span>
+                </AccordionTrigger>
+                <AccordionContent>{item.hint || "Sit with the question."}</AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (selectedMode === "visual" && isMermaid(result)) {
+    const copyMermaid = async () => {
+      try {
+        await navigator.clipboard.writeText(result.code);
+        toast.success("Mermaid copied.");
+      } catch {
+        toast.error("Could not copy. Select the code and copy it manually.");
+      }
+    };
+
+    return (
+      <Card>
+        <CardHeader className="flex-row items-center justify-between gap-3 space-y-0">
+          <CardTitle className="text-base">Mermaid diagram</CardTitle>
+          <Button type="button" variant="outline" onClick={() => void copyMermaid()}>
+            <Copy aria-hidden="true" />
+            Copy Mermaid
+          </Button>
+        </CardHeader>
+        <CardContent>
+          <pre className="overflow-x-auto rounded-xl bg-muted/60 p-4 text-sm leading-relaxed">
+            <code>{result.code}</code>
+          </pre>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (selectedMode === "flashcards" && isFlashcards(result)) {
+    return (
+      <div className="grid gap-4 sm:grid-cols-2">
+        {result.map((card, index) => (
+          <FlipCard key={`${card.front}-${index}`} front={card.front} back={card.back} index={index} />
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <Card>
+      <CardContent className="p-6 text-sm text-muted-foreground">
+        Nothing usable came back. Try another mode or a shorter source.
+      </CardContent>
+    </Card>
+  );
+}
+
+export default function HomePage() {
+  const [text, setText] = useState("");
+  const [selectedMode, setSelectedMode] = useState<OutputMode>("tl_dr");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<FormattedOutput | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [resultMode, setResultMode] = useState<OutputMode>("tl_dr");
   const [fileName, setFileName] = useState("");
   const [progress, setProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const resultsHeadingRef = useRef<HTMLHeadingElement>(null);
 
-  const detectedType = useMemo(() => detectInputType(content), [content]);
-  const selectedMode = OUTPUT_MODE_OPTIONS.find((option) => option.value === mode);
-
-  const resetWorkspace = () => {
-    setContent("");
-    setMode("tl_dr");
-    setError(null);
-    setResult(null);
-    setResultMeta(null);
-    setFileName("");
-    setProgress(0);
-    setIsLoading(false);
-  };
-
-  const clearResult = () => {
-    setError(null);
-    setResult(null);
-    setResultMeta(null);
-    setProgress(0);
-  };
+  const detectedType = useMemo(() => detectInputType(text), [text]);
+  const modeMeta = OUTPUT_MODE_OPTIONS.find((option) => option.value === selectedMode);
+  const canGenerate = !loading && text.trim().length > 0;
 
   useEffect(() => {
-    if (!isLoading) {
+    if (!loading) {
       return;
     }
     setProgress(16);
@@ -133,7 +346,7 @@ export default function HomePage() {
       setProgress((value) => (value >= 88 ? value : value + 7));
     }, 350);
     return () => window.clearInterval(timer);
-  }, [isLoading]);
+  }, [loading]);
 
   const handleUpload = async (fileList: FileList | null) => {
     const file = fileList?.[0];
@@ -141,8 +354,8 @@ export default function HomePage() {
       return;
     }
     try {
-      const text = await readUploadedFile(file);
-      setContent((current) => (current.trim() ? `${current.trim()}\n\n${text}` : text));
+      const nextText = await readUploadedFile(file);
+      setText((current) => (current.trim() ? `${current.trim()}\n\n${nextText}` : nextText));
       setFileName(file.name);
       setError(null);
       toast.success("File attached. Add any extra notes, then generate.");
@@ -153,28 +366,27 @@ export default function HomePage() {
   };
 
   const handleGenerate = async () => {
-    const trimmed = content.trim();
-    if (!trimmed) {
+    const content = text.trim();
+    if (!content) {
       setError("Paste or upload something to unconfuzzle.");
       toast.error("Paste or upload something to unconfuzzle.");
       return;
     }
 
-    setIsLoading(true);
+    setLoading(true);
     setError(null);
 
     try {
       const response = await fetch("/api/clarify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: trimmed, mode }),
+        body: JSON.stringify({ content, mode: selectedMode }),
       });
 
       const payload = (await response.json()) as ClarifySuccess | ClarifyFailure;
 
       if (!payload.success) {
         setResult(null);
-        setResultMeta(null);
         setError(payload.error || "Something went sideways. Try again.");
         toast.error(payload.error || "Something went sideways. Try again.");
         return;
@@ -182,7 +394,7 @@ export default function HomePage() {
 
       setProgress(100);
       setResult(payload.data);
-      setResultMeta({ mode: payload.mode, inputType: payload.inputType });
+      setResultMode(payload.mode);
       toast.success("Here’s the clear version.");
       window.requestAnimationFrame(() => {
         resultsHeadingRef.current?.focus();
@@ -191,7 +403,7 @@ export default function HomePage() {
       setError("Network error. Check your connection and try again.");
       toast.error("Network error. Check your connection and try again.");
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
@@ -212,10 +424,6 @@ export default function HomePage() {
           insurance letter, a recipe, a 40-page manual, a message you still don’t get. Paste the
           thing that’s confusing you. Get it back in a form you can actually follow.
         </p>
-        <p className="mx-auto mt-4 max-w-2xl text-sm text-muted-foreground">
-          Electricians, parents, first-timers, professionals, students, anyone staring at a wall of
-          words. If you’re lost, you’re in the right place.
-        </p>
         <div className="mt-8 flex justify-center">
           <Button asChild size="lg">
             <a href="#workspace">Unconfuzzle this</a>
@@ -234,7 +442,7 @@ export default function HomePage() {
             </div>
             <CardDescription>
               Instructions, a spec, an email, a photo of a label, a video, a PDF — paste it or upload
-              it. We tag the type so the answer stays honest to what you actually gave us.
+              it.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -244,9 +452,9 @@ export default function HomePage() {
               </label>
               <Textarea
                 id="source-input"
-                value={content}
-                onChange={(event) => setContent(event.target.value)}
-                placeholder="Paste instructions, a manual, a messy email, a wiring note, a URL…"
+                value={text}
+                onChange={(event) => setText(event.target.value)}
+                placeholder="Paste text, spec, lecture notes, or any content..."
                 aria-describedby="source-hint"
               />
               <p id="source-hint" className="text-xs text-muted-foreground">
@@ -275,22 +483,17 @@ export default function HomePage() {
                 Upload file
               </Button>
               {fileName ? (
-                <Input
-                  readOnly
-                  value={fileName}
-                  aria-label="Attached file name"
-                  className="sm:max-w-xs"
-                />
+                <Input readOnly value={fileName} aria-label="Attached file name" className="sm:max-w-xs" />
               ) : null}
               <div className="min-w-0 flex-1 space-y-2">
                 <label htmlFor="mode-select" className="sr-only">
                   Output mode
                 </label>
                 <Select
-                  value={mode}
+                  value={selectedMode}
                   onValueChange={(value) => {
                     if (isOutputMode(value)) {
-                      setMode(value);
+                      setSelectedMode(value);
                     }
                   }}
                 >
@@ -306,9 +509,7 @@ export default function HomePage() {
                     ))}
                   </SelectContent>
                 </Select>
-                {selectedMode ? (
-                  <p className="text-xs text-muted-foreground">{selectedMode.description}</p>
-                ) : null}
+                {modeMeta ? <p className="text-xs text-muted-foreground">{modeMeta.description}</p> : null}
               </div>
             </div>
 
@@ -316,16 +517,38 @@ export default function HomePage() {
               <Button
                 type="button"
                 onClick={() => void handleGenerate()}
-                disabled={isLoading}
-                aria-busy={isLoading}
+                disabled={!canGenerate}
+                aria-busy={loading}
               >
-                {isLoading ? <Loader2 className="animate-spin" aria-hidden="true" /> : <Sparkles aria-hidden="true" />}
-                {isLoading ? "Untangling…" : "Generate"}
+                {loading ? <Loader2 className="animate-spin" aria-hidden="true" /> : <Sparkles aria-hidden="true" />}
+                {loading ? "Untangling…" : "Generate"}
               </Button>
-              <Button type="button" variant="secondary" onClick={clearResult} disabled={isLoading}>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => {
+                  setError(null);
+                  setResult(null);
+                  setProgress(0);
+                }}
+                disabled={loading}
+              >
                 Clear result
               </Button>
-              <Button type="button" variant="ghost" onClick={resetWorkspace} disabled={isLoading}>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => {
+                  setText("");
+                  setSelectedMode("tl_dr");
+                  setError(null);
+                  setResult(null);
+                  setFileName("");
+                  setProgress(0);
+                  setLoading(false);
+                }}
+                disabled={loading}
+              >
                 <Eraser aria-hidden="true" />
                 Reset
               </Button>
@@ -342,39 +565,21 @@ export default function HomePage() {
         ) : null}
 
         <div className="mt-8 space-y-4" aria-live="polite">
-          {(isLoading || result) && (
+          {(loading || result) && (
             <>
               <Separator />
-              <div className="flex flex-wrap items-end justify-between gap-3">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    Result
-                  </p>
-                  <h2
-                    ref={resultsHeadingRef}
-                    tabIndex={-1}
-                    className="text-2xl font-semibold tracking-tight focus:outline-none"
-                  >
-                    {isLoading ? "Working through it" : "Here’s the clear version"}
-                  </h2>
-                </div>
-                {resultMeta ? (
-                  <div className="flex flex-wrap gap-2">
-                    <Badge variant="secondary">{INPUT_TYPE_LABELS[resultMeta.inputType]}</Badge>
-                    <Badge>
-                      {OUTPUT_MODE_OPTIONS.find((option) => option.value === resultMeta.mode)?.label}
-                    </Badge>
-                  </div>
-                ) : null}
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Result</p>
+                <h2
+                  ref={resultsHeadingRef}
+                  tabIndex={-1}
+                  className="text-2xl font-semibold tracking-tight focus:outline-none"
+                >
+                  {loading ? "Working through it" : "Here’s the clear version"}
+                </h2>
               </div>
-              {isLoading ? (
-                <Progress
-                  value={progress}
-                  className="h-3"
-                  aria-label="Clarifying your source"
-                />
-              ) : null}
-              <ResultRenderer data={result} mode={resultMeta?.mode ?? mode} isLoading={isLoading} />
+              {loading ? <Progress value={progress} className="h-3" aria-label="Clarifying your source" /> : null}
+              {result && !loading ? <ResultView result={result} selectedMode={resultMode} /> : null}
             </>
           )}
         </div>
