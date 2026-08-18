@@ -1,13 +1,16 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AlertCircle, Eraser, Loader2, Sparkles, Upload } from "lucide-react";
+import { toast } from "sonner";
 
 import { ResultRenderer } from "@/components/ResultRenderer";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
 import {
   Select,
   SelectContent,
@@ -95,6 +98,8 @@ export default function HomePage() {
   const [resultMeta, setResultMeta] = useState<{ mode: OutputMode; inputType: InputType } | null>(
     null,
   );
+  const [fileName, setFileName] = useState("");
+  const [progress, setProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const resultsHeadingRef = useRef<HTMLHeadingElement>(null);
 
@@ -107,6 +112,8 @@ export default function HomePage() {
     setError(null);
     setResult(null);
     setResultMeta(null);
+    setFileName("");
+    setProgress(0);
     setIsLoading(false);
   };
 
@@ -114,7 +121,19 @@ export default function HomePage() {
     setError(null);
     setResult(null);
     setResultMeta(null);
+    setProgress(0);
   };
+
+  useEffect(() => {
+    if (!isLoading) {
+      return;
+    }
+    setProgress(16);
+    const timer = window.setInterval(() => {
+      setProgress((value) => (value >= 88 ? value : value + 7));
+    }, 350);
+    return () => window.clearInterval(timer);
+  }, [isLoading]);
 
   const handleUpload = async (fileList: FileList | null) => {
     const file = fileList?.[0];
@@ -124,9 +143,12 @@ export default function HomePage() {
     try {
       const text = await readUploadedFile(file);
       setContent((current) => (current.trim() ? `${current.trim()}\n\n${text}` : text));
+      setFileName(file.name);
       setError(null);
+      toast.success("File attached. Add any extra notes, then generate.");
     } catch {
       setError("That file could not be read. Paste the text instead.");
+      toast.error("That file could not be read. Paste the text instead.");
     }
   };
 
@@ -134,6 +156,7 @@ export default function HomePage() {
     const trimmed = content.trim();
     if (!trimmed) {
       setError("Paste or upload something to unconfuzzle.");
+      toast.error("Paste or upload something to unconfuzzle.");
       return;
     }
 
@@ -153,16 +176,20 @@ export default function HomePage() {
         setResult(null);
         setResultMeta(null);
         setError(payload.error || "Something went sideways. Try again.");
+        toast.error(payload.error || "Something went sideways. Try again.");
         return;
       }
 
+      setProgress(100);
       setResult(payload.data);
       setResultMeta({ mode: payload.mode, inputType: payload.inputType });
+      toast.success("Here’s the clear version.");
       window.requestAnimationFrame(() => {
         resultsHeadingRef.current?.focus();
       });
     } catch {
       setError("Network error. Check your connection and try again.");
+      toast.error("Network error. Check your connection and try again.");
     } finally {
       setIsLoading(false);
     }
@@ -247,6 +274,14 @@ export default function HomePage() {
                 <Upload aria-hidden="true" />
                 Upload file
               </Button>
+              {fileName ? (
+                <Input
+                  readOnly
+                  value={fileName}
+                  aria-label="Attached file name"
+                  className="sm:max-w-xs"
+                />
+              ) : null}
               <div className="min-w-0 flex-1 space-y-2">
                 <label htmlFor="mode-select" className="sr-only">
                   Output mode
@@ -332,6 +367,13 @@ export default function HomePage() {
                   </div>
                 ) : null}
               </div>
+              {isLoading ? (
+                <Progress
+                  value={progress}
+                  className="h-3"
+                  aria-label="Clarifying your source"
+                />
+              ) : null}
               <ResultRenderer data={result} mode={resultMeta?.mode ?? mode} isLoading={isLoading} />
             </>
           )}

@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { HelpSheet } from "@/components/HelpSheet";
+import { Toaster } from "@/components/ui/sonner";
 
 import "./globals.css";
 
@@ -102,7 +104,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   </span>
                 </span>
               </a>
-              <ThemeToggle />
+              <div className="flex items-center gap-2">
+                <HelpSheet />
+                <ThemeToggle />
+              </div>
             </div>
           </header>
           <div className="flex-1">{children}</div>
@@ -113,6 +118,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </p>
           </footer>
         </div>
+        <Toaster />
       </body>
     </html>
   );
