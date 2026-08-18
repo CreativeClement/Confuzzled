@@ -12,6 +12,7 @@ import {
 import { formatOutput } from "@/lib/output-formatter";
 import { getClientKey, rateLimit } from "@/lib/rate-limit";
 import { AUDIENCE_ROLE_OPTIONS, isAudienceRole } from "@/lib/workspace";
+import { clarifyProviderError } from "@/lib/clarify-errors";
 
 export const runtime = "nodejs";
 
@@ -189,15 +190,16 @@ export async function POST(request: Request) {
     );
   } catch (error) {
     console.error("Confuzzled /api/clarify failed", error);
+    const mapped = clarifyProviderError(error);
     return jsonResponse(
       {
         success: false,
-        error: "The model could not finish. Try a shorter passage or another mode.",
+        error: mapped.message,
         data: null,
         mode,
         inputType,
       },
-      { status: 500, rate },
+      { status: mapped.status, rate },
     );
   }
 }
