@@ -19,7 +19,7 @@ const MAX_OUTPUT_TOKENS = 1000;
 
 const clarifySchema = z.object({
   content: z.string().min(1, "Content is required."),
-  mode: z.string().min(1, "Mode is required."),
+  mode: z.string().optional(),
 });
 
 function corsHeaders(extra?: HeadersInit): Headers {
@@ -105,7 +105,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const modeValue = parsed.data.mode;
+  const modeValue = parsed.data.mode ?? "tl_dr";
   if (!isOutputMode(modeValue)) {
     return jsonResponse(
       {
@@ -146,7 +146,7 @@ export async function POST(request: Request) {
     .filter(Boolean)
     .join("\n");
 
-  if (!process.env.OPENAI_API_KEY) {
+  if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY.includes("your-openai-key")) {
     return jsonResponse(
       {
         success: false,
@@ -180,7 +180,8 @@ export async function POST(request: Request) {
       },
       { status: 200, rate },
     );
-  } catch {
+  } catch (error) {
+    console.error("Confuzzled /api/clarify failed", error);
     return jsonResponse(
       {
         success: false,
