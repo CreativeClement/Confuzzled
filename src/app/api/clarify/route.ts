@@ -11,6 +11,7 @@ import {
 } from "@/lib/input-router";
 import { formatOutput } from "@/lib/output-formatter";
 import { getClientKey, rateLimit } from "@/lib/rate-limit";
+import { AUDIENCE_ROLE_OPTIONS, isAudienceRole } from "@/lib/workspace";
 
 export const runtime = "nodejs";
 
@@ -20,6 +21,7 @@ const MAX_OUTPUT_TOKENS = 1000;
 const clarifySchema = z.object({
   content: z.string().min(1, "Content is required."),
   mode: z.string().optional(),
+  role: z.string().optional(),
 });
 
 function corsHeaders(extra?: HeadersInit): Headers {
@@ -137,8 +139,13 @@ export async function POST(request: Request) {
   const truncated = content.length > MAX_INPUT_CHARS;
   const prompt = truncated ? content.slice(0, MAX_INPUT_CHARS) : content;
   const inputType = detectInputType(prompt);
+  const role = parsed.data.role && isAudienceRole(parsed.data.role) ? parsed.data.role : null;
+  const roleMeta = role ? AUDIENCE_ROLE_OPTIONS.find((option) => option.value === role) : null;
   const system = [
     buildSystemPrompt(mode, inputType),
+    roleMeta
+      ? `READER: ${roleMeta.label}. ${roleMeta.description} Prefer examples and vocabulary that fit that life. Do not assume they are a student.`
+      : "",
     truncated
       ? `The user input was truncated to ${MAX_INPUT_CHARS} characters for token safety. Work only from what remains.`
       : "",

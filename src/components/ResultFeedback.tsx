@@ -1,0 +1,111 @@
+"use client";
+
+import { Bookmark, BookmarkCheck, Copy, ThumbsDown, ThumbsUp } from "lucide-react";
+import { toast } from "sonner";
+
+import { Button } from "@/components/ui/button";
+import { formattedOutputToPlainText, type FormattedOutput } from "@/lib/output-formatter";
+import type { OutputMode } from "@/lib/input-router";
+import type { Comprehension, Rating } from "@/lib/workspace";
+import { cn } from "@/lib/utils";
+
+const COMPREHENSION_OPTIONS: readonly { value: NonNullable<Comprehension>; label: string }[] = [
+  { value: "got_it", label: "I get it" },
+  { value: "partial", label: "Kind of" },
+  { value: "still_stuck", label: "Still stuck" },
+];
+
+export function ResultToolbar({
+  result,
+  mode,
+  pinned,
+  onPin,
+}: {
+  result: FormattedOutput;
+  mode: OutputMode;
+  pinned?: boolean;
+  onPin?: () => void;
+}) {
+  const copyText = async () => {
+    const text = formattedOutputToPlainText(result, mode);
+    if (!text.trim()) {
+      toast.error("Nothing to copy yet.");
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success("Copied the clear version.");
+    } catch {
+      toast.error("Could not copy. Select the text and copy it manually.");
+    }
+  };
+
+  return (
+    <div className="flex flex-wrap gap-2">
+      <Button type="button" variant="outline" onClick={() => void copyText()}>
+        <Copy aria-hidden="true" />
+        Copy result
+      </Button>
+      {onPin ? (
+        <Button type="button" variant={pinned ? "secondary" : "outline"} onClick={onPin} aria-pressed={pinned}>
+          {pinned ? <BookmarkCheck aria-hidden="true" /> : <Bookmark aria-hidden="true" />}
+          {pinned ? "Pinned" : "Pin"}
+        </Button>
+      ) : null}
+    </div>
+  );
+}
+
+export function ResultFeedback({
+  rating,
+  comprehension,
+  onRate,
+  onComprehension,
+}: {
+  rating: Rating;
+  comprehension: Comprehension;
+  onRate: (value: Rating) => void;
+  onComprehension: (value: Comprehension) => void;
+}) {
+  return (
+    <section aria-label="Was this useful?" className="space-y-4 rounded-2xl border bg-card p-5">
+      <div>
+        <p className="text-sm font-medium">Did this unstick you?</p>
+        <div className="mt-2 flex flex-wrap gap-2">
+          {COMPREHENSION_OPTIONS.map((option) => (
+            <Button
+              key={option.value}
+              type="button"
+              variant={comprehension === option.value ? "default" : "outline"}
+              aria-pressed={comprehension === option.value}
+              onClick={() => onComprehension(comprehension === option.value ? null : option.value)}
+            >
+              {option.value === "got_it" ? <ThumbsUp aria-hidden="true" /> : null}
+              {option.value === "still_stuck" ? <ThumbsDown aria-hidden="true" /> : null}
+              {option.label}
+            </Button>
+          ))}
+        </div>
+      </div>
+      <div>
+        <p className="text-sm font-medium">Rate this clarification</p>
+        <div className="mt-2 flex flex-wrap gap-2" role="group" aria-label="Rating from 1 to 5">
+          {([1, 2, 3, 4, 5] as const).map((value) => (
+            <Button
+              key={value}
+              type="button"
+              size="icon"
+              variant={rating === value ? "default" : "outline"}
+              aria-label={`${value} out of 5`}
+              aria-pressed={rating === value}
+              className={cn(rating != null && value <= rating && rating !== value && "border-primary/40")}
+              onClick={() => onRate(rating === value ? null : value)}
+            >
+              {value}
+            </Button>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}

@@ -1,9 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 
-import { ThemeToggle } from "@/components/ThemeToggle";
-import { HelpSheet } from "@/components/HelpSheet";
+import { SiteHeader } from "@/components/SiteHeader";
 import { Toaster } from "@/components/ui/sonner";
+import { WorkspaceProvider } from "@/components/WorkspaceProvider";
 
 import "./globals.css";
 
@@ -87,37 +87,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <a href="#main" className="skip-link">
           Skip to content
         </a>
-        <div className="flex min-h-dvh flex-col">
-          <header className="border-b border-border/70 bg-background/80 backdrop-blur-md">
-            <div className="container flex min-h-16 items-center justify-between gap-3 py-3">
-              <a href="#main" className="flex min-h-12 items-center gap-2 font-semibold tracking-tight">
-                <span
-                  aria-hidden="true"
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-sm text-primary-foreground"
-                >
-                  Cz
-                </span>
-                <span>
-                  Confuzzled
-                  <span className="ml-2 hidden text-xs font-normal text-muted-foreground sm:inline">
-                    for anyone stuck
-                  </span>
-                </span>
-              </a>
-              <div className="flex items-center gap-2">
-                <HelpSheet />
-                <ThemeToggle />
-              </div>
-            </div>
-          </header>
-          <div className="flex-1">{children}</div>
-          <footer className="border-t border-border/70 py-8 text-center text-sm text-muted-foreground">
-            <p>
-              For anyone stuck on instructions, a job, or a wall of text. We keep the source honest —
-              no invented quotes, numbers, or steps.
-            </p>
-          </footer>
-        </div>
+        <WorkspaceProvider>
+          <div className="flex min-h-dvh flex-col">
+            <SiteHeader />
+            <div className="flex-1">{children}</div>
+            <footer className="border-t border-border/70 py-8 text-center text-sm text-muted-foreground">
+              <p>
+                For anyone stuck on instructions, a job, or a wall of text. We keep the source honest —
+                no invented quotes, numbers, or steps.
+              </p>
+            </footer>
+          </div>
+        </WorkspaceProvider>
         <Toaster />
       </body>
     </html>

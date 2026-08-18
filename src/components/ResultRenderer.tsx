@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
-import { BookOpen, HelpCircle, Lightbulb, ListOrdered, Quote, Sparkles } from "lucide-react";
+import { BookOpen, Copy, HelpCircle, Lightbulb, ListOrdered, Quote, Sparkles } from "lucide-react";
+import { toast } from "sonner";
 
 import {
   Accordion,
@@ -10,16 +11,17 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isOutputMode, type OutputMode } from "@/lib/input-router";
-import type {
-  FlashcardItem,
-  FormattedOutput,
-  MermaidOutput,
-  SocraticItem,
-  StepItem,
-  TextOutput,
+import {
+  isFlashcardList,
+  isMermaidOutput,
+  isSocraticList,
+  isStepList,
+  isTextOutput,
+  type FormattedOutput,
 } from "@/lib/output-formatter";
 import { cn } from "@/lib/utils";
 
@@ -29,28 +31,15 @@ type ResultRendererProps = {
   isLoading?: boolean;
 };
 
-function isRecord(value: FormattedOutput): value is MermaidOutput | TextOutput {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function isMermaid(value: FormattedOutput): value is MermaidOutput {
-  return isRecord(value) && value.type === "mermaid";
-}
-
-function isText(value: FormattedOutput): value is TextOutput {
-  return isRecord(value) && value.type === "text";
-}
-
-function isFlashcards(value: FormattedOutput): value is FlashcardItem[] {
-  return Array.isArray(value) && value.every((item) => "front" in item && "back" in item);
-}
-
-function isSteps(value: FormattedOutput): value is StepItem[] {
-  return Array.isArray(value) && value.every((item) => "step" in item && "text" in item);
-}
-
-function isSocratic(value: FormattedOutput): value is SocraticItem[] {
-  return Array.isArray(value) && value.every((item) => "question" in item && "hint" in item);
+function splitFeynman(content: string): { analogy: string; explanation: string } {
+  const blocks = content
+    .split(/\n{2,}/)
+    .map((block) => block.trim())
+    .filter(Boolean);
+  if (blocks.length >= 2) {
+    return { analogy: blocks[0] ?? content, explanation: blocks.slice(1).join("\n\n") };
+  }
+  return { analogy: "Think of it in everyday terms.", explanation: content };
 }
 
 function usePrefersReducedMotion(): boolean {
@@ -252,7 +241,7 @@ export function ResultRenderer({ data, mode, isLoading = false }: ResultRenderer
 
   const resolvedMode = isOutputMode(mode) ? mode : "tl_dr";
 
-  if (resolvedMode === "flashcards" && isFlashcards(data)) {
+  if (resolvedMode === "flashcards" && isFlashcardList(data)) {
     if (data.length === 0) {
       return <RawFallback text="No flashcards came back. Try another mode or a shorter source." />;
     }
@@ -265,7 +254,7 @@ export function ResultRenderer({ data, mode, isLoading = false }: ResultRenderer
     );
   }
 
-  if (resolvedMode === "step_by_step" && isSteps(data)) {
+  if (resolvedMode === "step_by_step" && isStepList(data)) {
     if (data.length === 0) {
       return <RawFallback text="No steps came back. Paste a bit more detail and try again." />;
     }
@@ -292,7 +281,7 @@ export function ResultRenderer({ data, mode, isLoading = false }: ResultRenderer
     );
   }
 
-  if (resolvedMode === "socratic" && isSocratic(data)) {
+  if (resolvedMode === "socratic" && isSocraticList(data)) {
     if (data.length === 0) {
       return <RawFallback text="No questions came back. Try again with a clearer source." />;
     }
@@ -323,31 +312,46 @@ export function ResultRenderer({ data, mode, isLoading = false }: ResultRenderer
     );
   }
 
-  if (resolvedMode === "visual" && isMermaid(data)) {
+  if (resolvedMode === "visual" && isMermaidOutput(data)) {
+    const copyMermaid = async () => {
+      try {
+        await navigator.clipboard.writeText(data.code);
+        toast.success("Mermaid copied.");
+      } catch {
+        toast.error("Could not copy. Select the code and copy it manually.");
+      }
+    };
+
     return (
       <Card>
-        <CardHeader>
+        <CardHeader className="flex-row items-center justify-between gap-3 space-y-0">
           <CardTitle className="text-base">Relationship map</CardTitle>
+          <Button type="button" variant="outline" onClick={() => void copyMermaid()}>
+            <Copy aria-hidden="true" />
+            Copy Mermaid
+          </Button>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           <MermaidBlock chart={data.code} />
         </CardContent>
       </Card>
     );
   }
 
-  if (isText(data)) {
+  if (isTextOutput(data)) {
     if (resolvedMode === "feynman") {
+      const { analogy, explanation } = splitFeynman(data.content);
       return (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <Lightbulb className="h-4 w-4 text-accent-foreground" aria-hidden="true" />
-              In plain words
+              Analogy
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="whitespace-pre-wrap text-base leading-relaxed">{data.content}</p>
+          <CardContent className="space-y-4">
+            <p className="text-base font-semibold leading-relaxed">{analogy}</p>
+            <p className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">{explanation}</p>
           </CardContent>
         </Card>
       );

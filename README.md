@@ -27,15 +27,20 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000). Paste a paragraph, pick a mode, and click **Generate**.
 
+## Workspace
+
+Clarifications, ratings, and your display name live in **this browser** (`localStorage`). Open **Dashboard** to browse history, pin keepers, set a default mode, and export a JSON backup. There is no cloud account yet — do not put secrets in the source you paste if this device is shared.
+
 ## Verify
 
 ```bash
+npm run test
 npm run typecheck
 npm run lint
 npm run build
 ```
 
-`POST /api/clarify` expects `{ "content": string, "mode": "tl_dr" | "step_by_step" | "feynman" | "socratic" | "visual" | "flashcards" }`. Inputs are truncated at 4,000 characters. Completions cap at 1,000 output tokens.
+`POST /api/clarify` expects `{ "content": string, "mode": "tl_dr" | "step_by_step" | "feynman" | "socratic" | "visual" | "flashcards", "role"?: string }`. Inputs are truncated at 4,000 characters. Completions cap at 1,000 output tokens.
 
 ## Lighthouse targets
 

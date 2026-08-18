@@ -107,10 +107,54 @@ function toFlashcards(value: unknown): FlashcardItem[] {
 }
 
 function toSteps(raw: string): StepItem[] {
+  const parsed = parseJson(raw);
+  const record = asRecord(parsed);
+  const list = Array.isArray(parsed)
+    ? parsed
+    : Array.isArray(record?.steps)
+      ? record.steps
+      : null;
+
+  if (list && list.length > 0) {
+    const items = list
+      .map((item, index) => {
+        if (typeof item === "string") {
+          return { step: index + 1, text: item.trim() };
+        }
+        const row = asRecord(item);
+        if (!row) {
+          return null;
+        }
+        const text =
+          asString(row.text) ??
+          [asString(row.title), asString(row.detail)].filter(Boolean).join(" — ");
+        if (!text.trim()) {
+          return null;
+        }
+        const stepNumber = typeof row.step === "number" ? row.step : index + 1;
+        return { step: stepNumber, text: text.trim() };
+      })
+      .filter((item): item is StepItem => item !== null);
+    if (items.length > 0) {
+      return items;
+    }
+  }
+
   return nonemptyLines(raw).map((text, index) => ({
     step: index + 1,
     text,
   }));
+}
+
+function toFeynmanText(raw: string): TextOutput {
+  const parsed = parseJson(raw);
+  const record = asRecord(parsed);
+  const analogy = asString(record?.analogy)?.trim();
+  const explanation = asString(record?.explanation)?.trim();
+  if (analogy && explanation) {
+    return textOutput(`${analogy}\n\n${explanation}`);
+  }
+  return textOutput(raw);
 }
 
 function toSocratic(raw: string): SocraticItem[] {
@@ -157,6 +201,10 @@ export function formatOutput(raw: string, mode: OutputMode): FormattedOutput {
 
     if (mode === "step_by_step") {
       return toSteps(source);
+    }
+
+    if (mode === "feynman") {
+      return toFeynmanText(source);
     }
 
     if (mode === "socratic") {
@@ -207,4 +255,47 @@ export function formatOutput(raw: string, mode: OutputMode): FormattedOutput {
     }
     return textOutput(source);
   }
+}
+
+export function isMermaidOutput(value: FormattedOutput): value is MermaidOutput {
+  return typeof value === "object" && value !== null && !Array.isArray(value) && value.type === "mermaid";
+}
+
+export function isTextOutput(value: FormattedOutput): value is TextOutput {
+  return typeof value === "object" && value !== null && !Array.isArray(value) && value.type === "text";
+}
+
+export function isFlashcardList(value: FormattedOutput): value is FlashcardItem[] {
+  return Array.isArray(value) && value.every((item) => "front" in item && "back" in item);
+}
+
+export function isStepList(value: FormattedOutput): value is StepItem[] {
+  return Array.isArray(value) && value.every((item) => "step" in item && "text" in item);
+}
+
+export function isSocraticList(value: FormattedOutput): value is SocraticItem[] {
+  return Array.isArray(value) && value.every((item) => "question" in item && "hint" in item);
+}
+
+export function formattedOutputToPlainText(value: FormattedOutput, mode: OutputMode): string {
+  if (isMermaidOutput(value)) {
+    return value.code;
+  }
+  if (isTextOutput(value)) {
+    return value.content;
+  }
+  if (mode === "flashcards" && isFlashcardList(value)) {
+    return value
+      .map((card, index) => `Card ${index + 1}\nFront: ${card.front}\nBack: ${card.back}`)
+      .join("\n\n");
+  }
+  if (mode === "step_by_step" && isStepList(value)) {
+    return value.map((item) => `${item.step}. ${item.text}`).join("\n");
+  }
+  if (mode === "socratic" && isSocraticList(value)) {
+    return value
+      .map((item, index) => `Q${index + 1}: ${item.question}\nHint: ${item.hint}`.trim())
+      .join("\n\n");
+  }
+  return "";
 }

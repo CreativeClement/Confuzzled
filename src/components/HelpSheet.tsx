@@ -57,6 +57,10 @@ export function HelpSheet() {
             Electricians, parents, first-timers, professionals, students — if you’re lost, you’re in
             the right place. We stay honest to your source and won’t invent safety-critical steps.
           </p>
+          <p>
+            Every generate is saved in this browser. Open the dashboard to rate it, pin it, or set a
+            default mode. Nothing is sent to a cloud account — there isn’t one yet.
+          </p>
         </div>
       </SheetContent>
     </Sheet>
