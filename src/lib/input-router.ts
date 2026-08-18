@@ -49,14 +49,12 @@ export const OUTPUT_MODES: readonly OutputMode[] = OUTPUT_MODE_OPTIONS.map(
   (option) => option.value,
 );
 
-const VIDEO_HOST =
-  /(youtube\.com|youtu\.be|vimeo\.com|loom\.com|tiktok\.com|twitch\.tv)/i;
-const URL_PATTERN = /https?:\/\/[^\s<>"']+/gi;
-
-function firstUrl(content: string): string | null {
-  const match = content.match(URL_PATTERN);
-  return match?.[0] ?? null;
-}
+const VIDEO_EXTENSIONS = /\.(mp4|webm|mov|m4v|avi|mkv)(\?|#|$)/i;
+const AUDIO_EXTENSIONS = /\.(mp3|wav|m4a|aac|ogg|flac)(\?|#|$)/i;
+const IMAGE_EXTENSIONS = /\.(png|jpe?g|gif|webp|svg|avif|bmp)(\?|#|$)/i;
+const PDF_EXTENSION = /\.pdf(\?|#|$)/i;
+const HTTP_OR_HTML =
+  /https?:\/\/[^\s<>"']+|<\/?[a-z][\s\S]*>|<!doctype\s+html/i;
 
 export function isOutputMode(value: string): value is OutputMode {
   return (OUTPUT_MODES as readonly string[]).includes(value);
@@ -68,129 +66,64 @@ export function detectInputType(content: string): InputType {
     return "text";
   }
 
-  if (value.startsWith("%PDF-") || /\[\[input:pdf\]\]/i.test(value)) {
+  if (value.startsWith("%PDF") || PDF_EXTENSION.test(value) || /\[\[input:pdf\]\]/i.test(value)) {
     return "pdf";
   }
-  if (/^data:image\//i.test(value) || /\[\[input:image\]\]/i.test(value)) {
-    return "image";
-  }
-  if (/^data:audio\//i.test(value) || /\[\[input:audio\]\]/i.test(value)) {
-    return "audio";
-  }
-  if (/^data:video\//i.test(value) || /\[\[input:video\]\]/i.test(value)) {
+
+  if (VIDEO_EXTENSIONS.test(value) || /\[\[input:video\]\]/i.test(value)) {
     return "video";
   }
 
-  const url = firstUrl(value);
-  if (url) {
-    const lower = url.toLowerCase();
-    if (VIDEO_HOST.test(lower) || /\.(mp4|webm|mov|m4v)(\?|$)/i.test(lower)) {
-      return "video";
-    }
-    if (/\.(mp3|wav|m4a|aac|ogg|flac)(\?|$)/i.test(lower)) {
-      return "audio";
-    }
-    if (/\.(png|jpe?g|gif|webp|svg|avif|bmp)(\?|$)/i.test(lower)) {
-      return "image";
-    }
-    if (/\.pdf(\?|$)/i.test(lower)) {
-      return "pdf";
-    }
+  if (AUDIO_EXTENSIONS.test(value) || /\[\[input:audio\]\]/i.test(value)) {
+    return "audio";
+  }
 
-    const remainder = value.replace(url, "").trim();
-    if (remainder.length < 24 || /^https?:\/\/\S+$/i.test(value)) {
-      return "url";
-    }
+  if (
+    IMAGE_EXTENSIONS.test(value) ||
+    /^data:image\//i.test(value) ||
+    /\[\[input:image\]\]/i.test(value)
+  ) {
+    return "image";
+  }
+
+  if (HTTP_OR_HTML.test(value)) {
+    return "url";
   }
 
   return "text";
 }
 
-const INPUT_TYPE_RULES: Record<InputType, string> = {
-  text: "The user pasted prose, notes, or a dump of ideas. Treat the body as the source of truth. Do not invent citations.",
-  pdf: "The user pointed at a PDF (upload marker, .pdf URL, or extracted text). Work only from the provided extract or filename context. If the body is thin, say what is missing instead of fabricating the paper.",
-  url: "The user provided a web URL (and maybe surrounding notes). If page contents are not included, infer only from the URL, title-like text, and notes. Do not pretend you fetched the live page unless the text is clearly an extract.",
-  video: "The user referenced a video (YouTube/Vimeo/Loom/file). Use the URL, title, and any transcript or notes. Do not invent timestamps or quotes that are not in the input.",
-  audio: "The user referenced audio. Use any transcript, filename, or notes. Do not invent lyrics or spoken lines.",
-  image: "The user referenced an image. Use alt text, captions, OCR, or descriptions in the input. Do not fabricate visual details that are not described.",
+const INPUT_TYPE_CONTEXT: Record<InputType, string> = {
+  text: "INPUT TYPE: text. Treat the pasted body as the source of truth.",
+  pdf: "INPUT TYPE: pdf. Work only from the provided extract, %PDF marker, or filename. Do not invent pages.",
+  url: "INPUT TYPE: url. The source is a web page or HTML. Use the URL and any extract. Do not pretend you fetched a live page unless the extract is present.",
+  video: "INPUT TYPE: video. Use the file, URL, transcript, or notes. Do not invent timestamps.",
+  audio: "INPUT TYPE: audio. Use the file, transcript, or notes. Do not invent spoken lines.",
+  image: "INPUT TYPE: image. Use captions, OCR, or descriptions in the input. Do not fabricate unseen details.",
 };
 
 const MODE_RULES: Record<OutputMode, string> = {
-  tl_dr: [
-    "MODE: TL;DR",
-    "Goal: a high-signal summary a busy reader can trust.",
-    "Rules:",
-    "1. Output 2 to 4 sentences of plain prose. No heading, no bullet list, no preamble (never start with 'Sure' or 'Here is').",
-    "2. Sentence 1 states the core claim or topic. Sentence 2 covers the mechanism, evidence, or structure. Sentence 3 (optional) is the 'so what' or caveat.",
-    "3. Prefer concrete nouns over adjectives. Keep numbers, names, and constraints from the source.",
-    "4. Do not add facts that are not in the input. If the input is ambiguous, say so in one clause.",
-    "5. Return plain text only — not JSON, not markdown fences.",
-  ].join("\n"),
-  step_by_step: [
-    "MODE: STEP-BY-STEP",
-    "Goal: a practical sequence the person can follow without rereading the source — a job, a set of instructions, a process, not a lesson plan unless the source is a lesson.",
-    "Rules:",
-    "1. Return ONLY valid JSON of the shape: {\"steps\":[{\"title\":\"string\",\"detail\":\"string\"}]}",
-    "2. Produce 4 to 8 steps. Each title is 3 to 8 words, imperative or nominative, no trailing period.",
-    "3. Each detail is 1 to 3 sentences that explain that step only. Do not preview later steps.",
-    "4. Order is the order a confused person should take to get unstuck, which may differ from the source's order.",
-    "5. No markdown, no code fences, no extra keys.",
-  ].join("\n"),
-  feynman: [
-    "MODE: FEYNMAN",
-    "Goal: a capable adult with no background in this topic could retell it without jargon — a homeowner, a new hire, a tradesperson reading an unfamiliar spec.",
-    "Rules:",
-    "1. Return ONLY valid JSON of the shape: {\"analogy\":\"string\",\"explanation\":\"string\"}",
-    "2. analogy: one everyday comparison (kitchen, traffic, tools, weather). One or two sentences. No 'Imagine if' stacking.",
-    "3. explanation: 3 to 6 short sentences in plain words. If a technical term is unavoidable, define it in the same sentence in parentheses.",
-    "4. No condescension, no baby-talk, no emojis. Do not say 'simply' or 'just'. Respect the user's intelligence.",
-    "5. No markdown, no code fences, no extra keys.",
-  ].join("\n"),
-  socratic: [
-    "MODE: SOCRATIC",
-    "Goal: a short dialogue that leads the person to the insight instead of lecturing them.",
-    "Rules:",
-    "1. Return ONLY valid JSON of the shape: {\"items\":[{\"question\":\"string\",\"answer\":\"string\"}]}",
-    "2. Produce 4 to 6 pairs. Questions progress from a concrete observation to the structural 'why'.",
-    "3. Each question is one sentence, second person or open ('What happens if…'). No yes/no unless followed by 'why'.",
-    "4. Each answer is 1 to 3 sentences, teaching the next rung, not dumping the whole topic.",
-    "5. No markdown, no code fences, no extra keys.",
-  ].join("\n"),
-  visual: [
-    "MODE: VISUAL",
-    "Goal: a Mermaid diagram that maps relationships in the input.",
-    "Rules:",
-    "1. Return ONLY a Mermaid definition. Preferred start: flowchart TD  (mindmap is allowed if the source is hierarchical).",
-    "2. Node IDs are ASCII letters and numbers (A, B1). Labels are quoted and under 40 characters.",
-    "3. Show 5 to 14 nodes. Edges need labels when the relationship is not obvious.",
-    "4. Do not wrap in markdown fences unless required to keep the parser valid. No prose before or after the diagram.",
-    "5. Never emit HTML, scripts, or click handlers. Do not use Mermaid callbacks.",
-  ].join("\n"),
-  flashcards: [
-    "MODE: FLASHCARDS",
-    "Goal: atomic cards for the facts, terms, and checks someone needs to remember — on a job, in a form, or in a manual.",
-    "Rules:",
-    "1. Return ONLY valid JSON of the shape: {\"cards\":[{\"front\":\"string\",\"back\":\"string\"}]}",
-    "2. Produce 5 to 10 cards. Each card covers one fact, term, warning, or distinction.",
-    "3. front is a prompt or term (question or word). back is the answer, 1 to 3 sentences, no extra trivia.",
-    "4. Do not duplicate cards. Prefer source-specific names over generic definitions.",
-    "5. No markdown, no code fences, no extra keys.",
-  ].join("\n"),
+  tl_dr:
+    "MODE: tl_dr. Reply with exactly 1 sentence, maximum 15 words, plain English. No preamble, no list, no quotes.",
+  step_by_step:
+    "MODE: step_by_step. Reply with numbered steps a confused person can follow. Each step must include tools, conditions, and safety notes when the source implies them. Stay faithful; do not invent procedure. Prefer JSON {\"steps\":[{\"title\":\"string\",\"detail\":\"string\"}]} so parsers can read it; put tools, conditions, and safety inside detail.",
+  feynman:
+    "MODE: feynman. Teach a smart 12-year-old. Use 1-2 analogies. Strip jargon. Respect the reader. Prefer JSON {\"analogy\":\"string\",\"explanation\":\"string\"} with both analogies in analogy and the plain teaching in explanation.",
+  socratic:
+    "MODE: socratic. Ask exactly 3 probing questions, each with a brief hint. Prefer JSON {\"items\":[{\"question\":\"string\",\"answer\":\"string\"}]} with exactly 3 objects; put the hint in answer. No extra questions.",
+  visual:
+    "MODE: visual. Return valid Mermaid.js flowchart ONLY. Use graph TD; syntax. No prose, no markdown fences, no other diagram types, no click handlers.",
+  flashcards:
+    "MODE: flashcards. Return ONLY a JSON array of {\"front\":\"string\",\"back\":\"string\"}. Maximum 5 pairs. No wrapper object, no markdown fences, no extra keys.",
 };
 
 export function buildSystemPrompt(mode: OutputMode, inputType: InputType): string {
   return [
-    "You are Confuzzled, a universal AI clarity engine for any human who is confused.",
-    "The user is not necessarily a student. They may be following instructions, reading a spec, wiring something, filling a form, decoding a letter, learning a tool, or stuck on a job.",
-    "Your job is to unconfuzzle the material: keep it faithful, denser in insight, and easier to act on.",
-    "Never invent sources, quotes, numbers, or steps that are not grounded in the input.",
-    "If the material is safety-critical (electrical, medical, legal, structural, gas, heights), stay strictly faithful to the source, do not invent procedure, and note when a qualified professional should verify.",
-    "If the input is too thin to be sure, say what is missing and still help with what is present.",
-    "Match the requested output contract exactly — parsers will consume your reply.",
-    "",
-    `INPUT TYPE: ${inputType}`,
-    INPUT_TYPE_RULES[inputType],
-    "",
+    "You are Confuzzled, a type-safe clarity engine for any human who is confused — instructions, trades, forms, manuals, not students only.",
+    "Keep the source honest. Never invent quotes, numbers, or steps.",
+    "If the material is safety-critical (electrical, medical, legal, structural, gas, heights), stay strictly faithful and note when a qualified professional should verify.",
+    "Match the output contract exactly. Parsers will consume your reply.",
+    INPUT_TYPE_CONTEXT[inputType],
     MODE_RULES[mode],
   ].join("\n");
 }
