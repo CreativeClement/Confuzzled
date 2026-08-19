@@ -52,6 +52,11 @@ export type Profile = {
 export type Rating = 1 | 2 | 3 | 4 | 5 | null;
 export type Comprehension = "got_it" | "partial" | "still_stuck" | null;
 
+export type FollowUp = {
+  step: number;
+  content: string;
+};
+
 export type HistoryItem = {
   id: string;
   createdAt: string;
@@ -65,7 +70,16 @@ export type HistoryItem = {
   rating: Rating;
   comprehension: Comprehension;
   pinned: boolean;
+  checkedSteps: number[];
+  followUps: FollowUp[];
 };
+
+export type HistoryPatch = Partial<
+  Pick<
+    HistoryItem,
+    "rating" | "comprehension" | "pinned" | "title" | "result" | "mode" | "checkedSteps" | "followUps"
+  >
+>;
 
 export type KeyValueStore = {
   getItem(key: string): string | null;
@@ -136,6 +150,8 @@ const historyItemSchema = z.object({
   rating: ratingSchema,
   comprehension: comprehensionSchema,
   pinned: z.boolean(),
+  checkedSteps: z.array(z.number()).default([]),
+  followUps: z.array(z.object({ step: z.number(), content: z.string() })).default([]),
 });
 
 let injectedStore: KeyValueStore | null = null;
@@ -320,6 +336,8 @@ export function addHistoryItem(input: NewHistoryInput): HistoryItem {
     rating: null,
     comprehension: null,
     pinned: false,
+    checkedSteps: [],
+    followUps: [],
   };
   const next = [item, ...readHistory()].slice(0, MAX_HISTORY_ITEMS);
   writeJson(HISTORY_STORAGE_KEY, next);
@@ -327,10 +345,7 @@ export function addHistoryItem(input: NewHistoryInput): HistoryItem {
   return item;
 }
 
-export function updateHistoryItem(
-  id: string,
-  patch: Partial<Pick<HistoryItem, "rating" | "comprehension" | "pinned" | "title">>,
-): HistoryItem | null {
+export function updateHistoryItem(id: string, patch: HistoryPatch): HistoryItem | null {
   const items = readHistory();
   const index = items.findIndex((item) => item.id === id);
   if (index < 0) {

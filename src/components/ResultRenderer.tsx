@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
-import { BookOpen, Copy, HelpCircle, Lightbulb, ListOrdered, Quote, Sparkles } from "lucide-react";
+import { BookOpen, Check, Copy, HelpCircle, Lightbulb, Quote, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -23,12 +23,18 @@ import {
   isTextOutput,
   type FormattedOutput,
 } from "@/lib/output-formatter";
+import type { FollowUp } from "@/lib/workspace";
 import { cn } from "@/lib/utils";
 
 type ResultRendererProps = {
   data: FormattedOutput | null;
   mode: OutputMode | string;
   isLoading?: boolean;
+  checkedSteps?: number[];
+  followUps?: FollowUp[];
+  stuckStep?: number | null;
+  onToggleStep?: (step: number) => void;
+  onStuck?: (step: number, text: string) => void;
 };
 
 function splitFeynman(content: string): { analogy: string; explanation: string } {
@@ -230,7 +236,16 @@ function RawFallback({ text }: { text: string }) {
   );
 }
 
-export function ResultRenderer({ data, mode, isLoading = false }: ResultRendererProps) {
+export function ResultRenderer({
+  data,
+  mode,
+  isLoading = false,
+  checkedSteps = [],
+  followUps = [],
+  stuckStep = null,
+  onToggleStep,
+  onStuck,
+}: ResultRendererProps) {
   if (isLoading) {
     return <LoadingSkeleton mode={mode} />;
   }
@@ -260,23 +275,66 @@ export function ResultRenderer({ data, mode, isLoading = false }: ResultRenderer
     }
     return (
       <ol className="space-y-3">
-        {data.map((item) => (
-          <li key={`${item.step}-${item.text}`}>
-            <Card className="transition-colors hover:border-primary/40">
-              <CardContent className="flex gap-4 p-5">
-                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-sm font-bold text-primary-foreground">
-                  {item.step}
-                </span>
-                <div className="space-y-1">
-                  <p className="flex items-center gap-2 font-semibold leading-snug">
-                    <ListOrdered className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
-                    {item.text}
-                  </p>
+        {data.map((item) => {
+          const checked = checkedSteps.includes(item.step);
+          const followUp = followUps.find((entry) => entry.step === item.step);
+          const waiting = stuckStep === item.step;
+          return (
+            <li key={`${item.step}-${item.text}`}>
+              <article
+                className={cn(
+                  "rounded-2xl border bg-card p-4 transition-colors sm:p-5",
+                  checked && "border-primary/40 bg-primary/5",
+                )}
+              >
+                <div className="flex gap-3 sm:gap-4">
+                  {onToggleStep ? (
+                    <button
+                      type="button"
+                      className={cn(
+                        "flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border text-sm font-bold transition-colors",
+                        checked
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-input bg-background text-foreground",
+                      )}
+                      aria-pressed={checked}
+                      aria-label={checked ? `Step ${item.step} done. Mark not done.` : `Mark step ${item.step} done`}
+                      onClick={() => onToggleStep(item.step)}
+                    >
+                      {checked ? <Check className="h-5 w-5" aria-hidden="true" /> : item.step}
+                    </button>
+                  ) : (
+                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-sm font-bold text-primary-foreground">
+                      {item.step}
+                    </span>
+                  )}
+                  <div className="min-w-0 flex-1 space-y-3">
+                    <p className={cn("font-semibold leading-snug", checked && "text-muted-foreground line-through")}>
+                      {item.text}
+                    </p>
+                    {followUp ? (
+                      <p className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
+                        {followUp.content}
+                      </p>
+                    ) : null}
+                    {onStuck ? (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="px-3"
+                        disabled={waiting}
+                        onClick={() => onStuck(item.step, item.text)}
+                      >
+                        {waiting ? "Untangling this step…" : followUp ? "Still stuck" : "Stuck on this step"}
+                      </Button>
+                    ) : null}
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
-          </li>
-        ))}
+              </article>
+            </li>
+          );
+        })}
       </ol>
     );
   }
@@ -367,9 +425,10 @@ export function ResultRenderer({ data, mode, isLoading = false }: ResultRenderer
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <blockquote className="border-l-4 border-primary pl-4 text-lg font-semibold leading-relaxed">
+          <blockquote className="border-l-4 border-primary pl-5 text-2xl font-semibold leading-snug tracking-tight sm:text-3xl">
             {data.content}
           </blockquote>
+          <p className="mt-4 text-xs text-muted-foreground">From your source. We didn’t add numbers that weren’t there.</p>
         </CardContent>
       </Card>
     );

@@ -9,6 +9,7 @@ import {
   isOutputMode,
   type OutputMode,
 } from "@/lib/input-router";
+import { buildFocusPrompt, recommendOutputMode } from "@/lib/lens";
 import { formatOutput } from "@/lib/output-formatter";
 import { getClientKey, rateLimit } from "@/lib/rate-limit";
 import { AUDIENCE_ROLE_OPTIONS, isAudienceRole } from "@/lib/workspace";
@@ -23,6 +24,12 @@ const clarifySchema = z.object({
   content: z.string().min(1, "Content is required."),
   mode: z.string().optional(),
   role: z.string().optional(),
+  focus: z
+    .object({
+      step: z.number().int().positive(),
+      text: z.string().min(1).max(800),
+    })
+    .optional(),
 });
 
 function corsHeaders(extra?: HeadersInit): Headers {
@@ -108,22 +115,29 @@ export async function POST(request: Request) {
     );
   }
 
-  const modeValue = parsed.data.mode ?? "tl_dr";
-  if (!isOutputMode(modeValue)) {
+  const content = parsed.data.content.trim();
+  const focus = parsed.data.focus;
+  const requestedMode = parsed.data.mode ?? (focus ? "feynman" : "auto");
+  let mode: OutputMode;
+  if (focus) {
+    mode = "feynman";
+  } else if (requestedMode === "auto") {
+    mode = recommendOutputMode(content);
+  } else if (isOutputMode(requestedMode)) {
+    mode = requestedMode;
+  } else {
     return jsonResponse(
       {
         success: false,
-        error: "Mode must be one of: TL;DR, Step-by-Step, Feynman, Socratic, Visual, Flashcards.",
+        error: "Mode must be one of: auto, TL;DR, Step-by-Step, Feynman, Socratic, Visual, Flashcards.",
         data: null,
-        mode: modeValue,
+        mode: requestedMode,
         inputType: null,
       },
       { status: 400, rate },
     );
   }
 
-  const mode: OutputMode = modeValue;
-  const content = parsed.data.content.trim();
   if (!content) {
     return jsonResponse(
       {
@@ -138,14 +152,20 @@ export async function POST(request: Request) {
   }
 
   const truncated = content.length > MAX_INPUT_CHARS;
-  const prompt = truncated ? content.slice(0, MAX_INPUT_CHARS) : content;
-  const inputType = detectInputType(prompt);
+  const promptSource = truncated ? content.slice(0, MAX_INPUT_CHARS) : content;
+  const prompt = focus
+    ? buildFocusPrompt(promptSource, focus.step, focus.text)
+    : promptSource;
+  const inputType = detectInputType(promptSource);
   const role = parsed.data.role && isAudienceRole(parsed.data.role) ? parsed.data.role : null;
   const roleMeta = role ? AUDIENCE_ROLE_OPTIONS.find((option) => option.value === role) : null;
   const system = [
     buildSystemPrompt(mode, inputType),
     roleMeta
       ? `READER: ${roleMeta.label}. ${roleMeta.description} Prefer examples and vocabulary that fit that life. Do not assume they are a student.`
+      : "",
+    focus
+      ? `FOCUS: The reader is stuck on step ${focus.step}. Teach only that step. Do not invent tools, voltages, dosages, or legal outcomes.`
       : "",
     truncated
       ? `The user input was truncated to ${MAX_INPUT_CHARS} characters for token safety. Work only from what remains.`

@@ -30,8 +30,9 @@ export function HelpSheet() {
         </SheetHeader>
         <div className="mt-6 space-y-4 text-sm leading-relaxed">
           <p>
-            Paste instructions, a spec, a wiring note, a form, a recipe, a manual, a messy email, a
-            URL, or a photo of a label. Pick how you want it back.
+            Drop the confusing thing. One button. Confuzzled picks the lens — steps, plain English,
+            questions, a map, or flashcards — and you can switch after. Check steps off. If a step
+            still doesn’t land, tap stuck and we explain only that part from your source.
           </p>
           <ul className="list-disc space-y-2 pl-5">
             <li>

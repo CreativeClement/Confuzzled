@@ -49,6 +49,12 @@ describe("workspace store", () => {
     const found = searchHistory(readHistory(), "radiator");
     expect(found).toHaveLength(1);
     expect(workspaceStats(readHistory()).gotIt).toBe(1);
+    const withChecks = updateHistoryItem(item.id, {
+      checkedSteps: [1],
+      followUps: [{ step: 1, content: "From your source: isolate the circuit first." }],
+    });
+    expect(withChecks?.checkedSteps).toEqual([1]);
+    expect(withChecks?.followUps).toHaveLength(1);
   });
 
   it("caps history at the max and round-trips export files", () => {

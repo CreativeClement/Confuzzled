@@ -7,12 +7,14 @@ import { toast } from "sonner";
 
 import { ResultFeedback, ResultToolbar } from "@/components/ResultFeedback";
 import { ResultRenderer } from "@/components/ResultRenderer";
+import { SafetyStrip } from "@/components/SafetyStrip";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useWorkspace } from "@/components/WorkspaceProvider";
 import { OUTPUT_MODE_OPTIONS } from "@/lib/input-router";
+import { detectSafetyNotice } from "@/lib/safety";
 
 function modeLabel(mode: string): string {
   return OUTPUT_MODE_OPTIONS.find((option) => option.value === mode)?.label ?? mode;
@@ -45,6 +47,8 @@ export default function HistoryDetailPage() {
     );
   }
 
+  const safety = detectSafetyNotice(item.source);
+
   return (
     <main id="main" className="space-y-6">
       <div className="flex flex-wrap items-center gap-3">
@@ -65,6 +69,7 @@ export default function HistoryDetailPage() {
           )}
         </p>
       </div>
+      {safety ? <SafetyStrip notice={safety} /> : null}
       <ResultToolbar
         result={item.result}
         mode={item.mode}
@@ -75,7 +80,19 @@ export default function HistoryDetailPage() {
           toast.success(next ? "Pinned." : "Unpinned.");
         }}
       />
-      <ResultRenderer data={item.result} mode={item.mode} />
+      <ResultRenderer
+        data={item.result}
+        mode={item.mode}
+        checkedSteps={item.checkedSteps}
+        followUps={item.followUps}
+        onToggleStep={(step) => {
+          const current = item.checkedSteps ?? [];
+          const next = current.includes(step)
+            ? current.filter((value) => value !== step)
+            : [...current, step];
+          patchClarification(item.id, { checkedSteps: next });
+        }}
+      />
       <ResultFeedback
         rating={item.rating}
         comprehension={item.comprehension}

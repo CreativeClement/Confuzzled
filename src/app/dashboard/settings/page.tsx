@@ -127,12 +127,12 @@ export default function SettingsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Learning preferences</CardTitle>
-          <CardDescription>Used as the starting mode on the homepage.</CardDescription>
+          <CardTitle className="text-base">Preferred lens</CardTitle>
+          <CardDescription>Used when the source is unclear. Unconfuzzle still picks for you first.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="default-mode">Default output mode</Label>
+            <Label htmlFor="default-mode">When the source is unclear</Label>
             <Select
               value={profile?.defaultMode ?? "tl_dr"}
               onValueChange={(value) => {

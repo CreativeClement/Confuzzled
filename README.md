@@ -25,7 +25,7 @@ Set `OPENAI_API_KEY` in `.env.local`. Optionally set `NEXT_PUBLIC_SITE_URL` for 
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). Paste a paragraph, pick a mode, and click **Generate**.
+Open [http://localhost:3000](http://localhost:3000). Paste the confusing thing and click **Unconfuzzle this**. Confuzzled picks a lens; you can switch after. Use **Try a sample** to walk through checkable steps with no API key.
 
 ## Workspace
 
@@ -40,7 +40,7 @@ npm run lint
 npm run build
 ```
 
-`POST /api/clarify` expects `{ "content": string, "mode": "tl_dr" | "step_by_step" | "feynman" | "socratic" | "visual" | "flashcards", "role"?: string }`. Inputs are truncated at 4,000 characters. Completions cap at 1,000 output tokens.
+`POST /api/clarify` expects `{ "content": string, "mode"?: "auto" | "tl_dr" | "step_by_step" | "feynman" | "socratic" | "visual" | "flashcards", "role"?: string, "focus"?: { "step": number, "text": string } }`. `mode` defaults to `auto`. Inputs are truncated at 4,000 characters. Completions cap at 1,000 output tokens.
 
 ## Lighthouse targets
 

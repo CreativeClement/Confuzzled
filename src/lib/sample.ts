@@ -26,3 +26,14 @@ export const SAMPLE_RESULT: FormattedOutput = [
     text: "If it trips again with nothing plugged in, stop. Call a licensed electrician. Do not bypass the breaker.",
   },
 ];
+
+export const SAMPLE_FOLLOW_UPS: Record<number, string> = {
+  1: "From the note: toaster and kettle were already a problem on that circuit. Unplug them (and any strip) first so you are not resetting into a known overload. The source does not name other appliances — only unplug what you can see on that kitchen circuit.",
+  2: "The note says left bank, third from the top, kitchen small-appliance, label faded. Count from the top of the left column. If that does not match a kitchen circuit you recognize, stop — the source does not give another identifier.",
+  3: "Reset once. Then, with nothing plugged in, see if it holds. If it holds, add appliances one at a time. The source does not say how many times to reset — once is what it allows.",
+  4: "If it trips with nothing plugged in, the note says stop and call a licensed electrician. Do not bypass the breaker. That last line is the whole instruction, not a suggestion.",
+};
+
+export function isSampleSource(source: string): boolean {
+  return source.trim() === SAMPLE_SOURCE.trim();
+}

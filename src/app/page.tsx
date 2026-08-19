@@ -1,99 +1,74 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { AlertCircle, Eraser, Loader2, Sparkles, Upload } from "lucide-react";
+import { useMemo, useRef, useState } from "react";
+import { AlertCircle, Loader2, Sparkles, Upload } from "lucide-react";
 import { toast } from "sonner";
 
+import { LensSwitch } from "@/components/LensSwitch";
 import { ResultFeedback, ResultToolbar } from "@/components/ResultFeedback";
 import { ResultRenderer } from "@/components/ResultRenderer";
+import { SafetyStrip } from "@/components/SafetyStrip";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { useWorkspace } from "@/components/WorkspaceProvider";
+import { requestClarify } from "@/lib/clarify-client";
+import { detectInputType, OUTPUT_MODE_OPTIONS, type OutputMode } from "@/lib/input-router";
+import { recommendOutputMode } from "@/lib/lens";
+import { isTextOutput, type FormattedOutput } from "@/lib/output-formatter";
+import { detectSafetyNotice } from "@/lib/safety";
 import {
-  OUTPUT_MODE_OPTIONS,
-  detectInputType,
-  isOutputMode,
-  type InputType,
-  type OutputMode,
-} from "@/lib/input-router";
-import type { FormattedOutput } from "@/lib/output-formatter";
+  isSampleSource,
+  SAMPLE_FOLLOW_UPS,
+  SAMPLE_INPUT_TYPE,
+  SAMPLE_MODE,
+  SAMPLE_RESULT,
+  SAMPLE_SOURCE,
+} from "@/lib/sample";
 import { readUploadedFile } from "@/lib/uploads";
-import { SAMPLE_INPUT_TYPE, SAMPLE_MODE, SAMPLE_RESULT, SAMPLE_SOURCE } from "@/lib/sample";
+import { cn } from "@/lib/utils";
+import type { FollowUp } from "@/lib/workspace";
 
-type ClarifySuccess = {
-  success: true;
-  data: FormattedOutput;
-  mode: OutputMode;
-  inputType: InputType;
-};
-
-type ClarifyFailure = {
-  success: false;
-  error: string;
-  data: null;
-};
-
-const INPUT_TYPE_LABELS: Record<InputType, string> = {
+const INPUT_TYPE_LABELS = {
   text: "Text",
   pdf: "PDF",
   url: "URL",
   video: "Video",
   audio: "Audio",
   image: "Image",
-};
+} as const;
 
 export default function HomePage() {
-  const { ready, profile, addClarification, patchClarification, history } = useWorkspace();
+  const { profile, addClarification, patchClarification, history } = useWorkspace();
   const [text, setText] = useState("");
-  const [selectedMode, setSelectedMode] = useState<OutputMode>("tl_dr");
-  const [modeTouched, setModeTouched] = useState(false);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<FormattedOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [resultMode, setResultMode] = useState<OutputMode>("tl_dr");
+  const [resultMode, setResultMode] = useState<OutputMode>("step_by_step");
   const [historyId, setHistoryId] = useState<string | null>(null);
   const [fileName, setFileName] = useState("");
   const [progress, setProgress] = useState(0);
+  const [dragging, setDragging] = useState(false);
+  const [stuckStep, setStuckStep] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const resultsHeadingRef = useRef<HTMLHeadingElement>(null);
+  const dropRef = useRef<HTMLDivElement>(null);
 
   const detectedType = useMemo(() => detectInputType(text), [text]);
-  const modeMeta = OUTPUT_MODE_OPTIONS.find((option) => option.value === selectedMode);
+  const recommended = useMemo(
+    () => recommendOutputMode(text, profile?.defaultMode),
+    [profile?.defaultMode, text],
+  );
+  const recommendedMeta = OUTPUT_MODE_OPTIONS.find((option) => option.value === recommended);
   const canGenerate = !loading && text.trim().length > 0;
   const activeItem = history.find((item) => item.id === historyId) ?? null;
+  const safety = useMemo(() => detectSafetyNotice(text), [text]);
+  const checkedSteps = activeItem?.checkedSteps ?? [];
+  const followUps = activeItem?.followUps ?? [];
 
-  useEffect(() => {
-    if (!ready || !profile || modeTouched) {
-      return;
-    }
-    setSelectedMode(profile.defaultMode);
-  }, [modeTouched, profile, ready]);
-
-  useEffect(() => {
-    if (!loading) {
-      return;
-    }
-    setProgress(16);
-    const timer = window.setInterval(() => {
-      setProgress((value) => (value >= 88 ? value : value + 7));
-    }, 350);
-    return () => window.clearInterval(timer);
-  }, [loading]);
-
-  const handleUpload = async (fileList: FileList | null) => {
+  const attachFiles = async (fileList: FileList | null) => {
     const file = fileList?.[0];
     if (!file) {
       return;
@@ -103,250 +78,243 @@ export default function HomePage() {
       setText((current) => (current.trim() ? `${current.trim()}\n\n${nextText}` : nextText));
       setFileName(file.name);
       setError(null);
-      toast.success("File attached. Add any extra notes, then generate.");
+      toast.success("Attached. Add any extra notes, then Unconfuzzle.");
     } catch {
       setError("That file could not be read. Paste the text instead.");
       toast.error("That file could not be read. Paste the text instead.");
     }
   };
 
-  const handleGenerate = async () => {
+  const saveResult = (
+    content: string,
+    data: FormattedOutput,
+    mode: OutputMode,
+    inputType = detectInputType(content),
+    replace = false,
+  ) => {
+    setResult(data);
+    setResultMode(mode);
+    if (replace && historyId) {
+      patchClarification(historyId, {
+        result: data,
+        mode,
+        checkedSteps: [],
+        followUps: [],
+      });
+    } else {
+      const saved = addClarification({
+        source: content,
+        mode,
+        inputType,
+        result: data,
+      });
+      setHistoryId(saved?.id ?? null);
+    }
+    window.requestAnimationFrame(() => {
+      resultsHeadingRef.current?.focus();
+    });
+  };
+
+  const handleUnconfuzzle = async (mode: OutputMode | "auto", replace = false) => {
     const content = text.trim();
     if (!content) {
-      setError("Paste or upload something to unconfuzzle.");
-      toast.error("Paste or upload something to unconfuzzle.");
+      setError("Show Confuzzled the confusing thing.");
+      toast.error("Show Confuzzled the confusing thing.");
       return;
     }
 
     setLoading(true);
     setError(null);
+    setProgress(18);
+    const timer = window.setInterval(() => {
+      setProgress((value) => (value >= 88 ? value : value + 7));
+    }, 350);
 
     try {
-      const response = await fetch("/api/clarify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          content,
-          mode: selectedMode,
-          role: profile?.role,
-        }),
+      const payload = await requestClarify({
+        content,
+        mode,
+        role: profile?.role,
       });
 
-      const payload = (await response.json()) as ClarifySuccess | ClarifyFailure;
-
       if (!payload.success) {
-        setResult(null);
-        setHistoryId(null);
+        if (!replace) {
+          setResult(null);
+          setHistoryId(null);
+        }
         setError(payload.error || "Something went sideways. Try again.");
         toast.error(payload.error || "Something went sideways. Try again.");
         return;
       }
 
       setProgress(100);
-      setResult(payload.data);
-      setResultMode(payload.mode);
-      const saved = addClarification({
-        source: content,
-        mode: payload.mode,
-        inputType: payload.inputType,
-        result: payload.data,
-      });
-      setHistoryId(saved?.id ?? null);
-      toast.success("Here’s the clear version. Saved to your dashboard.");
-      window.requestAnimationFrame(() => {
-        resultsHeadingRef.current?.focus();
-      });
+      saveResult(content, payload.data, payload.mode, payload.inputType, replace);
+      toast.success(replace ? "Same source. New lens." : "Here’s the clear version.");
     } catch {
       setError("Network error. Check your connection and try again.");
       toast.error("Network error. Check your connection and try again.");
     } finally {
+      window.clearInterval(timer);
       setLoading(false);
     }
   };
 
+  const handleStuck = async (step: number, stepText: string) => {
+    const content = text.trim();
+    if (!historyId) {
+      return;
+    }
+    const canned = isSampleSource(content) ? SAMPLE_FOLLOW_UPS[step] : undefined;
+    if (canned) {
+      const next: FollowUp[] = [...followUps.filter((item) => item.step !== step), { step, content: canned }];
+      patchClarification(historyId, { followUps: next });
+      toast.success("From your source — just that step.");
+      return;
+    }
+
+    setStuckStep(step);
+    try {
+      const payload = await requestClarify({
+        content,
+        mode: "feynman",
+        role: profile?.role,
+        focus: { step, text: stepText },
+      });
+      if (!payload.success || !payload.data || !isTextOutput(payload.data)) {
+        toast.error(payload.success === false ? payload.error : "Could not unstick that step.");
+        return;
+      }
+      const next: FollowUp[] = [
+        ...followUps.filter((item) => item.step !== step),
+        { step, content: payload.data.content },
+      ];
+      patchClarification(historyId, { followUps: next });
+      toast.success("From your source — just that step.");
+    } catch {
+      toast.error("Network error. Try that step again.");
+    } finally {
+      setStuckStep(null);
+    }
+  };
+
+  const loadSample = () => {
+    setText(SAMPLE_SOURCE);
+    setFileName("");
+    setError(null);
+    setProgress(100);
+    setHistoryId(null);
+    setResult(SAMPLE_RESULT);
+    setResultMode(SAMPLE_MODE);
+    const saved = addClarification({
+      source: SAMPLE_SOURCE,
+      mode: SAMPLE_MODE,
+      inputType: SAMPLE_INPUT_TYPE,
+      result: SAMPLE_RESULT,
+    });
+    setHistoryId(saved?.id ?? null);
+    toast.success("Sample loaded. Check steps off, or tap stuck.");
+    window.requestAnimationFrame(() => {
+      resultsHeadingRef.current?.focus();
+    });
+  };
+
   return (
-    <main id="main" className="container py-10 sm:py-14">
-      <section aria-labelledby="hero-heading" className="mx-auto max-w-3xl text-center">
-        <Badge variant="accent" className="mb-4">
-          For every confused human
-        </Badge>
+    <main id="main" className="container py-10 sm:py-16">
+      <section aria-labelledby="hero-heading" className="mx-auto max-w-2xl text-center">
         <h1
           id="hero-heading"
-          className="text-balance text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl"
+          className="text-balance text-4xl font-semibold tracking-tight sm:text-6xl"
         >
-          Stuck on something? Unconfuzzle it.
+          Show it the confusing thing.
         </h1>
-        <p className="mx-auto mt-4 max-w-2xl text-pretty text-base text-muted-foreground sm:text-lg">
-          Not a study app. A clarity engine for real life — assembly instructions, a wiring note, an
-          insurance letter, a recipe, a 40-page manual, a message you still don’t get. Paste the
-          thing that’s confusing you. Get it back in a form you can actually follow.
+        <p className="mx-auto mt-4 max-w-xl text-pretty text-base text-muted-foreground sm:text-lg">
+          Get back a version you can follow. We don’t invent safety-critical steps.
         </p>
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <Button asChild size="lg">
-            <a href="#workspace">Unconfuzzle this</a>
-          </Button>
-          <Button asChild size="lg" variant="outline">
-            <a href="/dashboard">Open dashboard</a>
-          </Button>
-        </div>
       </section>
 
-      <section id="workspace" aria-labelledby="workspace-heading" className="mx-auto mt-12 max-w-3xl">
-        <Card>
-          <CardHeader className="gap-2">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 id="workspace-heading" className="text-xl font-semibold leading-none tracking-tight">
-                Drop whatever’s confusing you
-              </h2>
-              <Badge variant="outline">{INPUT_TYPE_LABELS[detectedType]} detected</Badge>
-            </div>
-            <CardDescription>
-              Instructions, a spec, an email, a photo of a label, a video, a PDF — paste it or upload
-              it. Each generate is saved on this device.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-2">
-              <label htmlFor="source-input" className="text-sm font-medium">
-                Source
-              </label>
-              <Textarea
-                id="source-input"
-                value={text}
-                onChange={(event) => setText(event.target.value)}
-                placeholder="Paste text, spec, lecture notes, or any content..."
-                aria-describedby="source-hint"
-              />
-              <p id="source-hint" className="text-xs text-muted-foreground">
-                Inputs longer than 4,000 characters are truncated before they reach the model.
+      <section id="workspace" aria-labelledby="workspace-heading" className="mx-auto mt-10 max-w-2xl">
+        <h2 id="workspace-heading" className="sr-only">
+          Unconfuzzle
+        </h2>
+        <div
+          ref={dropRef}
+          onDragEnter={(event) => {
+            event.preventDefault();
+            setDragging(true);
+          }}
+          onDragOver={(event) => {
+            event.preventDefault();
+            setDragging(true);
+          }}
+          onDragLeave={(event) => {
+            if (!dropRef.current?.contains(event.relatedTarget as Node)) {
+              setDragging(false);
+            }
+          }}
+          onDrop={(event) => {
+            event.preventDefault();
+            setDragging(false);
+            void attachFiles(event.dataTransfer.files);
+          }}
+          className={cn(
+            "rounded-[1.75rem] border bg-card/80 p-4 shadow-sm transition-colors sm:p-6",
+            dragging && "border-primary bg-primary/5",
+          )}
+        >
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <p className="text-sm text-muted-foreground">Paste, drop, or upload.</p>
+            <Badge variant="outline">{INPUT_TYPE_LABELS[detectedType]}</Badge>
+          </div>
+          <Textarea
+            id="source-input"
+            value={text}
+            onChange={(event) => setText(event.target.value)}
+            placeholder="A wiring note. A letter you don’t get. Assembly steps. Whatever has you stuck."
+            aria-describedby="source-hint"
+            className="min-h-[200px] border-0 bg-transparent p-1 shadow-none focus-visible:ring-0 md:text-base"
+          />
+          <p id="source-hint" className="sr-only">
+            Inputs longer than 4,000 characters are truncated.
+          </p>
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <input
+              ref={fileInputRef}
+              type="file"
+              className="sr-only"
+              aria-label="Upload a file"
+              onChange={(event) => {
+                void attachFiles(event.target.files);
+                event.target.value = "";
+              }}
+            />
+            <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()} disabled={loading}>
+              <Upload aria-hidden="true" />
+              {fileName || "Upload"}
+            </Button>
+            {text.trim() ? (
+              <p className="text-xs text-muted-foreground">
+                {recommendedMeta ? `${recommendedMeta.label} — you can switch after.` : null}
               </p>
-            </div>
+            ) : null}
+          </div>
+        </div>
 
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <input
-                ref={fileInputRef}
-                type="file"
-                className="sr-only"
-                aria-label="Upload a file"
-                onChange={(event) => {
-                  void handleUpload(event.target.files);
-                  event.target.value = "";
-                }}
-              />
-              <Button
-                type="button"
-                variant="outline"
-                className="sm:w-auto"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <Upload aria-hidden="true" />
-                Upload file
-              </Button>
-              {fileName ? (
-                <Input readOnly value={fileName} aria-label="Attached file name" className="sm:max-w-xs" />
-              ) : null}
-              <div className="min-w-0 flex-1 space-y-2">
-                <label htmlFor="mode-select" className="sr-only">
-                  Output mode
-                </label>
-                <Select
-                  value={selectedMode}
-                  onValueChange={(value) => {
-                    if (isOutputMode(value)) {
-                      setModeTouched(true);
-                      setSelectedMode(value);
-                    }
-                  }}
-                >
-                  <SelectTrigger id="mode-select" aria-label="Choose an output mode">
-                    <SelectValue placeholder="Choose a mode" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {OUTPUT_MODE_OPTIONS.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        <span className="font-medium">{option.label}</span>
-                        <span className="ml-2 text-muted-foreground">— {option.description}</span>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {modeMeta ? <p className="text-xs text-muted-foreground">{modeMeta.description}</p> : null}
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <Button
-                type="button"
-                onClick={() => void handleGenerate()}
-                disabled={!canGenerate}
-                aria-busy={loading}
-              >
-                {loading ? <Loader2 className="animate-spin" aria-hidden="true" /> : <Sparkles aria-hidden="true" />}
-                {loading ? "Untangling…" : "Generate"}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                disabled={loading}
-                onClick={() => {
-                  setText(SAMPLE_SOURCE);
-                  setSelectedMode(SAMPLE_MODE);
-                  setModeTouched(true);
-                  setFileName("");
-                  setError(null);
-                  setProgress(100);
-                  setResult(SAMPLE_RESULT);
-                  setResultMode(SAMPLE_MODE);
-                  const saved = addClarification({
-                    source: SAMPLE_SOURCE,
-                    mode: SAMPLE_MODE,
-                    inputType: SAMPLE_INPUT_TYPE,
-                    result: SAMPLE_RESULT,
-                  });
-                  setHistoryId(saved?.id ?? null);
-                  toast.success("Sample loaded — no API key needed. Saved to your dashboard.");
-                  window.requestAnimationFrame(() => {
-                    resultsHeadingRef.current?.focus();
-                  });
-                }}
-              >
-                Try a sample
-              </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => {
-                  setError(null);
-                  setResult(null);
-                  setHistoryId(null);
-                  setProgress(0);
-                }}
-                disabled={loading}
-              >
-                Clear result
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => {
-                  setText("");
-                  setSelectedMode(profile?.defaultMode ?? "tl_dr");
-                  setModeTouched(false);
-                  setError(null);
-                  setResult(null);
-                  setHistoryId(null);
-                  setFileName("");
-                  setProgress(0);
-                  setLoading(false);
-                }}
-                disabled={loading}
-              >
-                <Eraser aria-hidden="true" />
-                Reset
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+          <Button
+            type="button"
+            size="lg"
+            className="sm:flex-1"
+            onClick={() => void handleUnconfuzzle("auto")}
+            disabled={!canGenerate}
+            aria-busy={loading}
+          >
+            {loading ? <Loader2 className="animate-spin" aria-hidden="true" /> : <Sparkles aria-hidden="true" />}
+            {loading ? "Untangling…" : "Unconfuzzle this"}
+          </Button>
+          <Button type="button" size="lg" variant="ghost" disabled={loading} onClick={loadSample}>
+            Try a sample
+          </Button>
+        </div>
 
         {error ? (
           <Alert variant="destructive" className="mt-6" aria-live="assertive">
@@ -356,23 +324,29 @@ export default function HomePage() {
           </Alert>
         ) : null}
 
-        <div className="mt-8 space-y-4" aria-live="polite">
+        <div className="mt-10 space-y-5" aria-live="polite">
           {(loading || result) && (
             <>
-              <Separator />
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Result</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">The clear version</p>
                 <h2
                   ref={resultsHeadingRef}
                   tabIndex={-1}
-                  className="text-2xl font-semibold tracking-tight focus:outline-none"
+                  className="text-3xl font-semibold tracking-tight focus:outline-none"
                 >
-                  {loading ? "Working through it" : "Here’s the clear version"}
+                  {loading ? "Working through it" : "Here."}
                 </h2>
               </div>
-              {loading ? <Progress value={progress} className="h-3" aria-label="Clarifying your source" /> : null}
+              {loading ? <Progress value={progress} className="h-2" aria-label="Clarifying your source" /> : null}
               {result && !loading ? (
-                <div className="space-y-4">
+                <div className="space-y-5">
+                  {safety ? <SafetyStrip notice={safety} /> : null}
+                  <LensSwitch
+                    value={resultMode}
+                    recommended={recommended}
+                    disabled={loading}
+                    onChange={(mode) => void handleUnconfuzzle(mode, true)}
+                  />
                   <ResultToolbar
                     result={result}
                     mode={resultMode}
@@ -382,23 +356,40 @@ export default function HomePage() {
                         ? () => {
                             const next = !(activeItem?.pinned ?? false);
                             patchClarification(historyId, { pinned: next });
-                            toast.success(next ? "Pinned to your dashboard." : "Unpinned.");
+                            toast.success(next ? "Pinned." : "Unpinned.");
                           }
                         : undefined
                     }
                   />
-                  <ResultRenderer data={result} mode={resultMode} />
+                  <ResultRenderer
+                    data={result}
+                    mode={resultMode}
+                    checkedSteps={checkedSteps}
+                    followUps={followUps}
+                    stuckStep={stuckStep}
+                    onToggleStep={
+                      historyId
+                        ? (step) => {
+                            const next = checkedSteps.includes(step)
+                              ? checkedSteps.filter((value) => value !== step)
+                              : [...checkedSteps, step];
+                            patchClarification(historyId, { checkedSteps: next });
+                          }
+                        : undefined
+                    }
+                    onStuck={historyId ? handleStuck : undefined}
+                  />
                   {historyId ? (
                     <ResultFeedback
                       rating={activeItem?.rating ?? null}
                       comprehension={activeItem?.comprehension ?? null}
                       onRate={(value) => {
                         patchClarification(historyId, { rating: value });
-                        toast.success("Rating saved.");
+                        toast.success("Saved.");
                       }}
                       onComprehension={(value) => {
                         patchClarification(historyId, { comprehension: value });
-                        toast.success("Got it — saved to this clarification.");
+                        toast.success("Saved.");
                       }}
                     />
                   ) : null}

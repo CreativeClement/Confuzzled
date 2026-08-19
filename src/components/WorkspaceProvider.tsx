@@ -22,6 +22,7 @@ import {
   updateHistoryItem,
   WORKSPACE_EVENT,
   type HistoryItem,
+  type HistoryPatch,
   type NewHistoryInput,
   type Profile,
   type WorkspaceExport,
@@ -34,10 +35,7 @@ type WorkspaceContextValue = {
   refresh: () => void;
   updateProfile: (patch: Parameters<typeof saveProfile>[0]) => Profile | null;
   addClarification: (input: NewHistoryInput) => HistoryItem | null;
-  patchClarification: (
-    id: string,
-    patch: Partial<Pick<HistoryItem, "rating" | "comprehension" | "pinned" | "title">>,
-  ) => HistoryItem | null;
+  patchClarification: (id: string, patch: HistoryPatch) => HistoryItem | null;
   removeClarification: (id: string) => boolean;
   resetWorkspace: () => void;
   exportData: () => WorkspaceExport | null;
