@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "ci": "npm test && npm run typecheck && npm run lint && npm run build"
   },
   "dependencies": {
     "@ai-sdk/openai": "^1.3.24",
