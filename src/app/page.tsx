@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import { AlertCircle, Loader2, Sparkles, Upload } from "lucide-react";
+import { AlertCircle, Camera, Loader2, Sparkles, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 import { LensSwitch } from "@/components/LensSwitch";
@@ -53,6 +53,7 @@ export default function HomePage() {
   const [dragging, setDragging] = useState(false);
   const [stuckStep, setStuckStep] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
   const resultsHeadingRef = useRef<HTMLHeadingElement>(null);
   const dropRef = useRef<HTMLDivElement>(null);
 
@@ -149,7 +150,13 @@ export default function HomePage() {
 
       setProgress(100);
       saveResult(content, payload.data, payload.mode, payload.inputType, replace);
-      toast.success(replace ? "Same source. New lens." : "Here’s the clear version.");
+      if (payload.warning) {
+        toast.message(payload.warning);
+      } else if (payload.fetched) {
+        toast.success("Pulled the page. Here’s the clear version.");
+      } else {
+        toast.success(replace ? "Same source. New lens." : "Here’s the clear version.");
+      }
     } catch {
       setError("Network error. Check your connection and try again.");
       toast.error("Network error. Check your connection and try again.");
@@ -272,6 +279,14 @@ export default function HomePage() {
             placeholder="A wiring note. A letter you don’t get. Assembly steps. Whatever has you stuck."
             aria-describedby="source-hint"
             className="min-h-[200px] border-0 bg-transparent p-1 shadow-none focus-visible:ring-0 md:text-base"
+            onKeyDown={(event) => {
+              if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+                event.preventDefault();
+                if (canGenerate) {
+                  void handleUnconfuzzle("auto");
+                }
+              }
+            }}
           />
           <p id="source-hint" className="sr-only">
             Inputs longer than 4,000 characters are truncated.
@@ -291,6 +306,23 @@ export default function HomePage() {
               <Upload aria-hidden="true" />
               {fileName || "Upload"}
             </Button>
+            <input
+              ref={photoInputRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              className="sr-only"
+              aria-label="Take a photo of the confusing thing"
+              onChange={(event) => {
+                void attachFiles(event.target.files);
+                event.target.value = "";
+              }}
+            />
+            <Button type="button" variant="outline" onClick={() => photoInputRef.current?.click()} disabled={loading}>
+              <Camera aria-hidden="true" />
+              Photo
+            </Button>
+            <p className="text-xs text-muted-foreground">⌘↵ or Ctrl+Enter</p>
             {text.trim() ? (
               <p className="text-xs text-muted-foreground">
                 {recommendedMeta ? `${recommendedMeta.label} — you can switch after.` : null}
@@ -307,6 +339,7 @@ export default function HomePage() {
             onClick={() => void handleUnconfuzzle("auto")}
             disabled={!canGenerate}
             aria-busy={loading}
+            aria-keyshortcuts="Control+Enter Meta+Enter"
           >
             {loading ? <Loader2 className="animate-spin" aria-hidden="true" /> : <Sparkles aria-hidden="true" />}
             {loading ? "Untangling…" : "Unconfuzzle this"}

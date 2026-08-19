@@ -6,6 +6,9 @@ export type ClarifySuccess = {
   data: FormattedOutput;
   mode: OutputMode;
   inputType: InputType;
+  truncated?: boolean;
+  fetched?: boolean;
+  warning?: string | null;
 };
 
 export type ClarifyFailure = {

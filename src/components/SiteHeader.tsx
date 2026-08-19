@@ -16,7 +16,7 @@ export function SiteHeader() {
   const onDashboard = pathname.startsWith("/dashboard");
 
   return (
-    <header className="border-b border-border/70 bg-background/80 backdrop-blur-md">
+    <header className="border-b border-border/70 bg-background/80 backdrop-blur-md print:hidden">
       <div className="container flex min-h-16 items-center justify-between gap-3 py-3">
         <Link href="/" className="flex min-h-12 items-center gap-2 font-semibold tracking-tight">
           <span

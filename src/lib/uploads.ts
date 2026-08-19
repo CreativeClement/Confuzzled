@@ -1,3 +1,14 @@
+export async function extractPdfUpload(file: File): Promise<string> {
+  const body = new FormData();
+  body.append("file", file);
+  const response = await fetch("/api/extract", { method: "POST", body });
+  const payload = (await response.json()) as { success: boolean; text?: string | null; error?: string };
+  if (!payload.success || !payload.text) {
+    throw new Error(payload.error || "Could not read that PDF.");
+  }
+  return payload.text;
+}
+
 export function markerForFile(file: File): string | null {
   const name = file.name.toLowerCase();
   if (file.type === "application/pdf" || name.endsWith(".pdf")) {
@@ -15,12 +26,22 @@ export function markerForFile(file: File): string | null {
   return null;
 }
 
-export function readUploadedFile(file: File): Promise<string> {
+export async function readUploadedFile(file: File): Promise<string> {
+  const name = file.name.toLowerCase();
+  if (file.type === "application/pdf" || name.endsWith(".pdf")) {
+    try {
+      return await extractPdfUpload(file);
+    } catch {
+      return `[[input:pdf]]\nUploaded file: ${file.name}. No selectable text could be extracted. Paste the pages you need.`;
+    }
+  }
+
   const marker = markerForFile(file);
+  if (marker === "[[input:image]]") {
+    return `${marker}\nPhoto: ${file.name}. Type the words you can read on it below this line — we cannot see the pixels yet.`;
+  }
   if (marker) {
-    return Promise.resolve(
-      `${marker}\nUploaded file: ${file.name} (${file.type || "unknown"}, ${file.size} bytes).\nClarify from the filename and any additional pasted context.`,
-    );
+    return `${marker}\nUploaded file: ${file.name} (${file.type || "unknown"}, ${file.size} bytes).\nAdd a transcript or notes. Do not invent what is not here.`;
   }
 
   return new Promise((resolve, reject) => {

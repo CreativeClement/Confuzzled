@@ -112,3 +112,14 @@
   outline: 2px solid hsl(var(--ring));
   outline-offset: 2px;
 }
+
+@media print {
+  .mesh-bg {
+    background: none !important;
+  }
+
+  body {
+    background: #fff;
+    color: #111;
+  }
+}

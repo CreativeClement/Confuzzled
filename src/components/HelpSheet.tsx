@@ -34,6 +34,11 @@ export function HelpSheet() {
             questions, a map, or flashcards — and you can switch after. Check steps off. If a step
             still doesn’t land, tap stuck and we explain only that part from your source.
           </p>
+          <p>
+            Paste a URL and we’ll try to fetch the public page. Upload a PDF and we’ll extract
+            selectable text. A photo still needs the words you can read typed in — we won’t invent
+            what we can’t see.
+          </p>
           <ul className="list-disc space-y-2 pl-5">
             <li>
               <strong>TL;DR</strong> — what this actually means

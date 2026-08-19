@@ -1,6 +1,6 @@
 "use client";
 
-import { Bookmark, BookmarkCheck, Copy, ThumbsDown, ThumbsUp } from "lucide-react";
+import { Bookmark, BookmarkCheck, Copy, Printer, Share2, ThumbsDown, ThumbsUp } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -40,11 +40,40 @@ export function ResultToolbar({
     }
   };
 
+  const shareText = async () => {
+    const text = formattedOutputToPlainText(result, mode);
+    if (!text.trim()) {
+      toast.error("Nothing to share yet.");
+      return;
+    }
+    try {
+      if (typeof navigator.share === "function") {
+        await navigator.share({ title: "Confuzzled", text });
+        return;
+      }
+      await navigator.clipboard.writeText(text);
+      toast.success("Copied — paste it wherever you need it.");
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") {
+        return;
+      }
+      toast.error("Could not share. Copy instead.");
+    }
+  };
+
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap gap-2 print:hidden">
       <Button type="button" variant="outline" onClick={() => void copyText()}>
         <Copy aria-hidden="true" />
         Copy result
+      </Button>
+      <Button type="button" variant="outline" onClick={() => void shareText()}>
+        <Share2 aria-hidden="true" />
+        Share
+      </Button>
+      <Button type="button" variant="outline" onClick={() => window.print()}>
+        <Printer aria-hidden="true" />
+        Print
       </Button>
       {onPin ? (
         <Button type="button" variant={pinned ? "secondary" : "outline"} onClick={onPin} aria-pressed={pinned}>
@@ -68,7 +97,7 @@ export function ResultFeedback({
   onComprehension: (value: Comprehension) => void;
 }) {
   return (
-    <section aria-label="Was this useful?" className="space-y-4 rounded-2xl border bg-card p-5">
+    <section aria-label="Was this useful?" className="space-y-4 rounded-2xl border bg-card p-5 print:hidden">
       <div>
         <p className="text-sm font-medium">Did this unstick you?</p>
         <div className="mt-2 flex flex-wrap gap-2">

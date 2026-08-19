@@ -14,6 +14,7 @@ import { formatOutput } from "@/lib/output-formatter";
 import { getClientKey, rateLimit } from "@/lib/rate-limit";
 import { AUDIENCE_ROLE_OPTIONS, isAudienceRole } from "@/lib/workspace";
 import { clarifyProviderError } from "@/lib/clarify-errors";
+import { enrichWithFetchedUrl } from "@/lib/fetch-public";
 
 export const runtime = "nodejs";
 
@@ -153,10 +154,19 @@ export async function POST(request: Request) {
 
   const truncated = content.length > MAX_INPUT_CHARS;
   const promptSource = truncated ? content.slice(0, MAX_INPUT_CHARS) : content;
-  const prompt = focus
-    ? buildFocusPrompt(promptSource, focus.step, focus.text)
-    : promptSource;
   const inputType = detectInputType(promptSource);
+  let workingSource = promptSource;
+  let fetched = false;
+  let fetchWarning: string | null = null;
+  if (inputType === "url" && !focus) {
+    const enriched = await enrichWithFetchedUrl(promptSource);
+    workingSource = enriched.prompt.slice(0, MAX_INPUT_CHARS + 3_200);
+    fetched = enriched.fetched;
+    fetchWarning = enriched.warning;
+  }
+  const prompt = focus
+    ? buildFocusPrompt(workingSource, focus.step, focus.text)
+    : workingSource;
   const role = parsed.data.role && isAudienceRole(parsed.data.role) ? parsed.data.role : null;
   const roleMeta = role ? AUDIENCE_ROLE_OPTIONS.find((option) => option.value === role) : null;
   const system = [
@@ -167,6 +177,10 @@ export async function POST(request: Request) {
     focus
       ? `FOCUS: The reader is stuck on step ${focus.step}. Teach only that step. Do not invent tools, voltages, dosages, or legal outcomes.`
       : "",
+    fetched
+      ? "A public page was fetched and appended as an extract. Stay faithful to that extract plus the user's notes."
+      : "",
+    fetchWarning ? `FETCH NOTE: ${fetchWarning}` : "",
     truncated
       ? `The user input was truncated to ${MAX_INPUT_CHARS} characters for token safety. Work only from what remains.`
       : "",
@@ -205,6 +219,8 @@ export async function POST(request: Request) {
         mode,
         inputType,
         truncated,
+        fetched,
+        warning: fetchWarning,
       },
       { status: 200, rate },
     );

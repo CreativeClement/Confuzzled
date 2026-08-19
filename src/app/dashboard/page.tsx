@@ -28,8 +28,8 @@ export default function DashboardPage() {
           {ready ? `Hi, ${profile?.displayName || "Guest"}` : "Your workspace"}
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          Clarifications stay in this browser. Pin the keepers, rate what helped, and set a default
-          mode in Settings so the next paste starts closer to how you think.
+          Clarifications stay in this browser. Pin the keepers, rate what helped, and set a preferred
+          lens in Settings for when the source is unclear.
         </p>
       </div>
 
@@ -116,7 +116,7 @@ export default function DashboardPage() {
         {ready && recent.length === 0 ? (
           <Card>
             <CardContent className="p-6 text-sm text-muted-foreground">
-              Nothing saved yet. Generate a clarification, or tap <strong>Try a sample</strong> on the homepage
+              Nothing saved yet. Unconfuzzle something, or tap <strong>Try a sample</strong> on the homepage
               (no API key needed).
             </CardContent>
           </Card>

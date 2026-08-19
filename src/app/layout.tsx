@@ -91,7 +91,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <div className="flex min-h-dvh flex-col">
             <SiteHeader />
             <div className="flex-1">{children}</div>
-            <footer className="border-t border-border/70 py-8 text-center text-sm text-muted-foreground">
+            <footer className="border-t border-border/70 py-8 text-center text-sm text-muted-foreground print:hidden">
               <p>
                 For anyone stuck on instructions, a job, or a wall of text. We keep the source honest —
                 no invented quotes, numbers, or steps.
