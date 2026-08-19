@@ -19,14 +19,15 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Confuzzled — Universal AI Clarity Engine",
+    default: "Confuzzled",
     template: "%s · Confuzzled",
   },
   description:
-    "Unconfuzzle anything. For every human who’s stuck — instructions, manuals, wiring notes, forms, emails, videos. Get a TL;DR, step-by-step, plain-English explanation, visual map, or flashcards.",
+    "Show Confuzzled the confusing thing. Get back a version you can follow, that does not invent safety-critical steps.",
   applicationName: "Confuzzled",
   keywords: [
-    "AI clarity engine",
+    "Confuzzled",
+    "Unconfuzzle",
     "explain confusing instructions",
     "step-by-step AI",
     "jargon translator",
@@ -34,9 +35,9 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Confuzzled" }],
   openGraph: {
-    title: "Confuzzled — Universal AI Clarity Engine",
+    title: "Confuzzled",
     description:
-      "Stuck on instructions, a job, or a wall of text? Paste it. Get a version you can actually follow.",
+      "Show Confuzzled the confusing thing. Get back a version you can follow, that does not invent safety-critical steps.",
     type: "website",
     locale: "en_US",
     url: siteUrl,
@@ -44,9 +45,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: "Confuzzled — Universal AI Clarity Engine",
+    title: "Confuzzled",
     description:
-      "A universal AI clarity engine for anyone who’s confused — from manuals to job-site notes.",
+      "Show Confuzzled the confusing thing. Get back a version you can follow, that does not invent safety-critical steps.",
   },
   robots: {
     index: true,
@@ -83,7 +84,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body
         className={`${inter.className} min-h-dvh antialiased mesh-bg`}
-        aria-label="Confuzzled, a clarity engine for anyone who is confused"
+        aria-label="Confuzzled"
       >
         <a href="#main" className="skip-link">
           Skip to content
