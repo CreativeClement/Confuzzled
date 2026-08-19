@@ -44,13 +44,17 @@ npm run lint
 npm run build
 ```
 
+CI runs the same checks on every pull request.
+
 `POST /api/clarify` expects `{ "content": string, "mode"?: "auto" | "tl_dr" | "step_by_step" | "feynman" | "socratic" | "visual" | "flashcards", "role"?: string, "focus"?: { "step": number, "text": string }, "image"?: { "mime": "image/jpeg" | "image/png" | "image/webp" | "image/gif", "data": "<base64>" } }`. `mode` defaults to `auto`. Public `http(s)` URLs are fetched with SSRF guards. Photos use vision. Structured replies that fail to parse are retried once. Responses may include `citations` (phrases that appear in both source and result), `fetched`, and `seen`. `POST /api/extract` accepts a PDF file and returns selectable text. `GET /api/health` reports whether OpenAI is configured (not whether it has quota). Inputs are truncated at 4,000 characters. Completions cap at 1,000 output tokens.
 
-## Lighthouse targets
+## Lighthouse (measured)
 
-| Category        | Target |
-|-----------------|--------|
-| Performance     | 90+    |
-| Accessibility   | 100    |
-| Best Practices  | 100    |
-| SEO             | 100    |
+Production build, homepage, headless Chrome on this machine:
+
+| Category        | Score |
+|-----------------|-------|
+| Performance     | 98    |
+| Accessibility   | 100   |
+| Best Practices  | 100   |
+| SEO             | 100   |
