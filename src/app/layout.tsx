@@ -1,17 +1,18 @@
 import type { Metadata, Viewport } from "next";
-import Link from "next/link";
-import { Inter } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 
+import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Toaster } from "@/components/ui/sonner";
 import { WorkspaceProvider } from "@/components/WorkspaceProvider";
 
 import "./globals.css";
 
-const inter = Inter({
+const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-inter",
+  variable: "--font-sans",
+  weight: ["500", "600", "700", "800"],
 });
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
@@ -47,7 +48,7 @@ export const metadata: Metadata = {
     siteName: "Confuzzled",
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Confuzzled",
     description:
       "Show Confuzzled the confusing thing. Get back a version you can follow, that does not invent safety-critical steps.",
@@ -59,14 +60,14 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     title: "Confuzzled",
-    statusBarStyle: "default",
+    statusBarStyle: "black-translucent",
   },
 };
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#faf7f2" },
-    { media: "(prefers-color-scheme: dark)", color: "#101018" },
+    { media: "(prefers-color-scheme: light)", color: "#f4f4f8" },
+    { media: "(prefers-color-scheme: dark)", color: "#07070a" },
   ],
   width: "device-width",
   initialScale: 1,
@@ -76,24 +77,24 @@ export const viewport: Viewport = {
 const themeBootScript = `(() => {
   try {
     const stored = localStorage.getItem("confuzzled-theme");
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const theme = stored === "light" || stored === "dark" ? stored : prefersDark ? "dark" : "light";
     const root = document.documentElement;
-    if (theme === "dark") root.classList.add("dark");
-    root.style.colorScheme = theme;
+    if (stored === "light") {
+      root.classList.remove("dark");
+      root.style.colorScheme = "light";
+    } else {
+      root.classList.add("dark");
+      root.style.colorScheme = "dark";
+    }
   } catch (error) {}
 })();`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={inter.variable} suppressHydrationWarning>
+    <html lang="en" className={`${jakarta.variable} dark`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
       </head>
-      <body
-        className={`${inter.className} min-h-dvh antialiased mesh-bg`}
-        aria-label="Confuzzled"
-      >
+      <body className={`${jakarta.className} min-h-dvh antialiased mesh-bg`} aria-label="Confuzzled">
         <a href="#main" className="skip-link">
           Skip to content
         </a>
@@ -101,26 +102,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <div className="flex min-h-dvh flex-col">
             <SiteHeader />
             <div className="flex-1">{children}</div>
-            <footer className="border-t border-border/70 py-8 text-center text-sm text-muted-foreground print:hidden">
-              <p>
-                For anyone stuck on instructions, a job, or a wall of text. We keep the source honest —
-                no invented quotes, numbers, or steps.
-              </p>
-              <nav aria-label="Footer" className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
-                <Link href="/about" className="underline-offset-4 hover:underline">
-                  About
-                </Link>
-                <Link href="/honesty" className="underline-offset-4 hover:underline">
-                  Honesty
-                </Link>
-                <Link href="/privacy" className="underline-offset-4 hover:underline">
-                  Privacy
-                </Link>
-                <Link href="/dashboard" className="underline-offset-4 hover:underline">
-                  Dashboard
-                </Link>
-              </nav>
-            </footer>
+            <SiteFooter />
           </div>
         </WorkspaceProvider>
         <Toaster />

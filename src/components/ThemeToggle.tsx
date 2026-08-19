@@ -9,13 +9,13 @@ type Theme = "light" | "dark";
 
 function getPreferredTheme(): Theme {
   if (typeof window === "undefined") {
-    return "light";
+    return "dark";
   }
   const stored = window.localStorage.getItem("confuzzled-theme");
   if (stored === "light" || stored === "dark") {
     return stored;
   }
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  return "dark";
 }
 
 function applyTheme(theme: Theme) {
@@ -25,7 +25,7 @@ function applyTheme(theme: Theme) {
 }
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>("light");
+  const [theme, setTheme] = useState<Theme>("dark");
   const [ready, setReady] = useState(false);
 
   useEffect(() => {

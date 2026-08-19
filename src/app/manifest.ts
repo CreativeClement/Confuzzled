@@ -8,8 +8,8 @@ export default function manifest(): MetadataRoute.Manifest {
       "Show Confuzzled the confusing thing. Get back a version you can follow, that does not invent safety-critical steps.",
     start_url: "/",
     display: "standalone",
-    background_color: "#faf7f2",
-    theme_color: "#2A338C",
+    background_color: "#000000",
+    theme_color: "#7C3AED",
     icons: [
       {
         src: "/icon-192.png",
@@ -24,7 +24,7 @@ export default function manifest(): MetadataRoute.Manifest {
         purpose: "any",
       },
       {
-        src: "/icon.svg",
+        src: "/logo.svg",
         sizes: "any",
         type: "image/svg+xml",
         purpose: "any",

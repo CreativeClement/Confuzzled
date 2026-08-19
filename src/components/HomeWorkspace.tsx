@@ -472,7 +472,7 @@ export function HomeWorkspace() {
   };
 
   return (
-      <section id="workspace" aria-labelledby="workspace-heading" className="mx-auto mt-10 max-w-2xl">
+      <section id="workspace" aria-labelledby="workspace-heading" className="container mx-auto mt-10 max-w-3xl">
         <h2 id="workspace-heading" className="sr-only">
           Unconfuzzle
         </h2>
@@ -497,8 +497,8 @@ export function HomeWorkspace() {
             void attachFiles(event.dataTransfer.files);
           }}
           className={cn(
-            "rounded-[1.75rem] border bg-card/80 p-4 shadow-sm transition-colors sm:p-6",
-            dragging && "border-primary bg-primary/5",
+            "glass-panel p-4 transition-colors sm:p-7",
+            dragging && "border-cyan-400/70 bg-primary/10",
           )}
         >
           <div className="mb-3 flex items-center justify-between gap-3">
@@ -598,6 +598,7 @@ export function HomeWorkspace() {
           <Button
             type="button"
             size="lg"
+            variant="brand"
             className="sm:flex-1"
             onClick={() => void handleUnconfuzzle("auto")}
             disabled={!canGenerate}
@@ -660,7 +661,7 @@ export function HomeWorkspace() {
                 </h2>
               </div>
               {loading && streamPreview && isLivePreviewMode(streamMode ?? resultMode) ? (
-                <p className="whitespace-pre-wrap rounded-2xl border bg-card p-5 text-lg font-medium leading-relaxed">
+                <p className="whitespace-pre-wrap rounded-[1.75rem] border border-border/70 bg-card/80 p-5 text-lg font-medium leading-relaxed">
                   {streamPreview}
                 </p>
               ) : loading ? (

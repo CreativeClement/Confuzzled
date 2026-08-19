@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, Sparkles } from "lucide-react";
 
+import { BrandWordmark } from "@/components/BrandLogo";
 import { HelpSheet } from "@/components/HelpSheet";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
@@ -16,20 +17,16 @@ export function SiteHeader() {
   const onDashboard = pathname.startsWith("/dashboard");
 
   return (
-    <header className="border-b border-border/70 bg-background/80 backdrop-blur-md print:hidden">
+    <header className="sticky top-0 z-40 border-b border-border/50 bg-background/70 backdrop-blur-xl print:hidden">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-violet-500/0 via-violet-400/50 to-cyan-400/0"
+      />
       <div className="container flex min-h-16 items-center justify-between gap-3 py-3">
-        <Link href="/" className="flex min-h-12 items-center gap-2 font-semibold tracking-tight">
-          <span
-            aria-hidden="true"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-sm text-primary-foreground"
-          >
-            Cz
-          </span>
-          <span>
-            Confuzzled
-            <span className="ml-2 hidden text-xs font-normal text-muted-foreground sm:inline">
-              for anyone stuck
-            </span>
+        <Link href="/" className="flex min-h-12 items-center font-semibold tracking-tight">
+          <BrandWordmark size={36} />
+          <span className="ml-2 hidden text-xs font-normal text-muted-foreground sm:inline">
+            for anyone stuck
           </span>
         </Link>
         <nav aria-label="Primary" className="flex items-center gap-2">

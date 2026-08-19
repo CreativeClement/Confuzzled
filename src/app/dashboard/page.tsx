@@ -69,7 +69,7 @@ export default function DashboardPage() {
       )}
 
       <div className="flex flex-wrap gap-3">
-        <Button asChild>
+        <Button asChild variant="brand">
           <Link href="/#workspace">
             <Sparkles aria-hidden="true" />
             Unconfuzzle something

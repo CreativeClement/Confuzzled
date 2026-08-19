@@ -95,7 +95,7 @@ function MermaidBlock({ chart }: { chart: string }) {
           startOnLoad: false,
           securityLevel: "strict",
           theme: isDark ? "dark" : "neutral",
-          fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif",
+          fontFamily: "Plus Jakarta Sans, ui-sans-serif, system-ui, sans-serif",
         });
         const { svg: nextSvg } = await mermaid.render(`confuzzled-${reactId}`, chart);
         if (!cancelled) {
