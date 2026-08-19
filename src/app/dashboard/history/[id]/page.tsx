@@ -19,6 +19,7 @@ import { Separator } from "@/components/ui/separator";
 import { useWorkspace } from "@/components/WorkspaceProvider";
 import { citationsFromOutput } from "@/lib/citations";
 import { OUTPUT_MODE_OPTIONS } from "@/lib/input-router";
+import { getPhoto } from "@/lib/photo-store";
 import { detectSafetyNotice } from "@/lib/safety";
 
 function modeLabel(mode: string): string {
@@ -33,10 +34,14 @@ export default function HistoryDetailPage() {
   const item = history.find((entry) => entry.id === id) ?? null;
   const [title, setTitle] = useState("");
   const [showSource, setShowSource] = useState(false);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
   useEffect(() => {
     if (item) {
       setTitle(item.title);
+      void getPhoto(item.id).then((photo) => {
+        setPhotoPreview(photo?.preview ?? null);
+      });
     }
   }, [item]);
 
@@ -109,6 +114,13 @@ export default function HistoryDetailPage() {
         </p>
       </div>
       {safety ? <SafetyStrip notice={safety} /> : null}
+      {photoPreview ? (
+        <div className="flex items-center gap-3 rounded-2xl border bg-card p-3">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={photoPreview} alt="Attached photo for this clarification" className="h-20 w-20 rounded-xl object-cover" />
+          <p className="text-sm text-muted-foreground">Photo kept on this device with this clarification.</p>
+        </div>
+      ) : null}
       <ResultToolbar
         result={item.result}
         mode={item.mode}

@@ -193,7 +193,13 @@ export function HomeWorkspace() {
       setText((current) => (current.trim() ? `${current.trim()}\n\n${nextText}` : nextText));
       setFileName(file.name);
       setError(null);
-      toast.success("Attached. Add any extra notes, then Unconfuzzle.");
+      if (nextText.includes("Transcript from")) {
+        toast.success("Heard the recording. Add notes if you want, then Unconfuzzle.");
+      } else if (nextText.includes("We cannot play the file")) {
+        toast.message("Video is not played. Paste the words that have you stuck.");
+      } else {
+        toast.success("Attached. Add any extra notes, then Unconfuzzle.");
+      }
     } catch (caught) {
       const message =
         caught instanceof Error ? caught.message : "That file could not be read. Paste the text instead.";
@@ -547,6 +553,7 @@ export function HomeWorkspace() {
             <input
               ref={fileInputRef}
               type="file"
+              accept="application/pdf,image/*,audio/*,.txt,.md"
               className="sr-only"
               aria-label="Upload a file"
               onChange={(event) => {

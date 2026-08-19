@@ -98,7 +98,7 @@ const INPUT_TYPE_CONTEXT: Record<InputType, string> = {
   pdf: "INPUT TYPE: pdf. Work only from the provided extract, %PDF marker, or filename. Do not invent pages.",
   url: "INPUT TYPE: url. The source is a web page or HTML. Use the URL and any extract. Do not pretend you fetched a live page unless the extract is present.",
   video: "INPUT TYPE: video. Use the file, URL, transcript, or notes. Do not invent timestamps.",
-  audio: "INPUT TYPE: audio. Use the file, transcript, or notes. Do not invent spoken lines.",
+  audio: "INPUT TYPE: audio. A transcript may have been produced from a recording. Use that transcript. Do not invent spoken lines.",
   image:
     "INPUT TYPE: image. A photograph may be attached as pixels. Transcribe visible text and labels faithfully. If a word, voltage, dosage, or serial is unreadable, say you cannot read it. Do not fabricate unseen details.",
 };

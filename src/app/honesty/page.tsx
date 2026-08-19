@@ -29,6 +29,8 @@ export default function HonestyPage() {
             will not guess serials or voltages. The photo stays in this browser with that
             clarification.
           </li>
+          <li>Audio is transcribed. We will not invent spoken lines that are not in the transcript.</li>
+          <li>Video is not played. Paste a transcript or the part that has you stuck.</li>
           <li>History, ratings, and your display name stay in this browser unless you export them.</li>
           <li>Live Unconfuzzle needs an OpenAI key on the server. Try a sample works without one.</li>
         </ul>
@@ -39,6 +41,9 @@ export default function HonestyPage() {
         </Button>
         <Button asChild variant="outline">
           <Link href="/about">About</Link>
+        </Button>
+        <Button asChild variant="outline">
+          <Link href="/privacy">Privacy</Link>
         </Button>
       </div>
     </main>

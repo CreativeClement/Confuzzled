@@ -25,6 +25,9 @@ export const metadata: Metadata = {
   description:
     "Show Confuzzled the confusing thing. Get back a version you can follow, that does not invent safety-critical steps.",
   applicationName: "Confuzzled",
+  icons: {
+    apple: "/apple-touch-icon.png",
+  },
   keywords: [
     "Confuzzled",
     "Unconfuzzle",
@@ -109,6 +112,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 </Link>
                 <Link href="/honesty" className="underline-offset-4 hover:underline">
                   Honesty
+                </Link>
+                <Link href="/privacy" className="underline-offset-4 hover:underline">
+                  Privacy
                 </Link>
                 <Link href="/dashboard" className="underline-offset-4 hover:underline">
                   Dashboard

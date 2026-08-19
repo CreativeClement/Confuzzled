@@ -9,6 +9,17 @@ export async function extractPdfUpload(file: File): Promise<string> {
   return payload.text;
 }
 
+export async function transcribeAudioUpload(file: File): Promise<string> {
+  const body = new FormData();
+  body.append("file", file);
+  const response = await fetch("/api/transcribe", { method: "POST", body });
+  const payload = (await response.json()) as { success: boolean; text?: string | null; error?: string };
+  if (!payload.success || !payload.text) {
+    throw new Error(payload.error || "Could not hear that recording.");
+  }
+  return payload.text;
+}
+
 export function markerForFile(file: File): string | null {
   const name = file.name.toLowerCase();
   if (file.type === "application/pdf" || name.endsWith(".pdf")) {
@@ -37,6 +48,17 @@ export async function readUploadedFile(file: File): Promise<string> {
   }
 
   const marker = markerForFile(file);
+  if (marker === "[[input:audio]]") {
+    try {
+      return await transcribeAudioUpload(file);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Could not hear that recording.";
+      return `[[input:audio]]\nUploaded file: ${file.name}. ${message} Paste the words you can hear.`;
+    }
+  }
+  if (marker === "[[input:video]]") {
+    return `[[input:video]]\nVideo: ${file.name}. We cannot play the file. Paste a transcript or the part that has you stuck.`;
+  }
   if (marker === "[[input:image]]") {
     return `${marker}\nPhoto: ${file.name}. Add any extra notes. Visible text on the photo is sent with Unconfuzzle.`;
   }

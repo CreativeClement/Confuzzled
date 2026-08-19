@@ -37,8 +37,9 @@ export function HelpSheet() {
           </p>
           <p>
             Paste a public URL and we’ll try to fetch the page. Upload a PDF and we’ll extract
-            selectable text. A photo is sent with Unconfuzzle so visible words can be read; blurry
-            labels stay unread — we won’t invent them.
+            selectable text. A photo is sent with Unconfuzzle so visible words can be read. An
+            audio note is transcribed. A video still needs the words pasted — we cannot play the
+            file. Blurry labels stay unread — we won’t invent them.
           </p>
           <ul className="list-disc space-y-2 pl-5">
             <li>
