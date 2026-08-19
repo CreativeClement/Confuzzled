@@ -35,9 +35,9 @@ export function HelpSheet() {
             still doesn’t land, tap stuck and we explain only that part from your source.
           </p>
           <p>
-            Paste a URL and we’ll try to fetch the public page. Upload a PDF and we’ll extract
-            selectable text. A photo still needs the words you can read typed in — we won’t invent
-            what we can’t see.
+            Paste a public URL and we’ll try to fetch the page. Upload a PDF and we’ll extract
+            selectable text. A photo is sent with Unconfuzzle so visible words can be read; blurry
+            labels stay unread — we won’t invent them.
           </p>
           <ul className="list-disc space-y-2 pl-5">
             <li>

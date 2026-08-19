@@ -31,4 +31,10 @@ describe("clarifyProviderError", () => {
     expect(result.status).toBe(500);
     expect(result.message).toMatch(/could not finish/i);
   });
+
+  it("maps timeouts", () => {
+    const result = clarifyProviderError(new Error("The operation was aborted due to timeout"));
+    expect(result.status).toBe(504);
+    expect(result.message).toMatch(/too long/i);
+  });
 });

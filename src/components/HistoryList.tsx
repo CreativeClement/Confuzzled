@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { Search, Trash2 } from "lucide-react";
+import { Search, Sparkles, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -110,6 +110,12 @@ export function HistoryList({
                     <p className="line-clamp-2 text-sm text-muted-foreground">{item.sourcePreview}</p>
                   </div>
                   <div className="flex flex-wrap gap-2">
+                    <Button asChild>
+                      <Link href={`/?id=${item.id}`}>
+                        <Sparkles aria-hidden="true" />
+                        Unconfuzzle
+                      </Link>
+                    </Button>
                     <Button asChild variant="outline">
                       <Link href={`/dashboard/history/${item.id}`}>Open</Link>
                     </Button>

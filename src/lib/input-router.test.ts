@@ -38,4 +38,10 @@ describe("buildSystemPrompt", () => {
     expect(prompt).toContain("INPUT TYPE: text");
     expect(prompt).toContain("not students only");
   });
+
+  it("tells image mode to read pixels without inventing labels", () => {
+    const prompt = buildSystemPrompt("step_by_step", "image");
+    expect(prompt).toContain("photograph");
+    expect(prompt).toContain("Do not fabricate");
+  });
 });

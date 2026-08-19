@@ -1,6 +1,6 @@
 import dns from "node:dns/promises";
 
-import { extractHttpUrls, htmlToPlainText, isPrivateIp, parsePublicHttpUrl } from "@/lib/public-url";
+import { extractHttpUrls, htmlToReadableExtract, isPrivateIp, parsePublicHttpUrl } from "@/lib/public-url";
 
 const MAX_HOPS = 3;
 const MAX_BYTES = 180_000;
@@ -82,10 +82,8 @@ export async function fetchPublicPage(rawUrl: string): Promise<
       if (type.includes("pdf") || buffer.subarray(0, 4).toString() === "%PDF") {
         const { extractPdfText } = await import("@/lib/pdf-text");
         text = await extractPdfText(buffer);
-      } else if (type.includes("html") || type.includes("xml") || type.includes("text/")) {
-        text = htmlToPlainText(buffer.toString("utf8"));
       } else {
-        text = htmlToPlainText(buffer.toString("utf8"));
+        text = htmlToReadableExtract(buffer.toString("utf8"));
       }
 
       if (!text.trim()) {

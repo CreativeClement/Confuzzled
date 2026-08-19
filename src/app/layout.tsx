@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Link from "next/link";
 import { Inter } from "next/font/google";
 
 import { SiteHeader } from "@/components/SiteHeader";
@@ -96,6 +97,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 For anyone stuck on instructions, a job, or a wall of text. We keep the source honest —
                 no invented quotes, numbers, or steps.
               </p>
+              <nav aria-label="Footer" className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+                <Link href="/about" className="underline-offset-4 hover:underline">
+                  About
+                </Link>
+                <Link href="/honesty" className="underline-offset-4 hover:underline">
+                  Honesty
+                </Link>
+                <Link href="/dashboard" className="underline-offset-4 hover:underline">
+                  Dashboard
+                </Link>
+              </nav>
             </footer>
           </div>
         </WorkspaceProvider>

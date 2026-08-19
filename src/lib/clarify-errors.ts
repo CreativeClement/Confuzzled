@@ -82,6 +82,17 @@ export function clarifyProviderError(error: unknown): { status: number; message:
     };
   }
 
+  if (
+    text.includes("aborterror") ||
+    text.includes("timeout") ||
+    text.includes("the operation was aborted")
+  ) {
+    return {
+      status: 504,
+      message: "That took too long. Try a shorter passage, or try again.",
+    };
+  }
+
   return {
     status: 500,
     message: "The model could not finish. Try a shorter passage or another mode.",

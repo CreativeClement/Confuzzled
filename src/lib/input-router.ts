@@ -99,7 +99,8 @@ const INPUT_TYPE_CONTEXT: Record<InputType, string> = {
   url: "INPUT TYPE: url. The source is a web page or HTML. Use the URL and any extract. Do not pretend you fetched a live page unless the extract is present.",
   video: "INPUT TYPE: video. Use the file, URL, transcript, or notes. Do not invent timestamps.",
   audio: "INPUT TYPE: audio. Use the file, transcript, or notes. Do not invent spoken lines.",
-  image: "INPUT TYPE: image. Use captions, OCR, or descriptions in the input. Do not fabricate unseen details.",
+  image:
+    "INPUT TYPE: image. A photograph may be attached as pixels. Transcribe visible text and labels faithfully. If a word, voltage, dosage, or serial is unreadable, say you cannot read it. Do not fabricate unseen details.",
 };
 
 const MODE_RULES: Record<OutputMode, string> = {

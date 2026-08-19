@@ -90,3 +90,31 @@ export function htmlToPlainText(html: string): string {
     .replace(/\s+/g, " ")
     .trim();
 }
+
+function firstMatch(html: string, patterns: RegExp[]): string {
+  for (const pattern of patterns) {
+    const match = html.match(pattern);
+    const value = match?.[1]?.trim();
+    if (value) {
+      return htmlToPlainText(value);
+    }
+  }
+  return "";
+}
+
+export function htmlToReadableExtract(html: string): string {
+  const title = firstMatch(html, [/<title[^>]*>([\s\S]*?)<\/title>/i]);
+  const description = firstMatch(html, [
+    /<meta[^>]+property=["']og:description["'][^>]+content=["']([^"']+)/i,
+    /<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:description["']/i,
+    /<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)/i,
+    /<meta[^>]+content=["']([^"']+)["'][^>]+name=["']description["']/i,
+  ]);
+  const stripped = html
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<noscript[\s\S]*?<\/noscript>/gi, " ")
+    .replace(/<(nav|header|footer|aside|form)[\s\S]*?<\/\1>/gi, " ");
+  const body = htmlToPlainText(stripped);
+  return [title, description, body].filter(Boolean).join("\n\n");
+}

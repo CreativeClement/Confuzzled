@@ -277,6 +277,25 @@ export function isSocraticList(value: FormattedOutput): value is SocraticItem[] 
   return Array.isArray(value) && value.every((item) => "question" in item && "hint" in item);
 }
 
+export function isThinOutput(value: FormattedOutput, mode: OutputMode): boolean {
+  if (mode === "flashcards") {
+    return !isFlashcardList(value) || value.length === 0;
+  }
+  if (mode === "step_by_step") {
+    return !isStepList(value) || value.length === 0;
+  }
+  if (mode === "socratic") {
+    return !isSocraticList(value) || value.length === 0;
+  }
+  if (mode === "visual") {
+    return !isMermaidOutput(value) || !/\bgraph\s+TD\b/i.test(value.code);
+  }
+  if (isTextOutput(value)) {
+    return value.content.trim().length < 8;
+  }
+  return true;
+}
+
 export function formattedOutputToPlainText(value: FormattedOutput, mode: OutputMode): string {
   if (isMermaidOutput(value)) {
     return value.code;

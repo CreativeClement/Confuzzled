@@ -1,9 +1,11 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
-import { AlertCircle, Camera, Loader2, Sparkles, Upload } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { AlertCircle, Camera, Loader2, Sparkles, Upload, X } from "lucide-react";
 import { toast } from "sonner";
 
+import { CitationChips } from "@/components/CitationChips";
+import { HealthBanner } from "@/components/HealthBanner";
 import { LensSwitch } from "@/components/LensSwitch";
 import { ResultFeedback, ResultToolbar } from "@/components/ResultFeedback";
 import { ResultRenderer } from "@/components/ResultRenderer";
@@ -15,6 +17,9 @@ import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
 import { useWorkspace } from "@/components/WorkspaceProvider";
 import { requestClarify } from "@/lib/clarify-client";
+import { citationsFromOutput } from "@/lib/citations";
+import { clearDraft, MAX_DRAFT_CHARS, readDraft, writeDraft } from "@/lib/draft";
+import { fileToClarifyImage, isImageFile, type AttachedImage } from "@/lib/image-attach";
 import { detectInputType, OUTPUT_MODE_OPTIONS, type OutputMode } from "@/lib/input-router";
 import { recommendOutputMode } from "@/lib/lens";
 import { isTextOutput, type FormattedOutput } from "@/lib/output-formatter";
@@ -40,8 +45,15 @@ const INPUT_TYPE_LABELS = {
   image: "Image",
 } as const;
 
+function isAbortError(error: unknown): boolean {
+  return (
+    (error instanceof DOMException && error.name === "AbortError") ||
+    (error instanceof Error && error.name === "AbortError")
+  );
+}
+
 export default function HomePage() {
-  const { profile, addClarification, patchClarification, history } = useWorkspace();
+  const { ready, profile, addClarification, patchClarification, history } = useWorkspace();
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<FormattedOutput | null>(null);
@@ -52,22 +64,80 @@ export default function HomePage() {
   const [progress, setProgress] = useState(0);
   const [dragging, setDragging] = useState(false);
   const [stuckStep, setStuckStep] = useState<number | null>(null);
+  const [image, setImage] = useState<AttachedImage | null>(null);
+  const [citations, setCitations] = useState<string[]>([]);
+  const [showSource, setShowSource] = useState(false);
+  const [sessionLoaded, setSessionLoaded] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
   const resultsHeadingRef = useRef<HTMLHeadingElement>(null);
   const dropRef = useRef<HTMLDivElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
-  const detectedType = useMemo(() => detectInputType(text), [text]);
+  const detectedType = useMemo(
+    () => (image ? "image" : detectInputType(text)),
+    [image, text],
+  );
   const recommended = useMemo(
     () => recommendOutputMode(text, profile?.defaultMode),
     [profile?.defaultMode, text],
   );
   const recommendedMeta = OUTPUT_MODE_OPTIONS.find((option) => option.value === recommended);
-  const canGenerate = !loading && text.trim().length > 0;
+  const canGenerate = !loading && (text.trim().length > 0 || Boolean(image));
   const activeItem = history.find((item) => item.id === historyId) ?? null;
   const safety = useMemo(() => detectSafetyNotice(text), [text]);
   const checkedSteps = activeItem?.checkedSteps ?? [];
   const followUps = activeItem?.followUps ?? [];
+  const overLimit = text.length > MAX_DRAFT_CHARS;
+  const recent = history.slice(0, 3);
+
+  useEffect(() => {
+    if (!ready || sessionLoaded) {
+      return;
+    }
+    const id = new URLSearchParams(window.location.search).get("id");
+    if (id) {
+      const item = history.find((entry) => entry.id === id);
+      if (item) {
+        setText(item.source);
+        setResult(item.result);
+        setResultMode(item.mode);
+        setHistoryId(item.id);
+        setCitations(citationsFromOutput(item.source, item.result, item.mode));
+        setSessionLoaded(true);
+        return;
+      }
+    }
+    const draft = readDraft(window.localStorage);
+    if (draft) {
+      setText(draft.text);
+    }
+    setSessionLoaded(true);
+  }, [history, ready, sessionLoaded]);
+
+  useEffect(() => {
+    if (!sessionLoaded) {
+      return;
+    }
+    const timer = window.setTimeout(() => {
+      try {
+        if (!text.trim()) {
+          clearDraft(window.localStorage);
+        } else {
+          writeDraft(window.localStorage, text);
+        }
+      } catch {
+        /* quota */
+      }
+    }, 400);
+    return () => window.clearTimeout(timer);
+  }, [sessionLoaded, text]);
+
+  useEffect(() => {
+    return () => {
+      abortRef.current?.abort();
+    };
+  }, []);
 
   const attachFiles = async (fileList: FileList | null) => {
     const file = fileList?.[0];
@@ -75,14 +145,30 @@ export default function HomePage() {
       return;
     }
     try {
+      if (isImageFile(file)) {
+        const attached = await fileToClarifyImage(file);
+        setImage(attached);
+        setFileName(file.name);
+        setError(null);
+        setText((current) =>
+          current.trim()
+            ? current
+            : `[[input:image]]\nPhoto: ${file.name}. Add any extra notes.`,
+        );
+        toast.success("Photo attached. Unconfuzzle will read visible text.");
+        return;
+      }
+      setImage(null);
       const nextText = await readUploadedFile(file);
       setText((current) => (current.trim() ? `${current.trim()}\n\n${nextText}` : nextText));
       setFileName(file.name);
       setError(null);
       toast.success("Attached. Add any extra notes, then Unconfuzzle.");
-    } catch {
-      setError("That file could not be read. Paste the text instead.");
-      toast.error("That file could not be read. Paste the text instead.");
+    } catch (caught) {
+      const message =
+        caught instanceof Error ? caught.message : "That file could not be read. Paste the text instead.";
+      setError(message);
+      toast.error(message);
     }
   };
 
@@ -92,9 +178,11 @@ export default function HomePage() {
     mode: OutputMode,
     inputType = detectInputType(content),
     replace = false,
+    nextCitations: string[] = [],
   ) => {
     setResult(data);
     setResultMode(mode);
+    setCitations(nextCitations);
     if (replace && historyId) {
       patchClarification(historyId, {
         result: data,
@@ -117,12 +205,18 @@ export default function HomePage() {
   };
 
   const handleUnconfuzzle = async (mode: OutputMode | "auto", replace = false) => {
-    const content = text.trim();
+    const content =
+      text.trim() ||
+      (image ? `[[input:image]]\nPhoto: ${image.name}. Add any extra notes.` : "");
     if (!content) {
       setError("Show Confuzzled the confusing thing.");
       toast.error("Show Confuzzled the confusing thing.");
       return;
     }
+
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
 
     setLoading(true);
     setError(null);
@@ -136,12 +230,15 @@ export default function HomePage() {
         content,
         mode,
         role: profile?.role,
+        image: image ? { mime: image.mime, data: image.data } : null,
+        signal: controller.signal,
       });
 
       if (!payload.success) {
         if (!replace) {
           setResult(null);
           setHistoryId(null);
+          setCitations([]);
         }
         setError(payload.error || "Something went sideways. Try again.");
         toast.error(payload.error || "Something went sideways. Try again.");
@@ -149,20 +246,34 @@ export default function HomePage() {
       }
 
       setProgress(100);
-      saveResult(content, payload.data, payload.mode, payload.inputType, replace);
+      saveResult(
+        content,
+        payload.data,
+        payload.mode,
+        payload.inputType,
+        replace,
+        payload.citations ?? [],
+      );
       if (payload.warning) {
         toast.message(payload.warning);
+      } else if (payload.seen) {
+        toast.success("Read the photo. Here’s the clear version.");
       } else if (payload.fetched) {
         toast.success("Pulled the page. Here’s the clear version.");
       } else {
         toast.success(replace ? "Same source. New lens." : "Here’s the clear version.");
       }
-    } catch {
+    } catch (caught) {
+      if (isAbortError(caught)) {
+        return;
+      }
       setError("Network error. Check your connection and try again.");
       toast.error("Network error. Check your connection and try again.");
     } finally {
       window.clearInterval(timer);
-      setLoading(false);
+      if (abortRef.current === controller) {
+        setLoading(false);
+      }
     }
   };
 
@@ -179,6 +290,9 @@ export default function HomePage() {
       return;
     }
 
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
     setStuckStep(step);
     try {
       const payload = await requestClarify({
@@ -186,6 +300,8 @@ export default function HomePage() {
         mode: "feynman",
         role: profile?.role,
         focus: { step, text: stepText },
+        image: image ? { mime: image.mime, data: image.data } : null,
+        signal: controller.signal,
       });
       if (!payload.success || !payload.data || !isTextOutput(payload.data)) {
         toast.error(payload.success === false ? payload.error : "Could not unstick that step.");
@@ -197,21 +313,30 @@ export default function HomePage() {
       ];
       patchClarification(historyId, { followUps: next });
       toast.success("From your source — just that step.");
-    } catch {
+    } catch (caught) {
+      if (isAbortError(caught)) {
+        return;
+      }
       toast.error("Network error. Try that step again.");
     } finally {
-      setStuckStep(null);
+      if (abortRef.current === controller) {
+        setStuckStep(null);
+      }
     }
   };
 
   const loadSample = () => {
+    abortRef.current?.abort();
     setText(SAMPLE_SOURCE);
     setFileName("");
+    setImage(null);
     setError(null);
     setProgress(100);
     setHistoryId(null);
     setResult(SAMPLE_RESULT);
     setResultMode(SAMPLE_MODE);
+    setCitations(citationsFromOutput(SAMPLE_SOURCE, SAMPLE_RESULT, SAMPLE_MODE));
+    setShowSource(false);
     const saved = addClarification({
       source: SAMPLE_SOURCE,
       mode: SAMPLE_MODE,
@@ -220,6 +345,48 @@ export default function HomePage() {
     });
     setHistoryId(saved?.id ?? null);
     toast.success("Sample loaded. Check steps off, or tap stuck.");
+    window.requestAnimationFrame(() => {
+      resultsHeadingRef.current?.focus();
+    });
+  };
+
+  const startNew = () => {
+    abortRef.current?.abort();
+    setText("");
+    setResult(null);
+    setError(null);
+    setHistoryId(null);
+    setFileName("");
+    setImage(null);
+    setCitations([]);
+    setShowSource(false);
+    setProgress(0);
+    try {
+      clearDraft(window.localStorage);
+    } catch {
+      /* ignore */
+    }
+    if (typeof window !== "undefined" && window.location.search) {
+      window.history.replaceState({}, "", "/");
+    }
+  };
+
+  const loadHistoryItem = (id: string) => {
+    const item = history.find((entry) => entry.id === id);
+    if (!item) {
+      return;
+    }
+    abortRef.current?.abort();
+    setText(item.source);
+    setResult(item.result);
+    setResultMode(item.mode);
+    setHistoryId(item.id);
+    setCitations(citationsFromOutput(item.source, item.result, item.mode));
+    setImage(null);
+    setFileName("");
+    setError(null);
+    setShowSource(false);
+    window.history.replaceState({}, "", `/?id=${item.id}`);
     window.requestAnimationFrame(() => {
       resultsHeadingRef.current?.focus();
     });
@@ -277,7 +444,7 @@ export default function HomePage() {
             value={text}
             onChange={(event) => setText(event.target.value)}
             placeholder="A wiring note. A letter you don’t get. Assembly steps. Whatever has you stuck."
-            aria-describedby="source-hint"
+            aria-describedby="source-hint source-count"
             className="min-h-[200px] border-0 bg-transparent p-1 shadow-none focus-visible:ring-0 md:text-base"
             onKeyDown={(event) => {
               if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
@@ -289,8 +456,33 @@ export default function HomePage() {
             }}
           />
           <p id="source-hint" className="sr-only">
-            Inputs longer than 4,000 characters are truncated.
+            Inputs longer than 4,000 characters are truncated. A photo can be attached and is sent with Unconfuzzle.
           </p>
+          {image ? (
+            <div className="mt-3 flex items-center gap-3 rounded-2xl border bg-background/80 p-3">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={image.preview}
+                alt={`Attached photo ${image.name}`}
+                className="h-16 w-16 rounded-xl object-cover"
+              />
+              <p className="min-w-0 flex-1 text-xs text-muted-foreground">
+                Photo attached. Visible text is sent with Unconfuzzle. Blurry labels stay unread.
+              </p>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                aria-label="Remove photo"
+                onClick={() => {
+                  setImage(null);
+                  setFileName("");
+                }}
+              >
+                <X aria-hidden="true" />
+              </Button>
+            </div>
+          ) : null}
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <input
               ref={fileInputRef}
@@ -322,6 +514,10 @@ export default function HomePage() {
               <Camera aria-hidden="true" />
               Photo
             </Button>
+            <p id="source-count" className={cn("text-xs text-muted-foreground", overLimit && "text-destructive")}>
+              {text.length.toLocaleString()} / {MAX_DRAFT_CHARS.toLocaleString()}
+              {overLimit ? " — extra is cut" : null}
+            </p>
             <p className="text-xs text-muted-foreground">⌘↵ or Ctrl+Enter</p>
             {text.trim() ? (
               <p className="text-xs text-muted-foreground">
@@ -347,7 +543,33 @@ export default function HomePage() {
           <Button type="button" size="lg" variant="ghost" disabled={loading} onClick={loadSample}>
             Try a sample
           </Button>
+          {text.trim() || result || image ? (
+            <Button type="button" size="lg" variant="ghost" disabled={loading} onClick={startNew}>
+              New
+            </Button>
+          ) : null}
         </div>
+
+        <HealthBanner />
+
+        {ready && recent.length > 0 && !result && !loading ? (
+          <div className="mt-6 space-y-2">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Recent on this device</p>
+            <div className="flex flex-wrap gap-2">
+              {recent.map((item) => (
+                <Button
+                  key={item.id}
+                  type="button"
+                  variant="outline"
+                  className="max-w-full"
+                  onClick={() => loadHistoryItem(item.id)}
+                >
+                  <span className="truncate">{item.title}</span>
+                </Button>
+              ))}
+            </div>
+          </div>
+        ) : null}
 
         {error ? (
           <Alert variant="destructive" className="mt-6" aria-live="assertive">
@@ -384,6 +606,8 @@ export default function HomePage() {
                     result={result}
                     mode={resultMode}
                     pinned={activeItem?.pinned}
+                    showingSource={showSource}
+                    onToggleSource={() => setShowSource((value) => !value)}
                     onPin={
                       historyId
                         ? () => {
@@ -394,6 +618,12 @@ export default function HomePage() {
                         : undefined
                     }
                   />
+                  {showSource ? (
+                    <pre className="whitespace-pre-wrap rounded-2xl border bg-muted/40 p-4 text-sm leading-relaxed text-muted-foreground">
+                      {text}
+                    </pre>
+                  ) : null}
+                  <CitationChips citations={citations} />
                   <ResultRenderer
                     data={result}
                     mode={resultMode}

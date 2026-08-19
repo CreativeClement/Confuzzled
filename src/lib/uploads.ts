@@ -38,7 +38,7 @@ export async function readUploadedFile(file: File): Promise<string> {
 
   const marker = markerForFile(file);
   if (marker === "[[input:image]]") {
-    return `${marker}\nPhoto: ${file.name}. Type the words you can read on it below this line — we cannot see the pixels yet.`;
+    return `${marker}\nPhoto: ${file.name}. Add any extra notes. Visible text on the photo is sent with Unconfuzzle.`;
   }
   if (marker) {
     return `${marker}\nUploaded file: ${file.name} (${file.type || "unknown"}, ${file.size} bytes).\nAdd a transcript or notes. Do not invent what is not here.`;

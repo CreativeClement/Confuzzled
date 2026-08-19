@@ -3,6 +3,10 @@ import { openai } from "@ai-sdk/openai";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { citationsFromOutput } from "@/lib/citations";
+import { clarifyProviderError } from "@/lib/clarify-errors";
+import { enrichWithFetchedUrl } from "@/lib/fetch-public";
+import { clarifyImageToBuffer, parseClarifyImage, type ClarifyImage } from "@/lib/image-payload";
 import {
   buildSystemPrompt,
   detectInputType,
@@ -10,16 +14,15 @@ import {
   type OutputMode,
 } from "@/lib/input-router";
 import { buildFocusPrompt, recommendOutputMode } from "@/lib/lens";
-import { formatOutput } from "@/lib/output-formatter";
+import { formatOutput, isThinOutput } from "@/lib/output-formatter";
 import { getClientKey, rateLimit } from "@/lib/rate-limit";
 import { AUDIENCE_ROLE_OPTIONS, isAudienceRole } from "@/lib/workspace";
-import { clarifyProviderError } from "@/lib/clarify-errors";
-import { enrichWithFetchedUrl } from "@/lib/fetch-public";
 
 export const runtime = "nodejs";
 
 const MAX_INPUT_CHARS = 4000;
 const MAX_OUTPUT_TOKENS = 1000;
+const COMPLETION_TIMEOUT_MS = 25_000;
 
 const clarifySchema = z.object({
   content: z.string().min(1, "Content is required."),
@@ -31,6 +34,7 @@ const clarifySchema = z.object({
       text: z.string().min(1).max(800),
     })
     .optional(),
+  image: z.unknown().optional(),
 });
 
 function corsHeaders(extra?: HeadersInit): Headers {
@@ -43,11 +47,14 @@ function corsHeaders(extra?: HeadersInit): Headers {
   return headers;
 }
 
-function withRateLimitHeaders(headers: Headers, limit: {
-  limit: number;
-  remaining: number;
-  resetAt: number;
-}): Headers {
+function withRateLimitHeaders(
+  headers: Headers,
+  limit: {
+    limit: number;
+    remaining: number;
+    resetAt: number;
+  },
+): Headers {
   headers.set("X-RateLimit-Limit", String(limit.limit));
   headers.set("X-RateLimit-Remaining", String(limit.remaining));
   headers.set("X-RateLimit-Reset", String(Math.ceil(limit.resetAt / 1000)));
@@ -63,6 +70,43 @@ function jsonResponse(
     headers.set("Retry-After", String(Math.max(1, Math.ceil((init.rate.resetAt - Date.now()) / 1000))));
   }
   return NextResponse.json(body, { status: init.status, headers });
+}
+
+async function completeClarify(options: {
+  system: string;
+  prompt: string;
+  image: ClarifyImage | null;
+}): Promise<string> {
+  const abortSignal = AbortSignal.timeout(COMPLETION_TIMEOUT_MS);
+  if (options.image) {
+    const result = await generateText({
+      model: openai("gpt-4o-mini"),
+      system: options.system,
+      messages: [
+        {
+          role: "user",
+          content: [
+            { type: "text", text: options.prompt },
+            { type: "image", image: clarifyImageToBuffer(options.image) },
+          ],
+        },
+      ],
+      maxTokens: MAX_OUTPUT_TOKENS,
+      temperature: 0.4,
+      abortSignal,
+    });
+    return result.text;
+  }
+
+  const result = await generateText({
+    model: openai("gpt-4o-mini"),
+    system: options.system,
+    prompt: options.prompt,
+    maxTokens: MAX_OUTPUT_TOKENS,
+    temperature: 0.4,
+    abortSignal,
+  });
+  return result.text;
 }
 
 export function OPTIONS() {
@@ -116,6 +160,21 @@ export async function POST(request: Request) {
     );
   }
 
+  const imageParsed = parseClarifyImage(parsed.data.image);
+  if (imageParsed && !imageParsed.ok) {
+    return jsonResponse(
+      {
+        success: false,
+        error: imageParsed.error,
+        data: null,
+        mode: null,
+        inputType: "image",
+      },
+      { status: 400, rate },
+    );
+  }
+  const image = imageParsed?.ok ? imageParsed.image : null;
+
   const content = parsed.data.content.trim();
   const focus = parsed.data.focus;
   const requestedMode = parsed.data.mode ?? (focus ? "feynman" : "auto");
@@ -154,7 +213,7 @@ export async function POST(request: Request) {
 
   const truncated = content.length > MAX_INPUT_CHARS;
   const promptSource = truncated ? content.slice(0, MAX_INPUT_CHARS) : content;
-  const inputType = detectInputType(promptSource);
+  const inputType = image ? "image" : detectInputType(promptSource);
   let workingSource = promptSource;
   let fetched = false;
   let fetchWarning: string | null = null;
@@ -176,6 +235,9 @@ export async function POST(request: Request) {
       : "",
     focus
       ? `FOCUS: The reader is stuck on step ${focus.step}. Teach only that step. Do not invent tools, voltages, dosages, or legal outcomes.`
+      : "",
+    image
+      ? "A photograph is attached as pixels. Read visible text. If a label is blurry, say you cannot read it. Do not invent serials, voltages, dosages, or legal outcomes."
       : "",
     fetched
       ? "A public page was fetched and appended as an extract. Stay faithful to that extract plus the user's notes."
@@ -202,15 +264,16 @@ export async function POST(request: Request) {
   }
 
   try {
-    const result = await generateText({
-      model: openai("gpt-4o-mini"),
-      system,
-      prompt,
-      maxTokens: MAX_OUTPUT_TOKENS,
-      temperature: 0.4,
-    });
-
-    const data = formatOutput(result.text, mode);
+    let raw = await completeClarify({ system, prompt, image });
+    let data = formatOutput(raw, mode);
+    if (isThinOutput(data, mode)) {
+      raw = await completeClarify({
+        system: `${system}\nRETRY: Your previous reply could not be parsed. Match the MODE contract exactly. JSON only when the mode asks for JSON. No markdown fences.`,
+        prompt,
+        image,
+      });
+      data = formatOutput(raw, mode);
+    }
 
     return jsonResponse(
       {
@@ -220,7 +283,9 @@ export async function POST(request: Request) {
         inputType,
         truncated,
         fetched,
+        seen: Boolean(image),
         warning: fetchWarning,
+        citations: citationsFromOutput(workingSource, data, mode),
       },
       { status: 200, rate },
     );

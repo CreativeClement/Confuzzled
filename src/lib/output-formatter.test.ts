@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { formatOutput, formattedOutputToPlainText, isStepList, isTextOutput } from "@/lib/output-formatter";
+import { formatOutput, formattedOutputToPlainText, isStepList, isTextOutput, isThinOutput } from "@/lib/output-formatter";
 
 describe("formatOutput", () => {
   it("parses flashcards JSON and rejects invalid payloads", () => {
@@ -88,5 +88,16 @@ describe("formattedOutputToPlainText", () => {
       "step_by_step",
     );
     expect(text).toBe("1. Unplug it\n2. Wait ten seconds");
+  });
+});
+
+describe("isThinOutput", () => {
+  it("flags empty structured replies", () => {
+    expect(isThinOutput([], "flashcards")).toBe(true);
+    expect(isThinOutput([], "step_by_step")).toBe(true);
+    expect(isThinOutput({ type: "text", content: "Hi" }, "tl_dr")).toBe(true);
+    expect(isThinOutput({ type: "mermaid", code: "flowchart LR; A-->B" }, "visual")).toBe(true);
+    expect(isThinOutput({ type: "mermaid", code: "graph TD; A-->B" }, "visual")).toBe(false);
+    expect(isThinOutput([{ step: 1, text: "Unplug it" }], "step_by_step")).toBe(false);
   });
 });

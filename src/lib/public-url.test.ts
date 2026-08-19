@@ -1,11 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  extractHttpUrls,
-  htmlToPlainText,
-  isPrivateIPv4,
-  parsePublicHttpUrl,
-} from "@/lib/public-url";
+import { htmlToPlainText, htmlToReadableExtract, extractHttpUrls, isPrivateIPv4, parsePublicHttpUrl } from "@/lib/public-url";
 
 describe("parsePublicHttpUrl", () => {
   it("accepts https pages", () => {
@@ -42,5 +37,25 @@ describe("extractHttpUrls and htmlToPlainText", () => {
     expect(htmlToPlainText("<html><script>alert(1)</script><p>Hello&nbsp;world</p></html>")).toBe(
       "Hello world",
     );
+  });
+
+  it("keeps title and drops chrome", () => {
+    const extract = htmlToReadableExtract(`
+      <html>
+        <head><title>Breaker policy</title>
+        <meta name="description" content="Reset rules for the kitchen circuit." />
+        </head>
+        <body>
+          <nav>Home About</nav>
+          <p>Confirm the toaster and the kettle were not on the same strip.</p>
+          <footer>Copyright</footer>
+        </body>
+      </html>
+    `);
+    expect(extract).toContain("Breaker policy");
+    expect(extract).toContain("Reset rules for the kitchen circuit.");
+    expect(extract).toContain("Confirm the toaster");
+    expect(extract).not.toContain("Home About");
+    expect(extract).not.toContain("Copyright");
   });
 });

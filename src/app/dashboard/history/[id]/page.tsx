@@ -1,18 +1,23 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Trash2 } from "lucide-react";
+import { ArrowLeft, Sparkles, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
+import { CitationChips } from "@/components/CitationChips";
 import { ResultFeedback, ResultToolbar } from "@/components/ResultFeedback";
 import { ResultRenderer } from "@/components/ResultRenderer";
 import { SafetyStrip } from "@/components/SafetyStrip";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useWorkspace } from "@/components/WorkspaceProvider";
+import { citationsFromOutput } from "@/lib/citations";
 import { OUTPUT_MODE_OPTIONS } from "@/lib/input-router";
 import { detectSafetyNotice } from "@/lib/safety";
 
@@ -26,6 +31,20 @@ export default function HistoryDetailPage() {
   const { ready, history, patchClarification, removeClarification } = useWorkspace();
   const id = typeof params.id === "string" ? params.id : "";
   const item = history.find((entry) => entry.id === id) ?? null;
+  const [title, setTitle] = useState("");
+  const [showSource, setShowSource] = useState(false);
+
+  useEffect(() => {
+    if (item) {
+      setTitle(item.title);
+    }
+  }, [item]);
+
+  const safety = useMemo(() => (item ? detectSafetyNotice(item.source) : null), [item]);
+  const citations = useMemo(
+    () => (item ? citationsFromOutput(item.source, item.result, item.mode) : []),
+    [item],
+  );
 
   if (ready && !item) {
     return (
@@ -47,8 +66,6 @@ export default function HistoryDetailPage() {
     );
   }
 
-  const safety = detectSafetyNotice(item.source);
-
   return (
     <main id="main" className="space-y-6">
       <div className="flex flex-wrap items-center gap-3">
@@ -60,10 +77,32 @@ export default function HistoryDetailPage() {
         </Button>
         <Badge variant="outline">{modeLabel(item.mode)}</Badge>
         {item.pinned ? <Badge variant="secondary">Pinned</Badge> : null}
+        <Button asChild variant="outline">
+          <Link href={`/?id=${item.id}`}>
+            <Sparkles aria-hidden="true" />
+            Open in Unconfuzzle
+          </Link>
+        </Button>
       </div>
-      <div>
-        <h1 className="text-3xl font-semibold tracking-tight">{item.title}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+      <div className="space-y-2">
+        <Label htmlFor="clarification-title" className="sr-only">
+          Title
+        </Label>
+        <Input
+          id="clarification-title"
+          value={title}
+          onChange={(event) => setTitle(event.target.value)}
+          onBlur={() => {
+            const next = title.trim() || item.title;
+            if (next !== item.title) {
+              patchClarification(item.id, { title: next });
+              toast.success("Title saved.");
+            }
+            setTitle(next);
+          }}
+          className="h-auto border-0 px-0 text-3xl font-semibold tracking-tight shadow-none focus-visible:ring-0"
+        />
+        <p className="text-sm text-muted-foreground">
           {new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(
             new Date(item.createdAt),
           )}
@@ -74,12 +113,20 @@ export default function HistoryDetailPage() {
         result={item.result}
         mode={item.mode}
         pinned={item.pinned}
+        showingSource={showSource}
+        onToggleSource={() => setShowSource((value) => !value)}
         onPin={() => {
           const next = !item.pinned;
           patchClarification(item.id, { pinned: next });
           toast.success(next ? "Pinned." : "Unpinned.");
         }}
       />
+      {showSource ? (
+        <pre className="whitespace-pre-wrap rounded-2xl border bg-muted/40 p-4 text-sm leading-relaxed text-muted-foreground">
+          {item.source}
+        </pre>
+      ) : null}
+      <CitationChips citations={citations} />
       <ResultRenderer
         data={item.result}
         mode={item.mode}

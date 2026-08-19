@@ -1,6 +1,6 @@
 "use client";
 
-import { Bookmark, BookmarkCheck, Copy, Printer, Share2, ThumbsDown, ThumbsUp } from "lucide-react";
+import { Bookmark, BookmarkCheck, Copy, Eye, EyeOff, Printer, Share2, ThumbsDown, ThumbsUp } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -20,11 +20,15 @@ export function ResultToolbar({
   mode,
   pinned,
   onPin,
+  showingSource,
+  onToggleSource,
 }: {
   result: FormattedOutput;
   mode: OutputMode;
   pinned?: boolean;
   onPin?: () => void;
+  showingSource?: boolean;
+  onToggleSource?: () => void;
 }) {
   const copyText = async () => {
     const text = formattedOutputToPlainText(result, mode);
@@ -75,6 +79,17 @@ export function ResultToolbar({
         <Printer aria-hidden="true" />
         Print
       </Button>
+      {onToggleSource ? (
+        <Button
+          type="button"
+          variant={showingSource ? "secondary" : "outline"}
+          onClick={onToggleSource}
+          aria-pressed={showingSource}
+        >
+          {showingSource ? <EyeOff aria-hidden="true" /> : <Eye aria-hidden="true" />}
+          {showingSource ? "Hide source" : "Compare source"}
+        </Button>
+      ) : null}
       {onPin ? (
         <Button type="button" variant={pinned ? "secondary" : "outline"} onClick={onPin} aria-pressed={pinned}>
           {pinned ? <BookmarkCheck aria-hidden="true" /> : <Bookmark aria-hidden="true" />}
