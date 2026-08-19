@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { BrandLogo } from "@/components/BrandLogo";
 import { HomeWorkspace } from "@/components/HomeWorkspace";
 import { LandingStory } from "@/components/LandingStory";
@@ -34,9 +36,12 @@ export default function HomePage() {
             </li>
           ))}
         </ul>
-        <p className="mt-4 inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-foreground">
+        <Link
+          href="/honesty"
+          className="mt-4 inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-foreground hover:border-primary/50"
+        >
           Honesty built in — no invented safety-critical steps
-        </p>
+        </Link>
       </section>
       <HomeWorkspace />
       <LandingStory />

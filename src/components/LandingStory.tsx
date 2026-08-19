@@ -34,7 +34,7 @@ export function LandingStory() {
             key={step.n}
             className="rounded-[1.75rem] border border-border/70 bg-card/50 p-6 shadow-sm backdrop-blur-sm"
           >
-            <p className="bg-gradient-to-r from-violet-400 to-cyan-300 bg-clip-text text-sm font-bold tracking-widest text-transparent">
+            <p className="bg-gradient-to-r from-violet-700 to-cyan-700 bg-clip-text text-sm font-bold tracking-widest text-transparent dark:from-violet-400 dark:to-cyan-300">
               {step.n}
             </p>
             <h3 className="mt-3 text-lg font-semibold tracking-tight">{step.title}</h3>

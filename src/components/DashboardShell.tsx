@@ -39,7 +39,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
                 className={cn(
                   "inline-flex min-h-12 shrink-0 items-center gap-2 rounded-xl px-4 text-sm font-medium transition-colors",
                   active
-                    ? "bg-gradient-to-r from-violet-600 to-cyan-400 text-white"
+                    ? "bg-gradient-to-r from-violet-600 to-cyan-600 text-white"
                     : "bg-secondary/70 text-secondary-foreground hover:bg-secondary",
                 )}
                 aria-current={active ? "page" : undefined}

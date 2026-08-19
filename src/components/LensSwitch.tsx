@@ -31,7 +31,7 @@ export function LensSwitch({
               className={cn(
                 "inline-flex min-h-12 items-center rounded-full border px-4 text-sm font-medium transition-colors",
                 active
-                  ? "border-transparent bg-gradient-to-r from-violet-600 to-cyan-400 text-white"
+                  ? "border-transparent bg-gradient-to-r from-violet-600 to-cyan-600 text-white"
                   : "border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground",
                 disabled && "cursor-not-allowed opacity-50",
               )}
