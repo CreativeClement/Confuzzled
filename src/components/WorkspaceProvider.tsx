@@ -27,6 +27,7 @@ import {
   type Profile,
   type WorkspaceExport,
 } from "@/lib/workspace";
+import { clearPhotos, deletePhoto } from "@/lib/photo-store";
 
 type WorkspaceContextValue = {
   ready: boolean;
@@ -106,6 +107,9 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
           return false;
         }
         const removed = deleteHistoryItem(id);
+        if (removed) {
+          void deletePhoto(id).catch(() => undefined);
+        }
         refresh();
         return removed;
       },
@@ -114,6 +118,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
           return;
         }
         clearWorkspace();
+        void clearPhotos().catch(() => undefined);
         refresh();
       },
       exportData: () => {

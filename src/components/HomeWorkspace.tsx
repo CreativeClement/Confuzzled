@@ -14,10 +14,12 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
 import { useWorkspace } from "@/components/WorkspaceProvider";
-import { requestClarify } from "@/lib/clarify-client";
+import { requestClarify, streamClarify } from "@/lib/clarify-client";
+import { isLivePreviewMode } from "@/lib/clarify-sse";
 import { citationsFromOutput } from "@/lib/citations";
 import { clearDraft, MAX_DRAFT_CHARS, readDraft, writeDraft } from "@/lib/draft";
 import { fileToClarifyImage, isImageFile, type AttachedImage } from "@/lib/image-attach";
+import { getPhoto, putPhoto } from "@/lib/photo-store";
 import { detectInputType, OUTPUT_MODE_OPTIONS, type OutputMode } from "@/lib/input-router";
 import { recommendOutputMode } from "@/lib/lens";
 import { isTextOutput, type FormattedOutput } from "@/lib/output-formatter";
@@ -77,6 +79,8 @@ export function HomeWorkspace() {
   const [historyId, setHistoryId] = useState<string | null>(null);
   const [fileName, setFileName] = useState("");
   const [progress, setProgress] = useState(0);
+  const [streamPreview, setStreamPreview] = useState("");
+  const [streamMode, setStreamMode] = useState<OutputMode | null>(null);
   const [dragging, setDragging] = useState(false);
   const [stuckStep, setStuckStep] = useState<number | null>(null);
   const [image, setImage] = useState<AttachedImage | null>(null);
@@ -119,6 +123,17 @@ export function HomeWorkspace() {
         setResultMode(item.mode);
         setHistoryId(item.id);
         setCitations(citationsFromOutput(item.source, item.result, item.mode));
+        void getPhoto(item.id).then((photo) => {
+          if (photo) {
+            setImage({
+              name: photo.name,
+              mime: photo.mime,
+              data: photo.data,
+              preview: photo.preview,
+            });
+            setFileName(photo.name);
+          }
+        });
         setSessionLoaded(true);
         return;
       }
@@ -213,6 +228,15 @@ export function HomeWorkspace() {
         result: data,
       });
       setHistoryId(saved?.id ?? null);
+      if (saved && image) {
+        void putPhoto({
+          id: saved.id,
+          name: image.name,
+          mime: image.mime,
+          data: image.data,
+          preview: image.preview,
+        });
+      }
     }
     window.requestAnimationFrame(() => {
       resultsHeadingRef.current?.focus();
@@ -236,18 +260,40 @@ export function HomeWorkspace() {
     setLoading(true);
     setError(null);
     setProgress(18);
-    const timer = window.setInterval(() => {
-      setProgress((value) => (value >= 88 ? value : value + 7));
-    }, 350);
+    setStreamPreview("");
+    setStreamMode(null);
+    if (!replace) {
+      setResult(null);
+    }
 
     try {
-      const payload = await requestClarify({
-        content,
-        mode,
-        role: profile?.role,
-        image: image ? { mime: image.mime, data: image.data } : null,
-        signal: controller.signal,
-      });
+      const payload = await streamClarify(
+        {
+          content,
+          mode,
+          role: profile?.role,
+          image: image ? { mime: image.mime, data: image.data } : null,
+          signal: controller.signal,
+        },
+        {
+          onMeta: (meta) => {
+            setStreamMode(meta.mode);
+            setResultMode(meta.mode);
+            setProgress(40);
+            if (meta.warning) {
+              toast.message(meta.warning);
+            }
+          },
+          onDelta: (chunk) => {
+            setStreamPreview((current) => current + chunk);
+            setProgress((value) => (value >= 92 ? value : value + 1));
+          },
+          onRetry: () => {
+            setStreamPreview("");
+            toast.message("Cleaning that up…");
+          },
+        },
+      );
 
       if (!payload.success) {
         if (!replace) {
@@ -261,6 +307,7 @@ export function HomeWorkspace() {
       }
 
       setProgress(100);
+      setStreamPreview("");
       saveResult(
         content,
         payload.data,
@@ -269,9 +316,7 @@ export function HomeWorkspace() {
         replace,
         payload.citations ?? [],
       );
-      if (payload.warning) {
-        toast.message(payload.warning);
-      } else if (payload.seen) {
+      if (payload.seen) {
         toast.success("Read the photo. Here’s the clear version.");
       } else if (payload.fetched) {
         toast.success("Pulled the page. Here’s the clear version.");
@@ -285,7 +330,6 @@ export function HomeWorkspace() {
       setError("Network error. Check your connection and try again.");
       toast.error("Network error. Check your connection and try again.");
     } finally {
-      window.clearInterval(timer);
       if (abortRef.current === controller) {
         setLoading(false);
       }
@@ -376,6 +420,8 @@ export function HomeWorkspace() {
     setCitations([]);
     setShowSource(false);
     setProgress(0);
+    setStreamPreview("");
+    setStreamMode(null);
     try {
       clearDraft(window.localStorage);
     } catch {
@@ -397,8 +443,20 @@ export function HomeWorkspace() {
     setResultMode(item.mode);
     setHistoryId(item.id);
     setCitations(citationsFromOutput(item.source, item.result, item.mode));
-    setImage(null);
-    setFileName("");
+    void getPhoto(item.id).then((photo) => {
+      if (photo) {
+        setImage({
+          name: photo.name,
+          mime: photo.mime,
+          data: photo.data,
+          preview: photo.preview,
+        });
+        setFileName(photo.name);
+      } else {
+        setImage(null);
+        setFileName("");
+      }
+    });
     setError(null);
     setShowSource(false);
     window.history.replaceState({}, "", `/?id=${item.id}`);
@@ -594,7 +652,13 @@ export function HomeWorkspace() {
                   {loading ? "Working through it" : "Here."}
                 </h2>
               </div>
-              {loading ? <Progress value={progress} className="h-2" aria-label="Clarifying your source" /> : null}
+              {loading && streamPreview && isLivePreviewMode(streamMode ?? resultMode) ? (
+                <p className="whitespace-pre-wrap rounded-2xl border bg-card p-5 text-lg font-medium leading-relaxed">
+                  {streamPreview}
+                </p>
+              ) : loading ? (
+                <Progress value={progress} className="h-2" aria-label="Clarifying your source" />
+              ) : null}
               {result && !loading ? (
                 <div className="space-y-5">
                   {safety ? <SafetyStrip notice={safety} /> : null}

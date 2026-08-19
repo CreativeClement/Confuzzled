@@ -26,7 +26,8 @@ export default function HonestyPage() {
           <li>PDFs yield selectable text only. Scanned pages still need you to type what you can read.</li>
           <li>
             Photos are sent as pixels so visible words can be read. Blurry labels stay unread — we
-            will not guess serials or voltages.
+            will not guess serials or voltages. The photo stays in this browser with that
+            clarification.
           </li>
           <li>History, ratings, and your display name stay in this browser unless you export them.</li>
           <li>Live Unconfuzzle needs an OpenAI key on the server. Try a sample works without one.</li>

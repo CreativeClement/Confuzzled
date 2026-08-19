@@ -1,33 +1,29 @@
-import { generateText } from "ai";
+import { generateText, streamText } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { citationsFromOutput } from "@/lib/citations";
 import { clarifyProviderError } from "@/lib/clarify-errors";
-import { enrichWithFetchedUrl } from "@/lib/fetch-public";
-import { clarifyImageToBuffer, parseClarifyImage, type ClarifyImage } from "@/lib/image-payload";
 import {
-  buildSystemPrompt,
-  detectInputType,
-  isOutputMode,
-  type OutputMode,
-} from "@/lib/input-router";
-import { buildFocusPrompt, recommendOutputMode } from "@/lib/lens";
+  COMPLETION_TIMEOUT_MS,
+  MAX_OUTPUT_TOKENS,
+  failurePayload,
+  prepareClarify,
+  successPayload,
+  type ClarifyPrep,
+} from "@/lib/clarify-prepare";
+import { encodeSse } from "@/lib/clarify-sse";
+import { clarifyImageToBuffer, type ClarifyImage } from "@/lib/image-payload";
 import { formatOutput, isThinOutput } from "@/lib/output-formatter";
 import { getClientKey, rateLimit } from "@/lib/rate-limit";
-import { AUDIENCE_ROLE_OPTIONS, isAudienceRole } from "@/lib/workspace";
 
 export const runtime = "nodejs";
-
-const MAX_INPUT_CHARS = 4000;
-const MAX_OUTPUT_TOKENS = 1000;
-const COMPLETION_TIMEOUT_MS = 25_000;
 
 const clarifySchema = z.object({
   content: z.string().min(1, "Content is required."),
   mode: z.string().optional(),
   role: z.string().optional(),
+  stream: z.boolean().optional(),
   focus: z
     .object({
       step: z.number().int().positive(),
@@ -72,41 +68,107 @@ function jsonResponse(
   return NextResponse.json(body, { status: init.status, headers });
 }
 
-async function completeClarify(options: {
+function modelCall(options: {
   system: string;
   prompt: string;
   image: ClarifyImage | null;
-}): Promise<string> {
-  const abortSignal = AbortSignal.timeout(COMPLETION_TIMEOUT_MS);
+  abortSignal: AbortSignal;
+}) {
   if (options.image) {
-    const result = await generateText({
+    return {
       model: openai("gpt-4o-mini"),
       system: options.system,
       messages: [
         {
-          role: "user",
+          role: "user" as const,
           content: [
-            { type: "text", text: options.prompt },
-            { type: "image", image: clarifyImageToBuffer(options.image) },
+            { type: "text" as const, text: options.prompt },
+            { type: "image" as const, image: clarifyImageToBuffer(options.image) },
           ],
         },
       ],
       maxTokens: MAX_OUTPUT_TOKENS,
       temperature: 0.4,
-      abortSignal,
-    });
-    return result.text;
+      abortSignal: options.abortSignal,
+    };
   }
-
-  const result = await generateText({
+  return {
     model: openai("gpt-4o-mini"),
     system: options.system,
     prompt: options.prompt,
     maxTokens: MAX_OUTPUT_TOKENS,
     temperature: 0.4,
-    abortSignal,
-  });
+    abortSignal: options.abortSignal,
+  };
+}
+
+async function completeClarify(options: {
+  system: string;
+  prompt: string;
+  image: ClarifyImage | null;
+}): Promise<string> {
+  const result = await generateText(
+    modelCall({ ...options, abortSignal: AbortSignal.timeout(COMPLETION_TIMEOUT_MS) }),
+  );
   return result.text;
+}
+
+function streamClarify(prep: ClarifyPrep, rate: ReturnType<typeof rateLimit>): Response {
+  const encoder = new TextEncoder();
+  const stream = new ReadableStream({
+    async start(controller) {
+      const send = (event: Record<string, unknown>) => {
+        controller.enqueue(encoder.encode(encodeSse(event)));
+      };
+      try {
+        send({
+          type: "meta",
+          mode: prep.mode,
+          inputType: prep.inputType,
+          truncated: prep.truncated,
+          fetched: prep.fetched,
+          seen: Boolean(prep.image),
+          warning: prep.fetchWarning,
+        });
+        const streamed = streamText(
+          modelCall({
+            system: prep.system,
+            prompt: prep.prompt,
+            image: prep.image,
+            abortSignal: AbortSignal.timeout(COMPLETION_TIMEOUT_MS),
+          }),
+        );
+        for await (const delta of streamed.textStream) {
+          if (delta) {
+            send({ type: "delta", text: delta });
+          }
+        }
+        let raw = await streamed.text;
+        let data = formatOutput(raw, prep.mode);
+        if (isThinOutput(data, prep.mode)) {
+          send({ type: "retry" });
+          raw = await completeClarify({
+            system: `${prep.system}\nRETRY: Your previous reply could not be parsed. Match the MODE contract exactly. JSON only when the mode asks for JSON. No markdown fences.`,
+            prompt: prep.prompt,
+            image: prep.image,
+          });
+          data = formatOutput(raw, prep.mode);
+        }
+        send({ type: "done", ...successPayload(prep, data) });
+      } catch (error) {
+        console.error("Confuzzled /api/clarify stream failed", error);
+        const mapped = clarifyProviderError(error);
+        send({ type: "error", error: mapped.message, status: mapped.status });
+      } finally {
+        controller.close();
+      }
+    },
+  });
+
+  const headers = withRateLimitHeaders(corsHeaders(), rate);
+  headers.set("Content-Type", "text/event-stream; charset=utf-8");
+  headers.set("X-Accel-Buffering", "no");
+  return new Response(stream, { status: 200, headers });
 }
 
 export function OPTIONS() {
@@ -160,95 +222,10 @@ export async function POST(request: Request) {
     );
   }
 
-  const imageParsed = parseClarifyImage(parsed.data.image);
-  if (imageParsed && !imageParsed.ok) {
-    return jsonResponse(
-      {
-        success: false,
-        error: imageParsed.error,
-        data: null,
-        mode: null,
-        inputType: "image",
-      },
-      { status: 400, rate },
-    );
+  const prepared = await prepareClarify(parsed.data);
+  if (!prepared.ok) {
+    return jsonResponse(failurePayload(prepared.failure), { status: prepared.failure.status, rate });
   }
-  const image = imageParsed?.ok ? imageParsed.image : null;
-
-  const content = parsed.data.content.trim();
-  const focus = parsed.data.focus;
-  const requestedMode = parsed.data.mode ?? (focus ? "feynman" : "auto");
-  let mode: OutputMode;
-  if (focus) {
-    mode = "feynman";
-  } else if (requestedMode === "auto") {
-    mode = recommendOutputMode(content);
-  } else if (isOutputMode(requestedMode)) {
-    mode = requestedMode;
-  } else {
-    return jsonResponse(
-      {
-        success: false,
-        error: "Mode must be one of: auto, TL;DR, Step-by-Step, Feynman, Socratic, Visual, Flashcards.",
-        data: null,
-        mode: requestedMode,
-        inputType: null,
-      },
-      { status: 400, rate },
-    );
-  }
-
-  if (!content) {
-    return jsonResponse(
-      {
-        success: false,
-        error: "Paste or upload something to unconfuzzle.",
-        data: null,
-        mode,
-        inputType: null,
-      },
-      { status: 400, rate },
-    );
-  }
-
-  const truncated = content.length > MAX_INPUT_CHARS;
-  const promptSource = truncated ? content.slice(0, MAX_INPUT_CHARS) : content;
-  const inputType = image ? "image" : detectInputType(promptSource);
-  let workingSource = promptSource;
-  let fetched = false;
-  let fetchWarning: string | null = null;
-  if (inputType === "url" && !focus) {
-    const enriched = await enrichWithFetchedUrl(promptSource);
-    workingSource = enriched.prompt.slice(0, MAX_INPUT_CHARS + 3_200);
-    fetched = enriched.fetched;
-    fetchWarning = enriched.warning;
-  }
-  const prompt = focus
-    ? buildFocusPrompt(workingSource, focus.step, focus.text)
-    : workingSource;
-  const role = parsed.data.role && isAudienceRole(parsed.data.role) ? parsed.data.role : null;
-  const roleMeta = role ? AUDIENCE_ROLE_OPTIONS.find((option) => option.value === role) : null;
-  const system = [
-    buildSystemPrompt(mode, inputType),
-    roleMeta
-      ? `READER: ${roleMeta.label}. ${roleMeta.description} Prefer examples and vocabulary that fit that life. Do not assume they are a student.`
-      : "",
-    focus
-      ? `FOCUS: The reader is stuck on step ${focus.step}. Teach only that step. Do not invent tools, voltages, dosages, or legal outcomes.`
-      : "",
-    image
-      ? "A photograph is attached as pixels. Read visible text. If a label is blurry, say you cannot read it. Do not invent serials, voltages, dosages, or legal outcomes."
-      : "",
-    fetched
-      ? "A public page was fetched and appended as an extract. Stay faithful to that extract plus the user's notes."
-      : "",
-    fetchWarning ? `FETCH NOTE: ${fetchWarning}` : "",
-    truncated
-      ? `The user input was truncated to ${MAX_INPUT_CHARS} characters for token safety. Work only from what remains.`
-      : "",
-  ]
-    .filter(Boolean)
-    .join("\n");
 
   if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY.includes("your-openai-key")) {
     return jsonResponse(
@@ -256,39 +233,34 @@ export async function POST(request: Request) {
         success: false,
         error: "The server is missing OPENAI_API_KEY. Add it to .env.local and restart.",
         data: null,
-        mode,
-        inputType,
+        mode: prepared.prep.mode,
+        inputType: prepared.prep.inputType,
       },
       { status: 500, rate },
     );
   }
 
+  if (parsed.data.stream && !parsed.data.focus) {
+    return streamClarify(prepared.prep, rate);
+  }
+
   try {
-    let raw = await completeClarify({ system, prompt, image });
-    let data = formatOutput(raw, mode);
-    if (isThinOutput(data, mode)) {
+    let raw = await completeClarify({
+      system: prepared.prep.system,
+      prompt: prepared.prep.prompt,
+      image: prepared.prep.image,
+    });
+    let data = formatOutput(raw, prepared.prep.mode);
+    if (isThinOutput(data, prepared.prep.mode)) {
       raw = await completeClarify({
-        system: `${system}\nRETRY: Your previous reply could not be parsed. Match the MODE contract exactly. JSON only when the mode asks for JSON. No markdown fences.`,
-        prompt,
-        image,
+        system: `${prepared.prep.system}\nRETRY: Your previous reply could not be parsed. Match the MODE contract exactly. JSON only when the mode asks for JSON. No markdown fences.`,
+        prompt: prepared.prep.prompt,
+        image: prepared.prep.image,
       });
-      data = formatOutput(raw, mode);
+      data = formatOutput(raw, prepared.prep.mode);
     }
 
-    return jsonResponse(
-      {
-        success: true,
-        data,
-        mode,
-        inputType,
-        truncated,
-        fetched,
-        seen: Boolean(image),
-        warning: fetchWarning,
-        citations: citationsFromOutput(workingSource, data, mode),
-      },
-      { status: 200, rate },
-    );
+    return jsonResponse(successPayload(prepared.prep, data), { status: 200, rate });
   } catch (error) {
     console.error("Confuzzled /api/clarify failed", error);
     const mapped = clarifyProviderError(error);
@@ -297,8 +269,8 @@ export async function POST(request: Request) {
         success: false,
         error: mapped.message,
         data: null,
-        mode,
-        inputType,
+        mode: prepared.prep.mode,
+        inputType: prepared.prep.inputType,
       },
       { status: mapped.status, rate },
     );

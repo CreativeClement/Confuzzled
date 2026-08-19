@@ -53,6 +53,11 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  appleWebApp: {
+    capable: true,
+    title: "Confuzzled",
+    statusBarStyle: "default",
+  },
 };
 
 export const viewport: Viewport = {

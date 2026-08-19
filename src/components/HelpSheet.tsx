@@ -32,7 +32,8 @@ export function HelpSheet() {
           <p>
             Drop the confusing thing. One button. Confuzzled picks the lens — steps, plain English,
             questions, a map, or flashcards — and you can switch after. Check steps off. If a step
-            still doesn’t land, tap stuck and we explain only that part from your source.
+            still doesn’t land, tap stuck and we explain only that part from your source. The clear
+            version streams in as it comes. On a phone, add Confuzzled to your home screen.
           </p>
           <p>
             Paste a public URL and we’ll try to fetch the page. Upload a PDF and we’ll extract
