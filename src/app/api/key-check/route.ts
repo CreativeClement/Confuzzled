@@ -2,6 +2,7 @@ import { generateText } from "ai";
 import { NextResponse } from "next/server";
 
 import { clarifyProviderError } from "@/lib/clarify-errors";
+import { safeErrorLine } from "@/lib/log-safe";
 import { providerFromRequest, providerModel } from "@/lib/provider-server";
 import { getClientKey, rateLimit } from "@/lib/rate-limit";
 
@@ -47,6 +48,7 @@ export async function POST(request: Request) {
       { headers: { "Cache-Control": "no-store" } },
     );
   } catch (error) {
+    console.error("Confuzzle /api/key-check failed:", safeErrorLine(error));
     const mapped = clarifyProviderError(error, resolved.provider.label);
     return NextResponse.json(
       { ok: false, error: mapped.message, provider: resolved.provider.label, model: resolved.provider.model },

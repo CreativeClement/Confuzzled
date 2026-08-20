@@ -26,7 +26,7 @@ export function LandingStory() {
         How it works
       </p>
       <h2 id="story-heading" className="mt-2 animate-fade-up text-center text-2xl font-semibold tracking-tight [animation-delay:80ms] sm:text-3xl">
-        Confuzzled in. Clear enough to act.
+        You come in confuzzled. You leave able to act.
       </h2>
       <ol className="mt-10 grid gap-4 sm:grid-cols-3">
         {STEPS.map((step, index) => (

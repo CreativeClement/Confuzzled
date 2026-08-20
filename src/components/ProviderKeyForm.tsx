@@ -99,9 +99,13 @@ export function ProviderKeyForm({
         <Select
           value={settings.provider}
           onValueChange={(value) => {
-            if (isProviderId(value)) {
-              persist({ ...settings, provider: value, model: "", baseUrl: "" });
+            if (!isProviderId(value) || value === settings.provider) {
+              return;
             }
+            // A key belongs to one provider, so switching clears it rather than
+            // silently sending the old key somewhere new.
+            setKeyInput("");
+            persist({ provider: value, key: "", model: "", baseUrl: "" });
           }}
           disabled={!ready}
         >
@@ -126,7 +130,7 @@ export function ProviderKeyForm({
             id="base-url"
             value={settings.baseUrl}
             onChange={(event) => setSettings({ ...settings, baseUrl: event.target.value })}
-            onBlur={() => persist(settings)}
+            onBlur={(event) => persist({ ...settings, baseUrl: event.target.value.trim() })}
             placeholder="https://example.com/v1"
             spellCheck={false}
           />
@@ -170,7 +174,7 @@ export function ProviderKeyForm({
           id="model"
           value={settings.model}
           onChange={(event) => setSettings({ ...settings, model: event.target.value })}
-          onBlur={() => persist(settings)}
+          onBlur={(event) => persist({ ...settings, model: event.target.value.trim() })}
           placeholder={spec.textModel || "model-name"}
           spellCheck={false}
         />

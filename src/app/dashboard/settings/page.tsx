@@ -58,7 +58,7 @@ export default function SettingsPage() {
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = url;
-    anchor.download = `confuzzled-workspace-${new Date().toISOString().slice(0, 10)}.json`;
+    anchor.download = `confuzzle-workspace-${new Date().toISOString().slice(0, 10)}.json`;
     anchor.click();
     URL.revokeObjectURL(url);
     toast.success("Workspace exported.");

@@ -52,6 +52,36 @@ function requestHeaders(extra?: Record<string, string>): Record<string, string> 
   };
 }
 
+/** Never let a non-JSON error page (proxy 502, captive portal) throw at the caller. */
+async function readJson(response: Response): Promise<ClarifyResponse> {
+  let raw: string;
+  try {
+    raw = await response.text();
+  } catch {
+    return { success: false, error: "The reply was cut off. Try again.", data: null };
+  }
+  try {
+    return JSON.parse(raw) as ClarifyResponse;
+  } catch {
+    return {
+      success: false,
+      error:
+        response.status >= 500
+          ? "The server returned an error page. Try again in a moment."
+          : "The server sent a reply Confuzzle could not read.",
+      data: null,
+    };
+  }
+}
+
+/** A `done` event must actually carry a result before we treat it as success. */
+function asSuccess(event: Record<string, unknown>): ClarifyResponse {
+  if (event.data == null || typeof event.mode !== "string" || typeof event.inputType !== "string") {
+    return { success: false, error: "The reply came back incomplete. Try again.", data: null };
+  }
+  return event as unknown as ClarifySuccess;
+}
+
 function clarifyBody(input: {
   content: string;
   mode: OutputMode | "auto";
@@ -84,7 +114,7 @@ export async function requestClarify(input: {
     body: JSON.stringify(clarifyBody(input)),
     signal: input.signal,
   });
-  return (await response.json()) as ClarifyResponse;
+  return readJson(response);
 }
 
 export async function streamClarify(
@@ -106,7 +136,7 @@ export async function streamClarify(
 
   const type = response.headers.get("content-type") ?? "";
   if (!type.includes("text/event-stream")) {
-    return (await response.json()) as ClarifyResponse;
+    return readJson(response);
   }
 
   if (!response.body) {
@@ -141,7 +171,7 @@ export async function streamClarify(
       } else if (kind === "retry") {
         handlers.onRetry?.();
       } else if (kind === "done") {
-        finalPayload = event as unknown as ClarifySuccess;
+        finalPayload = asSuccess(event);
       } else if (kind === "error") {
         finalPayload = {
           success: false,
@@ -155,11 +185,15 @@ export async function streamClarify(
   return finalPayload ?? { success: false, error: "The stream ended without a result.", data: null };
 }
 
+/** Returns null when the check itself failed, which is not the same as "no key". */
 export async function requestHealth(
   signal?: AbortSignal,
 ): Promise<{ ok: boolean; serverKey: boolean } | null> {
   try {
     const response = await fetch("/api/health", { signal, cache: "no-store" });
+    if (!response.ok) {
+      return null;
+    }
     const payload = (await response.json()) as { ok?: boolean; serverKey?: boolean };
     return { ok: Boolean(payload.ok), serverKey: Boolean(payload.serverKey) };
   } catch {

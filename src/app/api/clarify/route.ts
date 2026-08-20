@@ -14,6 +14,7 @@ import {
 } from "@/lib/clarify-prepare";
 import { encodeSse } from "@/lib/clarify-sse";
 import { clarifyImageToBuffer, type ClarifyImage } from "@/lib/image-payload";
+import { safeErrorLine } from "@/lib/log-safe";
 import { formatOutput, isThinOutput } from "@/lib/output-formatter";
 import { providerFromRequest, providerModel } from "@/lib/provider-server";
 import type { ResolvedProvider } from "@/lib/providers";
@@ -179,7 +180,7 @@ function streamClarify(
         }
         send({ type: "done", ...successPayload(prep, data) });
       } catch (error) {
-        console.error("Confuzzle /api/clarify stream failed", error);
+        console.error("Confuzzle /api/clarify stream failed:", safeErrorLine(error));
         const mapped = clarifyProviderError(error, provider.label);
         send({ type: "error", error: mapped.message, status: mapped.status });
       } finally {
@@ -289,7 +290,7 @@ export async function POST(request: Request) {
 
     return jsonResponse(successPayload(prepared.prep, data), { status: 200, rate });
   } catch (error) {
-    console.error("Confuzzle /api/clarify failed", error);
+    console.error("Confuzzle /api/clarify failed:", safeErrorLine(error));
     const mapped = clarifyProviderError(error, resolved.provider.label);
     return jsonResponse(
       {

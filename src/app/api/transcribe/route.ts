@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { safeErrorLine } from "@/lib/log-safe";
 import { providerFromRequest } from "@/lib/provider-server";
 import { providerSpec } from "@/lib/providers";
 import { getClientKey, rateLimit } from "@/lib/rate-limit";
@@ -100,7 +101,7 @@ export async function POST(request: Request) {
     });
     const raw = await response.text();
     if (!response.ok) {
-      console.error("Confuzzle /api/transcribe provider", response.status, raw.slice(0, 400));
+      console.error("Confuzzle /api/transcribe provider", response.status, safeErrorLine(raw));
       if (raw.includes("insufficient_quota") || raw.includes("insufficient credits")) {
         return NextResponse.json(
           {
@@ -152,7 +153,7 @@ export async function POST(request: Request) {
       truncated: clipped,
     });
   } catch (error) {
-    console.error("Confuzzle /api/transcribe failed", error);
+    console.error("Confuzzle /api/transcribe failed:", safeErrorLine(error));
     return NextResponse.json(
       { success: false, error: "Could not hear that recording. Paste a transcript instead.", text: null },
       { status: 500 },

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { safeErrorLine } from "@/lib/log-safe";
 import { extractPdfText } from "@/lib/pdf-text";
 import { getClientKey, rateLimit } from "@/lib/rate-limit";
 
@@ -71,7 +72,7 @@ export async function POST(request: Request) {
       truncated: clipped,
     });
   } catch (error) {
-    console.error("Confuzzle /api/extract failed", error);
+    console.error("Confuzzle /api/extract failed:", safeErrorLine(error));
     return NextResponse.json(
       {
         success: false,

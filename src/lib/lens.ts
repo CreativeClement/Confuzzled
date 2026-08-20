@@ -5,7 +5,7 @@ const PROCEDURE =
 const CONCEPT =
   /\b(means|why|concept|theory|explain|what is|what are|in other words|basically)\b/i;
 const CONFUSED =
-  /\b(i don'?t (get|understand)|confused|what does this mean|i'?m lost|still stuck)\b/i;
+  /\b(i don'?t (get|understand)|confused|confuzzled|what does this mean|i'?m lost|still stuck|makes no sense)\b/i;
 const VISUAL =
   /\b(architecture|flowchart|diagram|depends on|relationship|pipeline|system map|connects? to)\b/i;
 const DRILL =

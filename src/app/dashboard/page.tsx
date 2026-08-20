@@ -116,8 +116,8 @@ export default function DashboardPage() {
         {ready && recent.length === 0 ? (
           <Card>
             <CardContent className="p-6 text-sm text-muted-foreground">
-              Nothing saved yet. Tap <strong>Confuzzle this</strong>, or <strong>Try a sample</strong> on the homepage
-              (no API key needed).
+              Nothing saved yet. Tap <strong>Confuzzle this</strong> on the homepage, or{" "}
+              <strong>Try a sample</strong> to see how a result looks — that one needs no key.
             </CardContent>
           </Card>
         ) : (

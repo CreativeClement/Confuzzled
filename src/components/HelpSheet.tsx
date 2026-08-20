@@ -24,8 +24,8 @@ export function HelpSheet() {
         <SheetHeader>
           <SheetTitle>You’re confuzzled. That’s the job.</SheetTitle>
           <SheetDescription>
-            Confuzzle is for people confused about something they are doing. Show it the problem.
-            Get a version you can follow, so you’re no longer confuzzled.
+            Confuzzle is for people who are confuzzled about something they are doing. Show it the
+            problem. Get a version you can follow, so you’re no longer confuzzled.
           </SheetDescription>
         </SheetHeader>
         <div className="mt-6 space-y-4 text-sm leading-relaxed">

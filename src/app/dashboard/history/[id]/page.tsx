@@ -65,8 +65,9 @@ export default function HistoryDetailPage() {
 
   if (!item) {
     return (
-      <main id="main">
-        <p className="text-sm text-muted-foreground">Loading clarification…</p>
+      <main id="main" className="space-y-2">
+        <h1 className="text-2xl font-semibold tracking-tight">Opening this clarification</h1>
+        <p className="text-sm text-muted-foreground">Loading it from this device…</p>
       </main>
     );
   }
@@ -90,6 +91,7 @@ export default function HistoryDetailPage() {
         </Button>
       </div>
       <div className="space-y-2">
+        <h1 className="sr-only">{item.title}</h1>
         <Label htmlFor="clarification-title" className="sr-only">
           Title
         </Label>
@@ -97,8 +99,8 @@ export default function HistoryDetailPage() {
           id="clarification-title"
           value={title}
           onChange={(event) => setTitle(event.target.value)}
-          onBlur={() => {
-            const next = title.trim() || item.title;
+          onBlur={(event) => {
+            const next = event.target.value.trim() || item.title;
             if (next !== item.title) {
               patchClarification(item.id, { title: next });
               toast.success("Title saved.");

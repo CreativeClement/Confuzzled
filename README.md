@@ -20,6 +20,11 @@ browser, and each request carries it straight through to the provider you picked
 
 **Try a sample** works with no key at all.
 
+The key travels on an `x-confuzzle-key` request header and is never written to our storage or
+logs (`src/lib/log-safe.ts` scrubs provider errors before they reach the console). If you host
+Confuzzle behind a proxy or platform that records request headers, strip or redact that header
+there too.
+
 ## Setup
 
 ```bash

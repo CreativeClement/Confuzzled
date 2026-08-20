@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import { AlertCircle, Camera, Loader2, Sparkles, Upload, X } from "lucide-react";
 import { toast } from "sonner";
 
-import { HealthBanner } from "@/components/HealthBanner";
+import { KeySetupPanel } from "@/components/KeySetupPanel";
 import { ResultToolbar } from "@/components/ResultFeedback";
 import { SafetyStrip } from "@/components/SafetyStrip";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -87,6 +87,7 @@ export function HomeWorkspace() {
   const [citations, setCitations] = useState<string[]>([]);
   const [showSource, setShowSource] = useState(false);
   const [sessionLoaded, setSessionLoaded] = useState(false);
+  const [needsKey, setNeedsKey] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
   const resultsHeadingRef = useRef<HTMLHeadingElement>(null);
@@ -307,10 +308,14 @@ export function HomeWorkspace() {
           setHistoryId(null);
           setCitations([]);
         }
+        if (payload.needsKey) {
+          setNeedsKey(true);
+        }
         setError(payload.error || "Something went sideways. Try again.");
         toast.error(payload.error || "Something went sideways. Try again.");
         return;
       }
+      setNeedsKey(false);
 
       setProgress(100);
       setStreamPreview("");
@@ -369,6 +374,9 @@ export function HomeWorkspace() {
         signal: controller.signal,
       });
       if (!payload.success || !payload.data || !isTextOutput(payload.data)) {
+        if (payload.success === false && payload.needsKey) {
+          setNeedsKey(true);
+        }
         toast.error(payload.success === false ? payload.error : "Could not unstick that step.");
         return;
       }
@@ -502,7 +510,9 @@ export function HomeWorkspace() {
           )}
         >
           <div className="mb-3 flex items-center justify-between gap-3">
-            <p className="text-sm text-muted-foreground">Paste, scan, import, or drop the problem here.</p>
+            <label htmlFor="source-input" className="text-sm text-muted-foreground">
+              Paste, scan, import, or drop the problem here.
+            </label>
             <Badge variant="outline">{INPUT_TYPE_LABELS[detectedType]}</Badge>
           </div>
           <Textarea
@@ -622,7 +632,7 @@ export function HomeWorkspace() {
           ) : null}
         </div>
 
-        <HealthBanner />
+        <KeySetupPanel demanded={needsKey} onConnected={() => setNeedsKey(false)} />
 
         {ready && recent.length > 0 && !result && !loading ? (
           <div className="mt-6 space-y-2">

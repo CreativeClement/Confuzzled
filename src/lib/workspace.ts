@@ -7,9 +7,9 @@ import {
 } from "@/lib/input-router";
 import type { FormattedOutput } from "@/lib/output-formatter";
 
-export const WORKSPACE_EVENT = "confuzzled-workspace";
-export const PROFILE_STORAGE_KEY = "confuzzled-profile";
-export const HISTORY_STORAGE_KEY = "confuzzled-history";
+export const WORKSPACE_EVENT = "confuzzle-workspace";
+export const PROFILE_STORAGE_KEY = "confuzzle-profile";
+export const HISTORY_STORAGE_KEY = "confuzzle-history";
 export const MAX_HISTORY_ITEMS = 100;
 
 export const AUDIENCE_ROLES = [

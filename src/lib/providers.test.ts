@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { looksLikeKey, resolveProvider } from "@/lib/providers";
+import { isBlockedEndpointHost, looksLikeKey, resolveProvider } from "@/lib/providers";
 
 describe("looksLikeKey", () => {
   it("accepts opaque tokens and rejects pasted noise", () => {
@@ -79,6 +79,51 @@ describe("resolveProvider", () => {
     if (result.ok) {
       expect(result.provider.baseUrl).toBe("https://example.com/v1");
     }
+  });
+
+  it("refuses custom endpoints that point inside the network", () => {
+    for (const baseUrl of [
+      "https://localhost/v1",
+      "https://127.0.0.1/v1",
+      "https://10.1.2.3/v1",
+      "https://192.168.0.5/v1",
+      "https://169.254.169.254/latest",
+      "https://redis/v1",
+      "https://api.internal/v1",
+      "https://[::1]/v1",
+    ]) {
+      const result = resolveProvider({ provider: "custom", key: "k", model: "m", baseUrl });
+      expect(result.ok, baseUrl).toBe(false);
+    }
+  });
+
+  it("refuses credentials smuggled into a custom URL", () => {
+    const result = resolveProvider({
+      provider: "custom",
+      key: "k",
+      model: "m",
+      baseUrl: "https://user:pass@example.com/v1",
+    });
+    expect(result.ok).toBe(false);
+  });
+});
+
+describe("isBlockedEndpointHost", () => {
+  it("blocks private, loopback, link-local, and bare hosts", () => {
+    expect(isBlockedEndpointHost("localhost")).toBe(true);
+    expect(isBlockedEndpointHost("metadata.google.internal")).toBe(true);
+    expect(isBlockedEndpointHost("169.254.169.254")).toBe(true);
+    expect(isBlockedEndpointHost("172.16.0.1")).toBe(true);
+    expect(isBlockedEndpointHost("0.0.0.0")).toBe(true);
+    expect(isBlockedEndpointHost("db")).toBe(true);
+    expect(isBlockedEndpointHost("printer.local")).toBe(true);
+  });
+
+  it("allows real public API hosts", () => {
+    expect(isBlockedEndpointHost("api.openai.com")).toBe(false);
+    expect(isBlockedEndpointHost("api.groq.com")).toBe(false);
+    expect(isBlockedEndpointHost("8.8.8.8")).toBe(false);
+    expect(isBlockedEndpointHost("172.32.5.1")).toBe(false);
   });
 
   it("explains when a custom endpoint has no model", () => {
