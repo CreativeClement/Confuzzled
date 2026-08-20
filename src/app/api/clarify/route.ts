@@ -156,7 +156,7 @@ function streamClarify(prep: ClarifyPrep, rate: ReturnType<typeof rateLimit>): R
         }
         send({ type: "done", ...successPayload(prep, data) });
       } catch (error) {
-        console.error("Confuzzled /api/clarify stream failed", error);
+        console.error("Confuzzle /api/clarify stream failed", error);
         const mapped = clarifyProviderError(error);
         send({ type: "error", error: mapped.message, status: mapped.status });
       } finally {
@@ -262,7 +262,7 @@ export async function POST(request: Request) {
 
     return jsonResponse(successPayload(prepared.prep, data), { status: 200, rate });
   } catch (error) {
-    console.error("Confuzzled /api/clarify failed", error);
+    console.error("Confuzzle /api/clarify failed", error);
     const mapped = clarifyProviderError(error);
     return jsonResponse(
       {

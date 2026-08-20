@@ -5,6 +5,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Toaster } from "@/components/ui/sonner";
 import { WorkspaceProvider } from "@/components/WorkspaceProvider";
+import { PRODUCT_BLURB, PRODUCT_NAME } from "@/lib/brand";
 
 import "./globals.css";
 
@@ -20,38 +21,35 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Confuzzled",
-    template: "%s · Confuzzled",
+    default: PRODUCT_NAME,
+    template: `%s · ${PRODUCT_NAME}`,
   },
-  description:
-    "Show Confuzzled the confusing thing. Get back a version you can follow, that does not invent safety-critical steps.",
-  applicationName: "Confuzzled",
+  description: PRODUCT_BLURB,
+  applicationName: PRODUCT_NAME,
   icons: {
     apple: "/apple-touch-icon.png",
   },
   keywords: [
-    "Confuzzled",
+    PRODUCT_NAME,
     "Unconfuzzle",
     "explain confusing instructions",
     "step-by-step AI",
     "jargon translator",
     "how-to simplifier",
   ],
-  authors: [{ name: "Confuzzled" }],
+  authors: [{ name: PRODUCT_NAME }],
   openGraph: {
-    title: "Confuzzled",
-    description:
-      "Show Confuzzled the confusing thing. Get back a version you can follow, that does not invent safety-critical steps.",
+    title: PRODUCT_NAME,
+    description: PRODUCT_BLURB,
     type: "website",
     locale: "en_US",
     url: siteUrl,
-    siteName: "Confuzzled",
+    siteName: PRODUCT_NAME,
   },
   twitter: {
     card: "summary_large_image",
-    title: "Confuzzled",
-    description:
-      "Show Confuzzled the confusing thing. Get back a version you can follow, that does not invent safety-critical steps.",
+    title: PRODUCT_NAME,
+    description: PRODUCT_BLURB,
   },
   robots: {
     index: true,
@@ -59,7 +57,7 @@ export const metadata: Metadata = {
   },
   appleWebApp: {
     capable: true,
-    title: "Confuzzled",
+    title: PRODUCT_NAME,
     statusBarStyle: "black-translucent",
   },
 };
@@ -94,7 +92,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
       </head>
-      <body className={`${jakarta.className} min-h-dvh antialiased mesh-bg`} aria-label="Confuzzled">
+      <body className={`${jakarta.className} min-h-dvh antialiased mesh-bg`} aria-label={PRODUCT_NAME}>
         <a href="#main" className="skip-link">
           Skip to content
         </a>

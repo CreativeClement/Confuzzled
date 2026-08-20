@@ -16,24 +16,24 @@ export function HelpSheet() {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button type="button" variant="outline" size="icon" aria-label="Who Confuzzled is for">
+        <Button type="button" variant="outline" size="icon" aria-label="Who Confuzzle is for">
           <CircleHelp aria-hidden="true" />
         </Button>
       </SheetTrigger>
       <SheetContent side="right" className="overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>For anyone who’s stuck</SheetTitle>
+          <SheetTitle>Confuzzle, for anyone who’s stuck</SheetTitle>
           <SheetDescription>
-            Confuzzled is not a study app. It’s a clarity engine for any human who’s confused about
-            something they have to deal with.
+            Confuzzle is not a study app. It is a clarity engine for anyone confused about something
+            they have to deal with.
           </SheetDescription>
         </SheetHeader>
         <div className="mt-6 space-y-4 text-sm leading-relaxed">
           <p>
-            Drop the confusing thing. One button. Confuzzled picks the lens — steps, plain English,
-            questions, a map, or flashcards — and you can switch after. Check steps off. If a step
-            still doesn’t land, tap stuck and we explain only that part from your source. The clear
-            version streams in as it comes. On a phone, add Confuzzled to your home screen.
+            Drop the confusing thing. Tap Unconfuzzle. Confuzzle picks the lens — steps, plain
+            English, questions, a map, or flashcards — and you can switch after. Check steps off. If
+            a step still doesn’t land, tap stuck and we explain only that part from your source. The
+            clear version streams in as it comes. On a phone, add Confuzzle to your home screen.
           </p>
           <p>
             Paste a public URL and we’ll try to fetch the page. Upload a PDF and we’ll extract

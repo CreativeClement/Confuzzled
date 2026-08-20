@@ -14,7 +14,7 @@ export default function ErrorPage({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error("Confuzzled page error", error);
+    console.error("Confuzzle page error", error);
   }, [error]);
 
   return (
@@ -33,7 +33,7 @@ export default function ErrorPage({
         </>
       }
     >
-      <p>Confuzzled hit an error on this page. Try again, or go back to the homepage.</p>
+      <p>Confuzzle hit an error on this page. Try again, or go back to the homepage.</p>
     </MarketingPage>
   );
 }

@@ -93,7 +93,7 @@ export async function POST(request: Request) {
     });
     const raw = await response.text();
     if (!response.ok) {
-      console.error("Confuzzled /api/transcribe provider", response.status, raw.slice(0, 400));
+      console.error("Confuzzle /api/transcribe provider", response.status, raw.slice(0, 400));
       if (raw.includes("insufficient_quota")) {
         return NextResponse.json(
           {
@@ -132,7 +132,7 @@ export async function POST(request: Request) {
       truncated: clipped,
     });
   } catch (error) {
-    console.error("Confuzzled /api/transcribe failed", error);
+    console.error("Confuzzle /api/transcribe failed", error);
     return NextResponse.json(
       { success: false, error: "Could not hear that recording. Paste a transcript instead.", text: null },
       { status: 500 },

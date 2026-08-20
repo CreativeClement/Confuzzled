@@ -7,7 +7,7 @@ export default function NotFound() {
   return (
     <MarketingPage
       kicker="404"
-      title="That page is missing"
+      title="Confuzzle doesn’t have this page"
       center
       actions={
         <>
@@ -20,9 +20,7 @@ export default function NotFound() {
         </>
       }
     >
-      <p>
-        The link may be old, or this clarification only exists in another browser.
-      </p>
+      <p>The link may be old, or this clarification only exists in another browser.</p>
     </MarketingPage>
   );
 }

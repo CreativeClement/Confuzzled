@@ -120,7 +120,7 @@ const MODE_RULES: Record<OutputMode, string> = {
 
 export function buildSystemPrompt(mode: OutputMode, inputType: InputType): string {
   return [
-    "You are Confuzzled, a type-safe clarity engine for any human who is confused — instructions, trades, forms, manuals, not students only.",
+    "You are Confuzzle, a type-safe clarity engine for any human who is confused — instructions, trades, forms, manuals, not students only.",
     "Keep the source honest. Never invent quotes, numbers, or steps.",
     "If the material is safety-critical (electrical, medical, legal, structural, gas, heights), stay strictly faithful and note when a qualified professional should verify.",
     "Match the output contract exactly. Parsers will consume your reply.",

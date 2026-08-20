@@ -1,8 +1,10 @@
-# Confuzzled
+# Confuzzle
 
-**Confuzzled** is for anyone who is stuck. Show it the confusing thing. Get back a version you can follow, that does not invent safety-critical steps.
+**Confuzzle** is for anyone who is stuck. Show it the confusing thing. Get a version you can follow. We do not invent safety-critical steps.
 
-Paste a note, a spec, a form, a messy email, a public URL, a PDF, a photo, or an audio clip. Confuzzled picks a lens: TL;DR, step-by-step, plain English, Socratic Q&A, a visual map, or flashcards. You can switch after.
+The name is Confuzzle. **Unconfuzzle** is the button.
+
+Paste a note, a spec, a form, a messy email, a public URL, a PDF, a photo, or an audio clip. Confuzzle picks a lens: TL;DR, step-by-step, plain English, Socratic Q&A, a visual map, or flashcards. You can switch after.
 
 ## Setup
 
@@ -17,7 +19,7 @@ Set `OPENAI_API_KEY` in `.env.local`. Optionally set `NEXT_PUBLIC_SITE_URL` for 
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). Click **Unconfuzzle this** (or ⌘/Ctrl+Enter), or **Try a sample** with no API key. On a phone, add Confuzzled to your home screen.
+Open [http://localhost:3000](http://localhost:3000). Click **Unconfuzzle this** (or ⌘/Ctrl+Enter), or **Try a sample** with no API key. On a phone, add Confuzzle to your home screen.
 
 ## What stays in this browser
 

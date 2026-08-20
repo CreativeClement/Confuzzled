@@ -19,11 +19,11 @@ export function SiteFooter() {
       <div className="container flex flex-col items-center gap-5 py-10 text-center sm:py-12">
         <Link href="/" className="inline-flex items-center gap-2.5 font-semibold tracking-tight">
           <BrandLogo size={32} />
-          Confuzzled
+          Confuzzle
         </Link>
         <p className="max-w-lg text-sm leading-relaxed text-muted-foreground">
-          For anyone stuck on instructions, a job, or a wall of text. We keep the source honest — no
-          invented quotes, numbers, or steps.
+          For anyone stuck on instructions, a job, or a wall of text. Confuzzle keeps the source
+          honest — no invented quotes, numbers, or steps.
         </p>
         <nav aria-label="Footer" className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm">
           {LINKS.map((link) => (

@@ -1,13 +1,13 @@
 const STEPS = [
   {
     n: "01",
-    title: "Show it the confusing thing",
+    title: "Show Confuzzle the confusing thing",
     body: "Paste the words, drop a PDF, snap a photo, or send a public URL. Audio notes work too.",
   },
   {
     n: "02",
     title: "Tap Unconfuzzle",
-    body: "Confuzzled picks a lens — steps, plain English, questions, a map, or flashcards. You can switch after.",
+    body: "Confuzzle picks a lens — steps, plain English, questions, a map, or flashcards. You can switch after.",
   },
   {
     n: "03",

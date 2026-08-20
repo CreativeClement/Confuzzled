@@ -15,7 +15,7 @@ export default function HomePage() {
       >
         <BrandLogo size={88} glow className="rounded-[22%]" />
         <p className="mt-6 text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground">
-          Confuzzled
+          Confuzzle
         </p>
         <h1
           id="hero-heading"
@@ -24,7 +24,8 @@ export default function HomePage() {
           Show it the confusing thing.
         </h1>
         <p className="mx-auto mt-4 max-w-xl text-pretty text-base text-muted-foreground sm:text-lg">
-          Get back a version you can follow. We don’t invent safety-critical steps.
+          Confuzzle hands back a version you can follow. It will not invent voltages, dosages, or
+          other safety-critical steps.
         </p>
         <ul className="mt-6 flex flex-wrap items-center justify-center gap-2" aria-label="What you can drop in">
           {PROOF.map((item) => (
@@ -40,7 +41,7 @@ export default function HomePage() {
           href="/honesty"
           className="mt-4 inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-foreground hover:border-primary/50"
         >
-          Honesty built in — no invented safety-critical steps
+          Honest to your source
         </Link>
       </section>
       <HomeWorkspace />

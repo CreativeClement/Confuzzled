@@ -3,11 +3,11 @@
 const BASE = process.env.SMOKE_URL ?? "http://127.0.0.1:3000";
 
 const ROUTES = [
-  { path: "/", mustInclude: ["Confuzzled", "Unconfuzzle this"] },
-  { path: "/about", mustInclude: ["Confuzzled"] },
+  { path: "/", mustInclude: ["Confuzzle", "Unconfuzzle this"] },
+  { path: "/about", mustInclude: ["Confuzzle"] },
   { path: "/honesty", mustInclude: ["honest"] },
   { path: "/privacy", mustInclude: ["browser"] },
-  { path: "/manifest.webmanifest", mustInclude: ["Confuzzled"] },
+  { path: "/manifest.webmanifest", mustInclude: ["Confuzzle"] },
   { path: "/api/health", mustInclude: ["\"ok\""] },
 ];
 

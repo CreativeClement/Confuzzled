@@ -1,11 +1,12 @@
 import type { MetadataRoute } from "next";
 
+import { PRODUCT_BLURB, PRODUCT_NAME } from "@/lib/brand";
+
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Confuzzled",
-    short_name: "Confuzzled",
-    description:
-      "Show Confuzzled the confusing thing. Get back a version you can follow, that does not invent safety-critical steps.",
+    name: PRODUCT_NAME,
+    short_name: PRODUCT_NAME,
+    description: PRODUCT_BLURB,
     start_url: "/",
     display: "standalone",
     background_color: "#000000",

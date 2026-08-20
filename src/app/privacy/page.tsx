@@ -7,14 +7,14 @@ import { Button } from "@/components/ui/button";
 export const metadata: Metadata = {
   title: "Privacy",
   description:
-    "What Confuzzled sends to OpenAI, what stays in this browser, and what we never invent.",
+    "What Confuzzle sends to OpenAI, what stays in this browser, and what we never invent.",
 };
 
 export default function PrivacyPage() {
   return (
     <MarketingPage
       kicker="Privacy"
-      title="What stays here"
+      title="What stays on this device"
       actions={
         <>
           <Button asChild variant="brand">
@@ -27,13 +27,13 @@ export default function PrivacyPage() {
       }
     >
       <p>
-        Confuzzled has no cloud account. Your display name, history, ratings, drafts, and photos
+        Confuzzle has no cloud account. Your display name, history, ratings, drafts, and photos
         stay in this browser unless you export a JSON backup. Photos are not inside that JSON file.
       </p>
       <p>
-        When you click Unconfuzzle, the source you pasted (and a photo or audio transcript, if you
-        attached one) is sent to the Confuzzled server, then to OpenAI to produce the clear version.
-        We do not use it to train a Confuzzled model. We do not sell it.
+        When you tap Unconfuzzle, the source you pasted (and a photo or audio transcript, if you
+        attached one) goes to the Confuzzle server, then to OpenAI to produce the clear version. We
+        do not use it to train a Confuzzle model. We do not sell it.
       </p>
       <p>
         Public URLs you paste may be fetched by our server so we can read the page. Localhost,

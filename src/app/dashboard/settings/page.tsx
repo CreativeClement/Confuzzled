@@ -88,14 +88,14 @@ export default function SettingsPage() {
         <h1 className="text-3xl font-semibold tracking-tight">Your workspace</h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
           This is a local profile — name, preferred mode, and history never leave this browser unless
-          you export them. There is no cloud account yet.
+          you export them. Confuzzle has no cloud account yet.
         </p>
       </div>
 
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Profile</CardTitle>
-          <CardDescription>How Confuzzled should address you.</CardDescription>
+          <CardDescription>How Confuzzle should address you.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
@@ -224,7 +224,7 @@ export default function SettingsPage() {
             disabled={!ready}
             onClick={() => {
               const confirmed = window.confirm(
-                "Delete all local Confuzzled data on this device? This cannot be undone unless you exported first.",
+                "Delete all local Confuzzle data on this device? This cannot be undone unless you exported first.",
               );
               if (!confirmed) {
                 return;

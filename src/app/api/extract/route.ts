@@ -71,7 +71,7 @@ export async function POST(request: Request) {
       truncated: clipped,
     });
   } catch (error) {
-    console.error("Confuzzled /api/extract failed", error);
+    console.error("Confuzzle /api/extract failed", error);
     return NextResponse.json(
       {
         success: false,

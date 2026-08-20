@@ -7,14 +7,14 @@ import { Button } from "@/components/ui/button";
 export const metadata: Metadata = {
   title: "About",
   description:
-    "Confuzzled is a clarity engine for anyone who is stuck — not a study app. Paste the confusing thing and get a version you can follow.",
+    "Confuzzle is a clarity engine for anyone who is stuck. Show it the confusing thing. Get a version you can follow.",
 };
 
 export default function AboutPage() {
   return (
     <MarketingPage
       kicker="About"
-      title="For anyone who’s stuck"
+      title="Confuzzle is for anyone who’s stuck"
       actions={
         <>
           <Button asChild variant="brand">
@@ -27,23 +27,22 @@ export default function AboutPage() {
       }
     >
       <p>
-        Confuzzled is a universal AI clarity engine. Show it the confusing thing — a wiring note, a
-        form, a manual, a messy email, a public URL, a PDF, a photo — and get back a version you can
-        follow.
+        Confuzzle is a clarity engine, not a study app. You show it the confusing thing — a wiring
+        note, a form, a manual, a messy email, a public URL, a PDF, a photo, an audio clip — and it
+        gives you a version you can follow.
       </p>
       <p>
-        It is not a study-only app. Electricians, parents, first-timers, professionals, and students
-        all get the same promise: we stay honest to your source and do not invent safety-critical
-        steps.
+        Electricians, parents, first-timers, professionals, and students get the same deal: we stay
+        honest to your source. We do not invent safety-critical steps.
       </p>
       <p>
-        One button. Confuzzled picks a lens (steps, plain English, questions, a map, or flashcards).
-        You can switch after. Check steps off. If one still doesn’t land, tap stuck and we explain
-        only that part.
+        One button: Unconfuzzle. Confuzzle picks a lens (steps, plain English, questions, a map, or
+        flashcards). You can switch after. Check steps off. If one still doesn’t land, tap stuck and
+        we explain only that part.
       </p>
       <p>
-        Clarifications stay in this browser. There is no cloud account yet. Live Unconfuzzle uses
-        OpenAI when a key is configured on the server.
+        What you Unconfuzzle stays in this browser. There is no cloud account yet. Live Unconfuzzle
+        uses OpenAI when a key is configured on the server.
       </p>
     </MarketingPage>
   );

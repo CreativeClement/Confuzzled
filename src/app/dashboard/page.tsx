@@ -29,7 +29,7 @@ export default function DashboardPage() {
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
           Clarifications stay in this browser. Pin the keepers, rate what helped, and set a preferred
-          lens in Settings for when the source is unclear.
+          lens in Settings for when Confuzzle is unsure which mode to pick.
         </p>
       </div>
 

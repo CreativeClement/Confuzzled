@@ -254,8 +254,8 @@ export function HomeWorkspace() {
       text.trim() ||
       (image ? `[[input:image]]\nPhoto: ${image.name}. Add any extra notes.` : "");
     if (!content) {
-      setError("Show Confuzzled the confusing thing.");
-      toast.error("Show Confuzzled the confusing thing.");
+      setError("Show Confuzzle the confusing thing.");
+      toast.error("Show Confuzzle the confusing thing.");
       return;
     }
 

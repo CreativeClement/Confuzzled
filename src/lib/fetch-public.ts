@@ -34,7 +34,7 @@ async function fetchHop(url: URL): Promise<Response> {
     signal: AbortSignal.timeout(TIMEOUT_MS),
     headers: {
       Accept: "text/html,text/plain,application/pdf;q=0.8,*/*;q=0.1",
-      "User-Agent": "Confuzzled/1.0 (+https://github.com/CreativeClement/Confuzzled)",
+      "User-Agent": "Confuzzle/1.0 (+https://github.com/CreativeClement/Confuzzled)",
     },
   });
 }

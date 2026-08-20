@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "Confuzzled — show it the confusing thing.";
+export const alt = "Confuzzle — show it the confusing thing.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -46,7 +46,7 @@ export default function OpenGraphImage() {
             color: "#a78bfa",
           }}
         >
-          Confuzzled
+          Confuzzle
         </div>
         <div
           style={{
@@ -70,7 +70,7 @@ export default function OpenGraphImage() {
             maxWidth: 760,
           }}
         >
-          Get back a version you can follow. We don’t invent safety-critical steps.
+          Confuzzle hands back a version you can follow. We don’t invent safety-critical steps.
         </div>
       </div>
     ),

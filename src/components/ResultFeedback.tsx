@@ -52,7 +52,7 @@ export function ResultToolbar({
     }
     try {
       if (typeof navigator.share === "function") {
-        await navigator.share({ title: "Confuzzled", text });
+        await navigator.share({ title: "Confuzzle", text });
         return;
       }
       await navigator.clipboard.writeText(text);

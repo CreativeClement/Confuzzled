@@ -86,7 +86,7 @@ export function BrandWordmark({
   return (
     <span className={cn("inline-flex items-center gap-2.5", className)}>
       <BrandLogo size={size} />
-      <span className="font-semibold tracking-tight">Confuzzled</span>
+      <span className="font-semibold tracking-tight">Confuzzle</span>
     </span>
   );
 }

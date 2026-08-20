@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rasterize the Confuzzled mark for PWA icons. Pure stdlib — no Pillow."""
+"""Rasterize the Confuzzle mark for PWA icons. Pure stdlib — no Pillow."""
 
 from __future__ import annotations
 

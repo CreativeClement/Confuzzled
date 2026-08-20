@@ -418,7 +418,7 @@ export function importWorkspace(raw: string): { ok: true } | { ok: false; error:
 
   const result = exportSchema.safeParse(parsed);
   if (!result.success) {
-    return { ok: false, error: "That export does not match a Confuzzled workspace file." };
+    return { ok: false, error: "That export does not match a Confuzzle workspace file." };
   }
 
   writeJson(PROFILE_STORAGE_KEY, result.data.profile);
