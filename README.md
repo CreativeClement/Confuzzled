@@ -1,10 +1,10 @@
 # Confuzzle
 
-**Confuzzle** is for anyone who is stuck. Show it the confusing thing. Get a version you can follow. We do not invent safety-critical steps.
+**Confuzzle** is for people who are confuzzled about something they are doing. Show it the problem — paste, PDF, scan, or import. It deciphers the confusion so you can keep going, and you’re no longer confuzzled.
 
-The name is Confuzzle. **Unconfuzzle** is the button.
+The name is Confuzzle. People who need it are **confuzzled**. **Unconfuzzle** is the button.
 
-Paste a note, a spec, a form, a messy email, a public URL, a PDF, a photo, or an audio clip. Confuzzle picks a lens: TL;DR, step-by-step, plain English, Socratic Q&A, a visual map, or flashcards. You can switch after.
+Confuzzle picks a lens: TL;DR, step-by-step, plain English, Socratic Q&A, a visual map, or flashcards. You can switch after. We do not invent safety-critical steps.
 
 ## Setup
 

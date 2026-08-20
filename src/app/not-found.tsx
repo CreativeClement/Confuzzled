@@ -20,7 +20,7 @@ export default function NotFound() {
         </>
       }
     >
-      <p>The link may be old, or this clarification only exists in another browser.</p>
+      <p>This problem isn’t here. Bring Confuzzle the thing that has you confuzzled instead.</p>
     </MarketingPage>
   );
 }

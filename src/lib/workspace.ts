@@ -33,7 +33,7 @@ export const AUDIENCE_ROLE_OPTIONS: readonly {
   { value: "first_timer", label: "First-timer", description: "Assembly, recipes, first-time procedures." },
   { value: "professional", label: "Professional", description: "Policies, emails, contracts, process docs." },
   { value: "student", label: "Student", description: "Lecture notes, readings, exam prep." },
-  { value: "other", label: "Something else", description: "Whatever has you stuck." },
+  { value: "other", label: "Something else", description: "Whatever has you confuzzled." },
 ] as const;
 
 export type WorkspacePlan = "local";

@@ -4,7 +4,7 @@ import { BrandLogo } from "@/components/BrandLogo";
 import { HomeWorkspace } from "@/components/HomeWorkspace";
 import { LandingStory } from "@/components/LandingStory";
 
-const PROOF = ["Paste", "Photo", "URL", "PDF", "Audio"] as const;
+const PROOF = ["Paste", "Scan", "PDF", "Import", "URL", "Audio"] as const;
 
 export default function HomePage() {
   return (
@@ -21,13 +21,14 @@ export default function HomePage() {
           id="hero-heading"
           className="mt-3 max-w-3xl text-balance text-4xl font-extrabold tracking-tight sm:text-6xl sm:leading-[1.05]"
         >
-          Show it the confusing thing.
+          You’re confuzzled. Show it the problem.
         </h1>
         <p className="mx-auto mt-4 max-w-xl text-pretty text-base text-muted-foreground sm:text-lg">
-          Confuzzle hands back a version you can follow. It will not invent voltages, dosages, or
-          other safety-critical steps.
+          You’re in the middle of something and it doesn’t make sense. Paste it, import a PDF, or
+          scan the page. Confuzzle deciphers it so you can keep going — and you’re no longer
+          confuzzled.
         </p>
-        <ul className="mt-6 flex flex-wrap items-center justify-center gap-2" aria-label="What you can drop in">
+        <ul className="mt-6 flex flex-wrap items-center justify-center gap-2" aria-label="How you can show Confuzzle the problem">
           {PROOF.map((item) => (
             <li
               key={item}
@@ -41,7 +42,7 @@ export default function HomePage() {
           href="/honesty"
           className="mt-4 inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-foreground hover:border-primary/50"
         >
-          Honest to your source
+          We decipher your source. We don’t invent one.
         </Link>
       </section>
       <HomeWorkspace />

@@ -26,7 +26,7 @@ export function SiteHeader() {
         <Link href="/" className="flex min-h-12 items-center font-semibold tracking-tight">
           <BrandWordmark size={36} />
           <span className="ml-2 hidden text-xs font-normal text-muted-foreground sm:inline">
-            for anyone stuck
+            for the confuzzled
           </span>
         </Link>
         <nav aria-label="Primary" className="flex items-center gap-2">

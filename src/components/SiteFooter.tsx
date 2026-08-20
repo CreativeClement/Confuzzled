@@ -22,8 +22,8 @@ export function SiteFooter() {
           Confuzzle
         </Link>
         <p className="max-w-lg text-sm leading-relaxed text-muted-foreground">
-          For anyone stuck on instructions, a job, or a wall of text. Confuzzle keeps the source
-          honest — no invented quotes, numbers, or steps.
+          You’re confuzzled about something you’re doing. Confuzzle deciphers it — paste, PDF,
+          scan, or import — so you can keep going. Honest to your source. No invented steps.
         </p>
         <nav aria-label="Footer" className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm">
           {LINKS.map((link) => (

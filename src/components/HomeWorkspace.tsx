@@ -185,7 +185,7 @@ export function HomeWorkspace() {
             ? current
             : `[[input:image]]\nPhoto: ${file.name}. Add any extra notes.`,
         );
-        toast.success("Photo attached. Unconfuzzle will read visible text.");
+        toast.success("Scan attached. Unconfuzzle will read visible text.");
         return;
       }
       setImage(null);
@@ -254,8 +254,8 @@ export function HomeWorkspace() {
       text.trim() ||
       (image ? `[[input:image]]\nPhoto: ${image.name}. Add any extra notes.` : "");
     if (!content) {
-      setError("Show Confuzzle the confusing thing.");
-      toast.error("Show Confuzzle the confusing thing.");
+      setError("Show Confuzzle the problem that has you confuzzled.");
+      toast.error("Show Confuzzle the problem that has you confuzzled.");
       return;
     }
 
@@ -502,14 +502,14 @@ export function HomeWorkspace() {
           )}
         >
           <div className="mb-3 flex items-center justify-between gap-3">
-            <p className="text-sm text-muted-foreground">Paste, drop, or upload.</p>
+            <p className="text-sm text-muted-foreground">Paste, scan, import, or drop the problem here.</p>
             <Badge variant="outline">{INPUT_TYPE_LABELS[detectedType]}</Badge>
           </div>
           <Textarea
             id="source-input"
             value={text}
             onChange={(event) => setText(event.target.value)}
-            placeholder="A wiring note. A letter you don’t get. Assembly steps. Whatever has you stuck."
+            placeholder="The thing that has you confuzzled — a note, a PDF, a scan, a form. Drop it here."
             aria-describedby="source-hint source-count"
             className="min-h-[200px] border-0 bg-transparent p-1 shadow-none focus-visible:ring-0 md:text-base"
             onKeyDown={(event) => {
@@ -533,7 +533,7 @@ export function HomeWorkspace() {
                 className="h-16 w-16 rounded-xl object-cover"
               />
               <p className="min-w-0 flex-1 text-xs text-muted-foreground">
-                Photo attached. Visible text is sent with Unconfuzzle. Blurry labels stay unread.
+                Scan attached. Visible text is sent with Unconfuzzle. Blurry labels stay unread.
               </p>
               <Button
                 type="button"
@@ -571,7 +571,7 @@ export function HomeWorkspace() {
               accept="image/*"
               capture="environment"
               className="sr-only"
-              aria-label="Take a photo of the confusing thing"
+              aria-label="Scan or photograph the confusing thing"
               onChange={(event) => {
                 void attachFiles(event.target.files);
                 event.target.value = "";
@@ -579,7 +579,7 @@ export function HomeWorkspace() {
             />
             <Button type="button" variant="outline" onClick={() => photoInputRef.current?.click()} disabled={loading}>
               <Camera aria-hidden="true" />
-              Photo
+              Scan
             </Button>
             <p id="source-count" className={cn("text-xs text-muted-foreground", overLimit && "text-destructive")}>
               {text.length.toLocaleString()} / {MAX_DRAFT_CHARS.toLocaleString()}
@@ -606,7 +606,7 @@ export function HomeWorkspace() {
             aria-keyshortcuts="Control+Enter Meta+Enter"
           >
             {loading ? <Loader2 className="animate-spin" aria-hidden="true" /> : <Sparkles aria-hidden="true" />}
-            {loading ? "Untangling…" : "Unconfuzzle this"}
+            {loading ? "Deciphering…" : "Unconfuzzle this"}
           </Button>
           <Button type="button" size="lg" variant="ghost" disabled={loading} onClick={loadSample}>
             Try a sample
@@ -642,7 +642,7 @@ export function HomeWorkspace() {
         {error ? (
           <Alert variant="destructive" className="mt-6" aria-live="assertive">
             <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Could not clarify</AlertTitle>
+            <AlertTitle>Could not decipher</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         ) : null}
@@ -651,13 +651,13 @@ export function HomeWorkspace() {
           {(loading || result) && (
             <>
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">The clear version</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">No longer confuzzled</p>
                 <h2
                   ref={resultsHeadingRef}
                   tabIndex={-1}
                   className="text-3xl font-semibold tracking-tight focus:outline-none"
                 >
-                  {loading ? "Working through it" : "Here."}
+                  {loading ? "Deciphering…" : "Here’s what to do."}
                 </h2>
               </div>
               {loading && streamPreview && isLivePreviewMode(streamMode ?? resultMode) ? (

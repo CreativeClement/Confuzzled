@@ -22,24 +22,23 @@ export function HelpSheet() {
       </SheetTrigger>
       <SheetContent side="right" className="overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>Confuzzle, for anyone who’s stuck</SheetTitle>
+          <SheetTitle>You’re confuzzled. That’s the job.</SheetTitle>
           <SheetDescription>
-            Confuzzle is not a study app. It is a clarity engine for anyone confused about something
-            they have to deal with.
+            Confuzzle is for people confused about something they are doing. Show it the problem.
+            Get a version you can follow, so you’re no longer confuzzled.
           </SheetDescription>
         </SheetHeader>
         <div className="mt-6 space-y-4 text-sm leading-relaxed">
           <p>
-            Drop the confusing thing. Tap Unconfuzzle. Confuzzle picks the lens — steps, plain
-            English, questions, a map, or flashcards — and you can switch after. Check steps off. If
-            a step still doesn’t land, tap stuck and we explain only that part from your source. The
-            clear version streams in as it comes. On a phone, add Confuzzle to your home screen.
+            Paste it, import a PDF, scan or photograph the page, or drop a public URL. Tap
+            Unconfuzzle. Confuzzle picks a lens — steps, plain English, questions, a map, or
+            flashcards — and you can switch after. Check steps off. If a step still doesn’t land,
+            tap stuck and we explain only that part from your source.
           </p>
           <p>
-            Paste a public URL and we’ll try to fetch the page. Upload a PDF and we’ll extract
-            selectable text. A photo is sent with Unconfuzzle so visible words can be read. An
-            audio note is transcribed. A video still needs the words pasted — we cannot play the
-            file. Blurry labels stay unread — we won’t invent them.
+            A photo or scan is sent so visible words can be read. An audio note is transcribed. A
+            video still needs the words pasted — we cannot play the file. Blurry labels stay unread
+            — we won’t invent them.
           </p>
           <ul className="list-disc space-y-2 pl-5">
             <li>
@@ -62,12 +61,12 @@ export function HelpSheet() {
             </li>
           </ul>
           <p className="text-muted-foreground">
-            Electricians, parents, first-timers, professionals, students — if you’re lost, you’re in
-            the right place. We stay honest to your source and won’t invent safety-critical steps.
+            If you’re lost in the work, you’re in the right place. We decipher your source. We don’t
+            invent one. We won’t invent safety-critical steps.
           </p>
           <p>
-            Every generate is saved in this browser. Open the dashboard to rate it, pin it, or set a
-            default mode. Nothing is sent to a cloud account — there isn’t one yet.
+            Every Unconfuzzle is saved in this browser. Open the dashboard to rate it, pin it, or
+            set a default mode. Nothing is sent to a cloud account — there isn’t one yet.
           </p>
         </div>
       </SheetContent>

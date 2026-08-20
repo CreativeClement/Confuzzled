@@ -1,18 +1,18 @@
 const STEPS = [
   {
     n: "01",
-    title: "Show Confuzzle the confusing thing",
-    body: "Paste the words, drop a PDF, snap a photo, or send a public URL. Audio notes work too.",
+    title: "You’re confuzzled about something you’re doing",
+    body: "A form, a panel, a manual, a letter, a job that won’t click. That’s the moment Confuzzle is for.",
   },
   {
     n: "02",
-    title: "Tap Unconfuzzle",
-    body: "Confuzzle picks a lens — steps, plain English, questions, a map, or flashcards. You can switch after.",
+    title: "Show it the problematic situation",
+    body: "Copy-paste the words, import a PDF, scan or photograph the page, or drop a public URL. Audio notes work too.",
   },
   {
     n: "03",
-    title: "Follow the clear version",
-    body: "Check steps off. If one still doesn’t land, tap stuck and we explain only that part from your source.",
+    title: "Unconfuzzle — then keep going",
+    body: "Confuzzle deciphers the mess into steps, plain English, questions, a map, or flashcards. Check them off. If one still doesn’t land, tap stuck.",
   },
 ] as const;
 
@@ -26,7 +26,7 @@ export function LandingStory() {
         How it works
       </p>
       <h2 id="story-heading" className="mt-2 text-center text-2xl font-semibold tracking-tight sm:text-3xl">
-        Confused in. Clear out.
+        Confuzzled in. Clear enough to act.
       </h2>
       <ol className="mt-10 grid gap-4 sm:grid-cols-3">
         {STEPS.map((step) => (

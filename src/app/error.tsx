@@ -20,7 +20,7 @@ export default function ErrorPage({
   return (
     <MarketingPage
       kicker="Error"
-      title="Something came untangled"
+      title="Confuzzle hit a snag"
       center
       actions={
         <>

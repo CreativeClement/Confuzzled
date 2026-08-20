@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 export const metadata: Metadata = {
   title: "Privacy",
   description:
-    "What Confuzzle sends to OpenAI, what stays in this browser, and what we never invent.",
+    "What Confuzzle sends to OpenAI when you Unconfuzzle a problem, and what stays in this browser.",
 };
 
 export default function PrivacyPage() {
@@ -31,9 +31,9 @@ export default function PrivacyPage() {
         stay in this browser unless you export a JSON backup. Photos are not inside that JSON file.
       </p>
       <p>
-        When you tap Unconfuzzle, the source you pasted (and a photo or audio transcript, if you
-        attached one) goes to the Confuzzle server, then to OpenAI to produce the clear version. We
-        do not use it to train a Confuzzle model. We do not sell it.
+        When you tap Unconfuzzle, the problem you showed us (a paste, an imported PDF, a scan, or an
+        audio transcript) goes to the Confuzzle server, then to OpenAI to decipher. We do not use it
+        to train a Confuzzle model. We do not sell it.
       </p>
       <p>
         Public URLs you paste may be fetched by our server so we can read the page. Localhost,

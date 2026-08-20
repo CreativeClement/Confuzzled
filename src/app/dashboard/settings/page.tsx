@@ -128,7 +128,7 @@ export default function SettingsPage() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Preferred lens</CardTitle>
-          <CardDescription>Used when the source is unclear. Unconfuzzle still picks for you first.</CardDescription>
+          <CardDescription>Used when Confuzzle is unsure which lens fits. Unconfuzzle still picks first.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
@@ -156,7 +156,7 @@ export default function SettingsPage() {
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="role">What usually has you stuck?</Label>
+            <Label htmlFor="role">What usually has you confuzzled?</Label>
             <Select
               value={profile?.role ?? "other"}
               onValueChange={(value) => {

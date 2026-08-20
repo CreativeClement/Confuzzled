@@ -36,7 +36,7 @@ describe("buildSystemPrompt", () => {
     const prompt = buildSystemPrompt("tl_dr", "text");
     expect(prompt).toContain("MODE: tl_dr");
     expect(prompt).toContain("INPUT TYPE: text");
-    expect(prompt).toContain("not students only");
+    expect(prompt).toContain("no longer confuzzled");
   });
 
   it("tells image mode to read pixels without inventing labels", () => {

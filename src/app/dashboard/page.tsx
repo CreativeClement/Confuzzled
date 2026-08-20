@@ -28,8 +28,8 @@ export default function DashboardPage() {
           {ready ? `Hi, ${profile?.displayName || "Guest"}` : "Your workspace"}
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          Clarifications stay in this browser. Pin the keepers, rate what helped, and set a preferred
-          lens in Settings for when Confuzzle is unsure which mode to pick.
+          Clarifications stay in this browser. Pin the ones that got you unconfuzzled, rate what
+          helped, and set a preferred lens in Settings.
         </p>
       </div>
 

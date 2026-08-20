@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "Confuzzle — show it the confusing thing.";
+export const alt = "Confuzzle — for people who are confuzzled.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -59,7 +59,7 @@ export default function OpenGraphImage() {
             lineHeight: 1.1,
           }}
         >
-          Show it the confusing thing.
+          You’re confuzzled. Show it the problem.
         </div>
         <div
           style={{
@@ -70,7 +70,7 @@ export default function OpenGraphImage() {
             maxWidth: 760,
           }}
         >
-          Confuzzle hands back a version you can follow. We don’t invent safety-critical steps.
+          Paste, scan, or import the situation. Confuzzle deciphers it so you can keep going.
         </div>
       </div>
     ),
