@@ -26,7 +26,7 @@ export function HealthBanner() {
   return (
     <Alert className="mt-6">
       <AlertCircle className="h-4 w-4" />
-      <AlertTitle>Live Unconfuzzle is not configured</AlertTitle>
+      <AlertTitle>Live Confuzzle is not configured</AlertTitle>
       <AlertDescription>
         This server is missing <code>OPENAI_API_KEY</code>. Try a sample still works. Add the key to{" "}
         <code>.env.local</code> and restart to use your own sources.

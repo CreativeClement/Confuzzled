@@ -11,7 +11,7 @@ const STEPS = [
   },
   {
     n: "03",
-    title: "Unconfuzzle — then keep going",
+    title: "Tap Confuzzle this — then keep going",
     body: "Confuzzle deciphers the mess into steps, plain English, questions, a map, or flashcards. Check them off. If one still doesn’t land, tap stuck.",
   },
 ] as const;

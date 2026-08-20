@@ -31,7 +31,7 @@ export const metadata: Metadata = {
   },
   keywords: [
     PRODUCT_NAME,
-    "Unconfuzzle",
+    "confuzzled",
     "explain confusing instructions",
     "step-by-step AI",
     "jargon translator",

@@ -18,7 +18,7 @@ export default function AboutPage() {
       actions={
         <>
           <Button asChild variant="brand">
-            <Link href="/#workspace">Unconfuzzle something</Link>
+            <Link href="/#workspace">Confuzzle this</Link>
           </Button>
           <Button asChild variant="outline">
             <Link href="/honesty">How we stay honest</Link>
@@ -38,14 +38,14 @@ export default function AboutPage() {
         the work, you’re in the right place.
       </p>
       <p>
-        One button: Unconfuzzle. Confuzzle picks a lens (steps, plain English, questions, a map, or
+        One button: Confuzzle this. Confuzzle picks a lens (steps, plain English, questions, a map, or
         flashcards). You can switch after. Check steps off. If one still doesn’t land, tap stuck and
         we explain only that part from your source.
       </p>
       <p>
-        We stay honest to what you showed us. We do not invent safety-critical steps. What you
-        Unconfuzzle stays in this browser. There is no cloud account yet. Live Unconfuzzle uses
-        OpenAI when a key is configured on the server.
+        We stay honest to what you showed us. We do not invent safety-critical steps. Results stay
+        in this browser. There is no cloud account yet. Live Confuzzle uses OpenAI when a key is
+        configured on the server.
       </p>
     </MarketingPage>
   );

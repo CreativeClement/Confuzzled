@@ -185,7 +185,7 @@ export function HomeWorkspace() {
             ? current
             : `[[input:image]]\nPhoto: ${file.name}. Add any extra notes.`,
         );
-        toast.success("Scan attached. Unconfuzzle will read visible text.");
+        toast.success("Scan attached. Confuzzle will read visible text.");
         return;
       }
       setImage(null);
@@ -194,11 +194,11 @@ export function HomeWorkspace() {
       setFileName(file.name);
       setError(null);
       if (nextText.includes("Transcript from")) {
-        toast.success("Heard the recording. Add notes if you want, then Unconfuzzle.");
+        toast.success("Heard the recording. Add notes if you want, then tap Confuzzle this.");
       } else if (nextText.includes("We cannot play the file")) {
         toast.message("Video is not played. Paste the words that have you stuck.");
       } else {
-        toast.success("Attached. Add any extra notes, then Unconfuzzle.");
+        toast.success("Attached. Add any extra notes, then tap Confuzzle this.");
       }
     } catch (caught) {
       const message =
@@ -249,7 +249,7 @@ export function HomeWorkspace() {
     });
   };
 
-  const handleUnconfuzzle = async (mode: OutputMode | "auto", replace = false) => {
+  const handleConfuzzle = async (mode: OutputMode | "auto", replace = false) => {
     const content =
       text.trim() ||
       (image ? `[[input:image]]\nPhoto: ${image.name}. Add any extra notes.` : "");
@@ -474,7 +474,7 @@ export function HomeWorkspace() {
   return (
       <section id="workspace" aria-labelledby="workspace-heading" className="container mx-auto mt-10 max-w-3xl">
         <h2 id="workspace-heading" className="sr-only">
-          Unconfuzzle
+          Confuzzle this
         </h2>
         <div
           ref={dropRef}
@@ -516,13 +516,13 @@ export function HomeWorkspace() {
               if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
                 event.preventDefault();
                 if (canGenerate) {
-                  void handleUnconfuzzle("auto");
+                  void handleConfuzzle("auto");
                 }
               }
             }}
           />
           <p id="source-hint" className="sr-only">
-            Inputs longer than 4,000 characters are truncated. A photo can be attached and is sent with Unconfuzzle.
+            Inputs longer than 4,000 characters are truncated. A photo can be attached and is sent with Confuzzle.
           </p>
           {image ? (
             <div className="mt-3 flex items-center gap-3 rounded-2xl border bg-background/80 p-3">
@@ -533,7 +533,7 @@ export function HomeWorkspace() {
                 className="h-16 w-16 rounded-xl object-cover"
               />
               <p className="min-w-0 flex-1 text-xs text-muted-foreground">
-                Scan attached. Visible text is sent with Unconfuzzle. Blurry labels stay unread.
+                Scan attached. Visible text is sent with Confuzzle. Blurry labels stay unread.
               </p>
               <Button
                 type="button"
@@ -600,13 +600,13 @@ export function HomeWorkspace() {
             size="lg"
             variant="brand"
             className="sm:flex-1"
-            onClick={() => void handleUnconfuzzle("auto")}
+            onClick={() => void handleConfuzzle("auto")}
             disabled={!canGenerate}
             aria-busy={loading}
             aria-keyshortcuts="Control+Enter Meta+Enter"
           >
             {loading ? <Loader2 className="animate-spin" aria-hidden="true" /> : <Sparkles aria-hidden="true" />}
-            {loading ? "Deciphering…" : "Unconfuzzle this"}
+            {loading ? "Deciphering…" : "Confuzzle this"}
           </Button>
           <Button type="button" size="lg" variant="ghost" disabled={loading} onClick={loadSample}>
             Try a sample
@@ -674,7 +674,7 @@ export function HomeWorkspace() {
                     value={resultMode}
                     recommended={recommended}
                     disabled={loading}
-                    onChange={(mode) => void handleUnconfuzzle(mode, true)}
+                    onChange={(mode) => void handleConfuzzle(mode, true)}
                   />
                   <ResultToolbar
                     result={result}

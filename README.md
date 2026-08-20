@@ -2,7 +2,7 @@
 
 **Confuzzle** is for people who are confuzzled about something they are doing. Show it the problem — paste, PDF, scan, or import. It deciphers the confusion so you can keep going, and you’re no longer confuzzled.
 
-The name is Confuzzle. People who need it are **confuzzled**. **Unconfuzzle** is the button.
+The name is **Confuzzle**. People who need it are **confuzzled**. The button is **Confuzzle this**.
 
 Confuzzle picks a lens: TL;DR, step-by-step, plain English, Socratic Q&A, a visual map, or flashcards. You can switch after. We do not invent safety-critical steps.
 
@@ -19,7 +19,7 @@ Set `OPENAI_API_KEY` in `.env.local`. Optionally set `NEXT_PUBLIC_SITE_URL` for 
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). Click **Unconfuzzle this** (or ⌘/Ctrl+Enter), or **Try a sample** with no API key. On a phone, add Confuzzle to your home screen.
+Open [http://localhost:3000](http://localhost:3000). Click **Confuzzle this** (or ⌘/Ctrl+Enter), or **Try a sample** with no API key. On a phone, add Confuzzle to your home screen.
 
 ## What stays in this browser
 

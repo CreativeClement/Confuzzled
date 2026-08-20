@@ -31,7 +31,7 @@ export function HelpSheet() {
         <div className="mt-6 space-y-4 text-sm leading-relaxed">
           <p>
             Paste it, import a PDF, scan or photograph the page, or drop a public URL. Tap
-            Unconfuzzle. Confuzzle picks a lens — steps, plain English, questions, a map, or
+            Confuzzle this. Confuzzle picks a lens — steps, plain English, questions, a map, or
             flashcards — and you can switch after. Check steps off. If a step still doesn’t land,
             tap stuck and we explain only that part from your source.
           </p>
@@ -65,7 +65,7 @@ export function HelpSheet() {
             invent one. We won’t invent safety-critical steps.
           </p>
           <p>
-            Every Unconfuzzle is saved in this browser. Open the dashboard to rate it, pin it, or
+            Every result is saved in this browser. Open the dashboard to rate it, pin it, or
             set a default mode. Nothing is sent to a cloud account — there isn’t one yet.
           </p>
         </div>

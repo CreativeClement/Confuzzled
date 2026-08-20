@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 export const metadata: Metadata = {
   title: "Privacy",
   description:
-    "What Confuzzle sends to OpenAI when you Unconfuzzle a problem, and what stays in this browser.",
+    "What Confuzzle sends to OpenAI when you decipher a problem, and what stays in this browser.",
 };
 
 export default function PrivacyPage() {
@@ -18,7 +18,7 @@ export default function PrivacyPage() {
       actions={
         <>
           <Button asChild variant="brand">
-            <Link href="/#workspace">Unconfuzzle something</Link>
+            <Link href="/#workspace">Confuzzle this</Link>
           </Button>
           <Button asChild variant="outline">
             <Link href="/honesty">Honesty</Link>
@@ -31,7 +31,7 @@ export default function PrivacyPage() {
         stay in this browser unless you export a JSON backup. Photos are not inside that JSON file.
       </p>
       <p>
-        When you tap Unconfuzzle, the problem you showed us (a paste, an imported PDF, a scan, or an
+        When you tap Confuzzle this, the problem you showed us (a paste, an imported PDF, a scan, or an
         audio transcript) goes to the Confuzzle server, then to OpenAI to decipher. We do not use it
         to train a Confuzzle model. We do not sell it.
       </p>

@@ -128,7 +128,7 @@ export default function SettingsPage() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Preferred lens</CardTitle>
-          <CardDescription>Used when Confuzzle is unsure which lens fits. Unconfuzzle still picks first.</CardDescription>
+          <CardDescription>Used when Confuzzle is unsure which lens fits. Confuzzle still picks first.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
