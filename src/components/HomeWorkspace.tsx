@@ -197,7 +197,7 @@ export function HomeWorkspace() {
       if (nextText.includes("Transcript from")) {
         toast.success("Heard the recording. Add notes if you want, then tap Confuzzle this.");
       } else if (nextText.includes("We cannot play the file")) {
-        toast.message("Video is not played. Paste the words that have you stuck.");
+        toast.message("Video isn’t played. Paste the passage in question.");
       } else {
         toast.success("Attached. Add any extra notes, then tap Confuzzle this.");
       }
@@ -255,8 +255,8 @@ export function HomeWorkspace() {
       text.trim() ||
       (image ? `[[input:image]]\nPhoto: ${image.name}. Add any extra notes.` : "");
     if (!content) {
-      setError("Show Confuzzle the problem that has you confuzzled.");
-      toast.error("Show Confuzzle the problem that has you confuzzled.");
+      setError("Add something for Confuzzle to read.");
+      toast.error("Add something for Confuzzle to read.");
       return;
     }
 
@@ -417,7 +417,7 @@ export function HomeWorkspace() {
       result: SAMPLE_RESULT,
     });
     setHistoryId(saved?.id ?? null);
-    toast.success("Sample loaded. Check steps off, or tap stuck.");
+    toast.success("Sample loaded. Work through it, or open any step.");
     window.requestAnimationFrame(() => {
       resultsHeadingRef.current?.focus();
     });
@@ -511,7 +511,7 @@ export function HomeWorkspace() {
         >
           <div className="mb-3 flex items-center justify-between gap-3">
             <label htmlFor="source-input" className="text-sm text-muted-foreground">
-              Paste, scan, import, or drop the problem here.
+              Paste, drop, or import what you’re looking at.
             </label>
             <Badge variant="outline">{INPUT_TYPE_LABELS[detectedType]}</Badge>
           </div>
@@ -519,7 +519,7 @@ export function HomeWorkspace() {
             id="source-input"
             value={text}
             onChange={(event) => setText(event.target.value)}
-            placeholder="A wiring note. A form you don’t follow. A letter that makes no sense. Whatever has you confuzzled."
+            placeholder="A wiring diagram. A benefits form. A letter that reads like law."
             aria-describedby="source-hint source-count"
             className="min-h-[200px] border-0 bg-transparent p-1 shadow-none focus-visible:ring-0 md:text-base"
             onKeyDown={(event) => {
@@ -620,7 +620,7 @@ export function HomeWorkspace() {
             ) : (
               <Sparkles aria-hidden="true" className="animate-twinkle" />
             )}
-            {loading ? "Deciphering…" : "Confuzzle this"}
+            {loading ? "Working…" : "Confuzzle this"}
           </Button>
           <Button type="button" size="lg" variant="ghost" disabled={loading} onClick={loadSample}>
             Try a sample
@@ -636,7 +636,7 @@ export function HomeWorkspace() {
 
         {ready && recent.length > 0 && !result && !loading ? (
           <div className="mt-6 space-y-2">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Recent on this device</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">Recent</p>
             <div className="flex flex-wrap gap-2">
               {recent.map((item) => (
                 <Button
@@ -656,7 +656,7 @@ export function HomeWorkspace() {
         {error ? (
           <Alert variant="destructive" className="mt-6" aria-live="assertive">
             <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Could not decipher</AlertTitle>
+            <AlertTitle>Couldn’t complete that</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         ) : null}
@@ -665,13 +665,15 @@ export function HomeWorkspace() {
           {(loading || result) && (
             <>
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">No longer confuzzled</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+                  Result
+                </p>
                 <h2
                   ref={resultsHeadingRef}
                   tabIndex={-1}
-                  className="text-3xl font-semibold tracking-tight focus:outline-none"
+                  className="text-3xl font-semibold tracking-[-0.02em] focus:outline-none"
                 >
-                  {loading ? "Deciphering…" : "Here’s what to do."}
+                  {loading ? "Working through it…" : "Here’s what to do."}
                 </h2>
               </div>
               {loading && streamPreview && isLivePreviewMode(streamMode ?? resultMode) ? (

@@ -88,8 +88,8 @@ export default function SettingsPage() {
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Settings</p>
         <h1 className="text-3xl font-semibold tracking-tight">Your workspace</h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          This is a local profile — name, preferred mode, and history never leave this browser unless
-          you export them. Confuzzle has no cloud account yet.
+          A local profile. Your name, preferred lens, and history stay in this browser unless you
+          export them. There is no account.
         </p>
       </div>
 
@@ -97,8 +97,8 @@ export default function SettingsPage() {
         <CardHeader>
           <CardTitle className="text-base">AI key</CardTitle>
           <CardDescription>
-            Confuzzle deciphers with your own provider key. It stays in this browser and is sent
-            straight through to the provider.
+            Confuzzle runs on a key you control. It is held in this browser and passed straight to
+            your provider.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -170,7 +170,7 @@ export default function SettingsPage() {
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="role">What usually has you confuzzled?</Label>
+            <Label htmlFor="role">What usually brings you here?</Label>
             <Select
               value={profile?.role ?? "other"}
               onValueChange={(value) => {

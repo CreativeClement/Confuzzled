@@ -132,7 +132,7 @@ export function ResultFeedback({
         </div>
       </div>
       <div>
-        <p className="text-sm font-medium">Rate this clarification</p>
+        <p className="text-sm font-medium">Was this useful?</p>
         <div className="mt-2 flex flex-wrap gap-2" role="group" aria-label="Rating from 1 to 5">
           {([1, 2, 3, 4, 5] as const).map((value) => (
             <Button

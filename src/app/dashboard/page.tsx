@@ -28,8 +28,8 @@ export default function DashboardPage() {
           {ready ? `Hi, ${profile?.displayName || "Guest"}` : "Your workspace"}
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          Clarifications stay in this browser. Pin the ones that made it click, rate what
-          helped, and set a preferred lens in Settings.
+          Every result is kept on this device. Pin the ones worth returning to, rate what helped,
+          and set a preferred lens in Settings.
         </p>
       </div>
 

@@ -63,7 +63,7 @@ export async function readUploadedFile(file: File): Promise<string> {
     }
   }
   if (marker === "[[input:video]]") {
-    return `[[input:video]]\nVideo: ${file.name}. We cannot play the file. Paste a transcript or the part that has you stuck.`;
+    return `[[input:video]]\nVideo: ${file.name}. Video is not played. Provide a transcript or the passage in question.`;
   }
   if (marker === "[[input:image]]") {
     return `${marker}\nPhoto: ${file.name}. Add any extra notes. Visible text on the photo is sent with Confuzzle.`;

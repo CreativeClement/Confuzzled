@@ -326,7 +326,7 @@ export function ResultRenderer({
                         disabled={waiting}
                         onClick={() => onStuck(item.step, item.text)}
                       >
-                        {waiting ? "Untangling this step…" : followUp ? "Still stuck" : "Stuck on this step"}
+                        {waiting ? "Working…" : followUp ? "Explain again" : "Explain this step"}
                       </Button>
                     ) : null}
                   </div>

@@ -12,61 +12,57 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
+const LENSES = [
+  { name: "Summary", detail: "What this actually says." },
+  { name: "Steps", detail: "Do this, then this." },
+  { name: "Plain language", detail: "The same thing, without the jargon." },
+  { name: "Questions", detail: "Three prompts that get you unstuck." },
+  { name: "Map", detail: "How the pieces connect." },
+  { name: "Cards", detail: "The parts worth remembering." },
+] as const;
+
 export function HelpSheet() {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button type="button" variant="outline" size="icon" aria-label="Who Confuzzle is for">
+        <Button type="button" variant="outline" size="icon" aria-label="How Confuzzle works">
           <CircleHelp aria-hidden="true" />
         </Button>
       </SheetTrigger>
       <SheetContent side="right" className="overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>You’re confuzzled. That’s the job.</SheetTitle>
+          <SheetTitle>How Confuzzle works</SheetTitle>
           <SheetDescription>
-            Confuzzle is for people who are confuzzled about something they are doing. Show it the
-            problem. Get a version you can follow, so you’re no longer confuzzled.
+            Show it what is in front of you. Get back a version you can act on.
           </SheetDescription>
         </SheetHeader>
-        <div className="mt-6 space-y-4 text-sm leading-relaxed">
+        <div className="mt-6 space-y-5 text-sm leading-relaxed">
           <p>
-            Paste it, import a PDF, scan or photograph the page, or drop a public URL. Tap
-            Confuzzle this. Confuzzle picks a lens — steps, plain English, questions, a map, or
-            flashcards — and you can switch after. Check steps off. If a step still doesn’t land,
-            tap stuck and we explain only that part from your source.
+            Paste the text, import a PDF, photograph the page, or drop in a link. Tap Confuzzle this.
+            The result arrives as it is written, and you can change the lens at any point.
           </p>
+          <div>
+            <p className="font-medium text-foreground">Six lenses</p>
+            <ul className="mt-2 space-y-1.5">
+              {LENSES.map((lens) => (
+                <li key={lens.name}>
+                  <span className="font-medium text-foreground">{lens.name}</span>
+                  <span className="text-muted-foreground"> — {lens.detail}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
           <p>
-            A photo or scan is sent so visible words can be read. An audio note is transcribed. A
-            video still needs the words pasted — we cannot play the file. Blurry labels stay unread
-            — we won’t invent them.
+            Work through the result line by line. If one part still doesn’t land, tap it and that
+            part alone is explained, drawn only from your source.
           </p>
-          <ul className="list-disc space-y-2 pl-5">
-            <li>
-              <strong>TL;DR</strong> — what this actually means
-            </li>
-            <li>
-              <strong>Step-by-step</strong> — do this, then this
-            </li>
-            <li>
-              <strong>Feynman</strong> — plain English, no jargon
-            </li>
-            <li>
-              <strong>Socratic</strong> — questions that unstick you
-            </li>
-            <li>
-              <strong>Visual</strong> — how the pieces connect
-            </li>
-            <li>
-              <strong>Flashcards</strong> — remember the bits that matter
-            </li>
-          </ul>
           <p className="text-muted-foreground">
-            If you’re lost in the work, you’re in the right place. We decipher your source. We don’t
-            invent one. We won’t invent safety-critical steps.
+            A photograph is read for the words visible in it. Audio is transcribed. Video is not
+            played — provide the passage instead. An unreadable label stays unread.
           </p>
-          <p>
-            Every result is saved in this browser. Open the dashboard to rate it, pin it, or
-            set a default mode. Nothing is sent to a cloud account — there isn’t one yet.
+          <p className="text-muted-foreground">
+            Every result is kept in this browser. Open the dashboard to rate it, pin it, or set a
+            preferred lens.
           </p>
         </div>
       </SheetContent>

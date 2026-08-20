@@ -9,7 +9,7 @@ import { requestHealth } from "@/lib/clarify-client";
 import { readByok } from "@/lib/byok";
 
 /**
- * Confuzzle cannot decipher anything without a key somewhere. Say so before the
+ * Confuzzle cannot answer anything without a key somewhere. Say so before the
  * reader types a wall of text, and open on demand when a request comes back
  * asking for one.
  */
@@ -73,11 +73,11 @@ export function KeySetupPanel({
         <div className="min-w-0">
           <h3 id="needs-key-heading" className="inline-flex items-center gap-2 text-base font-semibold">
             <KeyRound className="h-4 w-4" aria-hidden="true" />
-            Connect a key to decipher for real
+            Connect your key
           </h3>
           <p className="mt-1 max-w-xl text-sm text-muted-foreground">
-            Confuzzle runs on your own AI key, so nothing is metered by us. Groq has a free tier that
-            works fine. <strong>Try a sample</strong> works right now without any key.
+            Confuzzle runs on an API key you control, so nothing is metered by us. Groq offers a free
+            tier that is more than enough. <strong>Try a sample</strong> needs no key at all.
           </p>
         </div>
         {!open ? (

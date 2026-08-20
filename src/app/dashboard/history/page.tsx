@@ -10,14 +10,14 @@ export default function HistoryPage() {
     <main id="main" className="space-y-6">
       <div>
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">History</p>
-        <h1 className="text-3xl font-semibold tracking-tight">Every clarification</h1>
+        <h1 className="text-3xl font-semibold tracking-[-0.02em]">Everything you’ve run</h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          Up to 100 recent clarifications stay on this device. Pin the ones you want to keep handy.
+          The last 100 results, kept on this device. Pin the ones worth returning to.
         </p>
       </div>
       <HistoryList
         items={ready ? history : []}
-        emptyMessage={ready ? "No clarifications yet. Generate one, or tap Try a sample on the homepage." : "Loading history…"}
+        emptyMessage={ready ? "Nothing yet. Run something, or try the sample on the homepage." : "Loading…"}
       />
     </main>
   );

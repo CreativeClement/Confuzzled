@@ -124,7 +124,7 @@ export function HistoryList({
                       variant="ghost"
                       aria-label={`Delete ${item.title}`}
                       onClick={() => {
-                        const confirmed = window.confirm("Delete this clarification from this device?");
+                        const confirmed = window.confirm("Delete this result from this device?");
                         if (!confirmed) {
                           return;
                         }

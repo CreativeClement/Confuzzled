@@ -7,7 +7,7 @@ export default function NotFound() {
   return (
     <MarketingPage
       kicker="404"
-      title="Confuzzle doesn’t have this page"
+      title="This page doesn’t exist."
       center
       actions={
         <>
@@ -20,7 +20,7 @@ export default function NotFound() {
         </>
       }
     >
-      <p>This problem isn’t here. Bring Confuzzle the thing that has you confuzzled instead.</p>
+      <p>The link may be out of date, or the result may live in another browser.</p>
     </MarketingPage>
   );
 }

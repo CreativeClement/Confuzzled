@@ -4,39 +4,41 @@ import { BrandLogo } from "@/components/BrandLogo";
 import { HomeWorkspace } from "@/components/HomeWorkspace";
 import { LandingStory } from "@/components/LandingStory";
 
-const PROOF = ["Paste", "Scan", "PDF", "Import", "URL", "Audio"] as const;
+const INPUTS = ["Text", "PDF", "Photo", "Link", "Audio"] as const;
 
 export default function HomePage() {
   return (
     <main id="main" className="pb-8">
       <section
         aria-labelledby="hero-heading"
-        className="container flex flex-col items-center pt-10 text-center sm:pt-16"
+        className="container flex flex-col items-center pt-12 text-center sm:pt-20"
       >
         <div className="animate-fade-up">
           <div className="animate-float">
-            <BrandLogo size={88} glow className="rounded-[22%]" />
+            <BrandLogo size={92} glow className="rounded-[22%]" />
           </div>
         </div>
-        <p className="mt-6 animate-fade-up text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground [animation-delay:80ms]">
+        <p className="mt-7 animate-fade-up text-xs font-semibold uppercase tracking-[0.32em] text-muted-foreground [animation-delay:80ms]">
           Confuzzle
         </p>
         <h1
           id="hero-heading"
-          className="mt-3 max-w-3xl animate-fade-up text-balance text-4xl font-extrabold tracking-tight [animation-delay:140ms] sm:text-6xl sm:leading-[1.05]"
+          className="mt-4 max-w-4xl animate-fade-up text-balance text-[2.75rem] font-extrabold leading-[1.03] tracking-[-0.03em] [animation-delay:140ms] sm:text-7xl"
         >
-          You’re confuzzled. Show it the problem.
+          Make sense of anything.
         </h1>
-        <p className="mx-auto mt-4 max-w-xl animate-fade-up text-pretty text-base text-muted-foreground [animation-delay:220ms] sm:text-lg">
-          You’re in the middle of something and it doesn’t make sense. Paste it, import a PDF, or
-          scan the page. Confuzzle deciphers it so you can keep going — and you’re no longer
-          confuzzled.
+        <p className="mx-auto mt-6 max-w-2xl animate-fade-up text-pretty text-lg leading-relaxed text-muted-foreground [animation-delay:220ms] sm:text-xl">
+          A form. A control panel. A letter that reads like law. Show Confuzzle what is in front of
+          you, and get back a version you can act on.
         </p>
-        <ul className="mt-6 flex flex-wrap items-center justify-center gap-2" aria-label="How you can show Confuzzle the problem">
-          {PROOF.map((item, index) => (
+        <ul
+          className="mt-8 flex flex-wrap items-center justify-center gap-2"
+          aria-label="What Confuzzle accepts"
+        >
+          {INPUTS.map((item, index) => (
             <li
               key={item}
-              className="animate-chip-pop rounded-full border border-border/80 bg-background/40 px-3 py-1.5 text-xs font-medium text-muted-foreground backdrop-blur-sm transition-colors hover:border-primary/50 hover:text-foreground"
+              className="animate-chip-pop rounded-full border border-border/70 bg-background/40 px-4 py-1.5 text-xs font-medium tracking-wide text-muted-foreground backdrop-blur-sm transition-colors hover:border-primary/50 hover:text-foreground"
               style={{ animationDelay: `${280 + index * 70}ms` }}
             >
               {item}
@@ -45,9 +47,9 @@ export default function HomePage() {
         </ul>
         <Link
           href="/honesty"
-          className="mt-4 inline-flex animate-fade-up items-center rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-foreground [animation-delay:700ms] hover:border-primary/50"
+          className="mt-5 inline-flex animate-fade-up items-center rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-medium tracking-wide text-foreground [animation-delay:700ms] hover:border-primary/50"
         >
-          We decipher your source. We don’t invent one.
+          Faithful to your source. Always.
         </Link>
       </section>
       <HomeWorkspace />

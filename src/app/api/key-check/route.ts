@@ -10,7 +10,7 @@ export const runtime = "nodejs";
 
 /**
  * Spend one tiny completion to prove a key works, so a reader finds out here
- * rather than halfway through deciphering something they care about.
+ * rather than halfway through something they care about.
  */
 export async function POST(request: Request) {
   const rate = rateLimit(getClientKey(request));
