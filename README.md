@@ -6,20 +6,34 @@ The name is **Confuzzle**. People who need it are **confuzzled**. The button is 
 
 Confuzzle picks a lens: TL;DR, step-by-step, plain English, Socratic Q&A, a visual map, or flashcards. You can switch after. We do not invent safety-critical steps.
 
+## Bring your own key
+
+Confuzzle has no AI bill of its own. You connect a key in **Settings**, it is stored in your
+browser, and each request carries it straight through to the provider you picked.
+
+| Provider | Default model | Reads scans | Transcribes audio |
+| --- | --- | --- | --- |
+| OpenAI | `gpt-4o-mini` | yes | yes |
+| Groq (free tier) | `llama-3.3-70b-versatile` | yes | yes |
+| OpenRouter | `openai/gpt-4o-mini` | yes | no |
+| Any OpenAI-compatible endpoint | you choose | depends | no |
+
+**Try a sample** works with no key at all.
+
 ## Setup
 
 ```bash
 npm install
 cp .env.example .env.local
-```
-
-Set `OPENAI_API_KEY` in `.env.local`. Optionally set `NEXT_PUBLIC_SITE_URL` for Open Graph, sitemap, and install URLs.
-
-```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). Click **Confuzzle this** (or ⌘/Ctrl+Enter), or **Try a sample** with no API key. On a phone, add Confuzzle to your home screen.
+Open [http://localhost:3000](http://localhost:3000). Click **Confuzzle this** (or ⌘/Ctrl+Enter). On a
+phone, add Confuzzle to your home screen.
+
+`.env.local` is optional. Set `CONFUZZLE_API_KEY` (plus `CONFUZZLE_PROVIDER`, `CONFUZZLE_MODEL`,
+`CONFUZZLE_BASE_URL`) only when you want a deployment to serve readers who have no key of their own.
+Set `NEXT_PUBLIC_SITE_URL` for Open Graph, sitemap, and install URLs.
 
 ## What stays in this browser
 

@@ -1,11 +1,16 @@
 import { NextResponse } from "next/server";
 
+import { serverApiKey } from "@/lib/provider-server";
+
 export const runtime = "nodejs";
 
 export function GET() {
-  const key = process.env.OPENAI_API_KEY ?? "";
-  return NextResponse.json({
-    ok: true,
-    openai: Boolean(key) && !key.includes("your-openai-key"),
-  });
+  return NextResponse.json(
+    {
+      ok: true,
+      // Whether this deployment can decipher without the reader supplying a key.
+      serverKey: Boolean(serverApiKey()),
+    },
+    { headers: { "Cache-Control": "no-store" } },
+  );
 }

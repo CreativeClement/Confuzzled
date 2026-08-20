@@ -45,40 +45,60 @@ function collectErrorText(error: unknown): { status: number | null; text: string
   return { status, text: parts.join(" ").toLowerCase() };
 }
 
-export function clarifyProviderError(error: unknown): { status: number; message: string } {
+export function clarifyProviderError(
+  error: unknown,
+  providerLabel = "The provider",
+): { status: number; message: string } {
   const { status, text } = collectErrorText(error);
 
   if (
     status === 401 ||
     text.includes("invalid api key") ||
     text.includes("incorrect api key") ||
-    text.includes("invalid_api_key")
+    text.includes("invalid_api_key") ||
+    text.includes("no auth credentials")
   ) {
     return {
-      status: 500,
-      message: "The OpenAI API key was rejected. Check OPENAI_API_KEY and restart the server.",
+      status: 401,
+      message: `${providerLabel} rejected that API key. Check it in Settings and paste it again.`,
     };
   }
 
-  if (text.includes("insufficient_quota") || text.includes("exceeded your current quota")) {
+  if (
+    text.includes("insufficient_quota") ||
+    text.includes("exceeded your current quota") ||
+    text.includes("insufficient credits") ||
+    text.includes("billing")
+  ) {
     return {
-      status: 502,
-      message:
-        "OpenAI says this key is out of quota. Add billing or credits at platform.openai.com, then try Generate again.",
+      status: 402,
+      message: `${providerLabel} says this key has no credit left. Add credit, or switch provider in Settings.`,
     };
   }
 
   if (status === 429) {
     return {
       status: 429,
-      message: "OpenAI is rate-limiting this key. Wait a minute and try again.",
+      message: `${providerLabel} is rate-limiting this key. Wait a minute and try again.`,
+    };
+  }
+
+  if (
+    status === 404 ||
+    text.includes("model_not_found") ||
+    text.includes("does not exist") ||
+    text.includes("unknown model")
+  ) {
+    return {
+      status: 400,
+      message: `${providerLabel} does not have that model. Pick another one in Settings.`,
     };
   }
 
   if (status === 403) {
     return {
-      status: 502,
-      message: "This key cannot use gpt-4o-mini. Enable that model on the OpenAI project and try again.",
+      status: 403,
+      message: `This key is not allowed to use that model on ${providerLabel}. Enable it, or pick another model in Settings.`,
     };
   }
 
@@ -93,8 +113,15 @@ export function clarifyProviderError(error: unknown): { status: number; message:
     };
   }
 
+  if (text.includes("image") && (text.includes("not support") || text.includes("unsupported"))) {
+    return {
+      status: 400,
+      message: `That model cannot read images. Pick a vision model in Settings, or type the words you can read.`,
+    };
+  }
+
   return {
     status: 500,
-    message: "The model could not finish. Try a shorter passage or another mode.",
+    message: "The model could not finish. Try a shorter passage or another lens.",
   };
 }

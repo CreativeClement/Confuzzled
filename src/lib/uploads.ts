@@ -1,3 +1,5 @@
+import { byokHeaders, readByok } from "@/lib/byok";
+
 export async function extractPdfUpload(file: File): Promise<string> {
   const body = new FormData();
   body.append("file", file);
@@ -12,7 +14,11 @@ export async function extractPdfUpload(file: File): Promise<string> {
 export async function transcribeAudioUpload(file: File): Promise<string> {
   const body = new FormData();
   body.append("file", file);
-  const response = await fetch("/api/transcribe", { method: "POST", body });
+  const response = await fetch("/api/transcribe", {
+    method: "POST",
+    headers: byokHeaders(typeof window === "undefined" ? null : readByok(window.localStorage)),
+    body,
+  });
   const payload = (await response.json()) as { success: boolean; text?: string | null; error?: string };
   if (!payload.success || !payload.text) {
     throw new Error(payload.error || "Could not hear that recording.");

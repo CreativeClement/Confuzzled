@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Download, Upload } from "lucide-react";
 import { toast } from "sonner";
 
+import { ProviderKeyForm } from "@/components/ProviderKeyForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -91,6 +92,19 @@ export default function SettingsPage() {
           you export them. Confuzzle has no cloud account yet.
         </p>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">AI key</CardTitle>
+          <CardDescription>
+            Confuzzle deciphers with your own provider key. It stays in this browser and is sent
+            straight through to the provider.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ProviderKeyForm />
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

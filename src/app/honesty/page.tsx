@@ -46,7 +46,11 @@ export default function HonestyPage() {
         <li>Audio is transcribed. We will not invent spoken lines that are not in the transcript.</li>
         <li>Video is not played. Paste a transcript or the part that has you stuck.</li>
         <li>History, ratings, and your display name stay in this browser unless you export them.</li>
-        <li>Live Confuzzle needs an OpenAI key on the server. Try a sample works without one.</li>
+        <li>
+          Confuzzle runs on your own AI key — OpenAI, Groq, OpenRouter, or any OpenAI-compatible
+          endpoint. The key stays in this browser and is passed straight to that provider. Try a
+          sample works without any key.
+        </li>
       </ul>
     </MarketingPage>
   );

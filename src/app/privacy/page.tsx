@@ -31,9 +31,14 @@ export default function PrivacyPage() {
         stay in this browser unless you export a JSON backup. Photos are not inside that JSON file.
       </p>
       <p>
-        When you tap Confuzzle this, the problem you showed us (a paste, an imported PDF, a scan, or an
-        audio transcript) goes to the Confuzzle server, then to OpenAI to decipher. We do not use it
-        to train a Confuzzle model. We do not sell it.
+        Confuzzle runs on your own AI key. You add it in Settings, it is stored in this browser, and
+        it rides along with each request so the provider will answer. We never write it to our
+        server or our logs.
+      </p>
+      <p>
+        When you tap Confuzzle this, the problem you showed us (a paste, an imported PDF, a scan, or
+        an audio transcript) passes through the Confuzzle server to the provider you chose. We do
+        not use it to train a Confuzzle model. We do not sell it.
       </p>
       <p>
         Public URLs you paste may be fetched by our server so we can read the page. Localhost,
