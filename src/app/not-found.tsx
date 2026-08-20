@@ -12,7 +12,7 @@ export default function NotFound() {
       actions={
         <>
           <Button asChild variant="brand">
-            <Link href="/">Unconfuzzle something</Link>
+            <Link href="/">Confuzzle this</Link>
           </Button>
           <Button asChild variant="outline">
             <Link href="/dashboard">Dashboard</Link>

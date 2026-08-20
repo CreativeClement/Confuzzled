@@ -87,7 +87,7 @@ export async function prepareClarify(input: {
       ok: false,
       failure: {
         status: 400,
-        error: "Paste or upload something to unconfuzzle.",
+        error: "Paste or upload the problem.",
         mode,
         inputType: null,
       },

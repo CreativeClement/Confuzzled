@@ -113,7 +113,7 @@ export function HistoryList({
                     <Button asChild>
                       <Link href={`/?id=${item.id}`}>
                         <Sparkles aria-hidden="true" />
-                        Unconfuzzle
+                        Confuzzle this
                       </Link>
                     </Button>
                     <Button asChild variant="outline">

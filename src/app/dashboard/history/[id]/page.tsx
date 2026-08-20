@@ -85,7 +85,7 @@ export default function HistoryDetailPage() {
         <Button asChild variant="outline">
           <Link href={`/?id=${item.id}`}>
             <Sparkles aria-hidden="true" />
-            Open in Unconfuzzle
+            Open in Confuzzle
           </Link>
         </Button>
       </div>

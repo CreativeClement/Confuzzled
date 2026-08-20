@@ -33,7 +33,7 @@ export function SiteHeader() {
           <Button asChild variant={pathname === "/" ? "secondary" : "ghost"} className="hidden sm:inline-flex">
             <Link href="/#workspace">
               <Sparkles aria-hidden="true" />
-              Unconfuzzle
+              Confuzzle this
             </Link>
           </Button>
           <Button asChild variant={onDashboard ? "secondary" : "ghost"}>

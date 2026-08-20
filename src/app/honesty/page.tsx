@@ -18,7 +18,7 @@ export default function HonestyPage() {
       actions={
         <>
           <Button asChild variant="brand">
-            <Link href="/#workspace">Unconfuzzle something</Link>
+            <Link href="/#workspace">Confuzzle this</Link>
           </Button>
           <Button asChild variant="outline">
             <Link href="/about">About</Link>
@@ -46,7 +46,7 @@ export default function HonestyPage() {
         <li>Audio is transcribed. We will not invent spoken lines that are not in the transcript.</li>
         <li>Video is not played. Paste a transcript or the part that has you stuck.</li>
         <li>History, ratings, and your display name stay in this browser unless you export them.</li>
-        <li>Live Unconfuzzle needs an OpenAI key on the server. Try a sample works without one.</li>
+        <li>Live Confuzzle needs an OpenAI key on the server. Try a sample works without one.</li>
       </ul>
     </MarketingPage>
   );
