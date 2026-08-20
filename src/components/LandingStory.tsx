@@ -22,17 +22,18 @@ export function LandingStory() {
       aria-labelledby="story-heading"
       className="mx-auto mt-20 max-w-5xl px-4 pb-8 sm:mt-24 sm:px-6"
     >
-      <p className="text-center text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+      <p className="animate-fade-up text-center text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
         How it works
       </p>
-      <h2 id="story-heading" className="mt-2 text-center text-2xl font-semibold tracking-tight sm:text-3xl">
+      <h2 id="story-heading" className="mt-2 animate-fade-up text-center text-2xl font-semibold tracking-tight [animation-delay:80ms] sm:text-3xl">
         Confuzzled in. Clear enough to act.
       </h2>
       <ol className="mt-10 grid gap-4 sm:grid-cols-3">
-        {STEPS.map((step) => (
+        {STEPS.map((step, index) => (
           <li
             key={step.n}
-            className="rounded-[1.75rem] border border-border/70 bg-card/50 p-6 shadow-sm backdrop-blur-sm"
+            className="story-card animate-fade-up rounded-[1.75rem] border border-border/70 bg-card/50 p-6 shadow-sm backdrop-blur-sm"
+            style={{ animationDelay: `${120 + index * 120}ms` }}
           >
             <p className="bg-gradient-to-r from-violet-700 to-cyan-700 bg-clip-text text-sm font-bold tracking-widest text-transparent dark:from-violet-400 dark:to-cyan-300">
               {step.n}

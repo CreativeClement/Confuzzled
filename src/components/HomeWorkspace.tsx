@@ -599,13 +599,17 @@ export function HomeWorkspace() {
             type="button"
             size="lg"
             variant="brand"
-            className="sm:flex-1"
+            className={cn("sm:flex-1", canGenerate && "animate-cta-pulse")}
             onClick={() => void handleConfuzzle("auto")}
             disabled={!canGenerate}
             aria-busy={loading}
             aria-keyshortcuts="Control+Enter Meta+Enter"
           >
-            {loading ? <Loader2 className="animate-spin" aria-hidden="true" /> : <Sparkles aria-hidden="true" />}
+            {loading ? (
+              <Loader2 className="animate-spin" aria-hidden="true" />
+            ) : (
+              <Sparkles aria-hidden="true" className="animate-twinkle" />
+            )}
             {loading ? "Deciphering…" : "Confuzzle this"}
           </Button>
           <Button type="button" size="lg" variant="ghost" disabled={loading} onClick={loadSample}>

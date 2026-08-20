@@ -35,8 +35,8 @@ export function BrandLogo({ size = 40, className, glow = false }: BrandLogoProps
         strokeWidth="11"
         strokeLinecap="round"
       />
-      <rect x="46" y="57" width="8" height="18" rx="4" fill="#FFFFFF" />
-      <rect x="60" y="57" width="8" height="18" rx="4" fill="#FFFFFF" />
+      <rect x="46" y="57" width="8" height="18" rx="4" fill="#FFFFFF" className="logo-eye" />
+      <rect x="60" y="57" width="8" height="18" rx="4" fill="#FFFFFF" className="logo-eye" />
       <path
         d="M80 38 C108 30 118 58 97 80"
         fill="none"
@@ -44,7 +44,7 @@ export function BrandLogo({ size = 40, className, glow = false }: BrandLogoProps
         strokeWidth="11"
         strokeLinecap="round"
       />
-      <circle cx="64" cy="104" r="6.5" fill="#22D3EE" />
+      <circle cx="64" cy="104" r="6.5" fill="#22D3EE" className="logo-dot" />
       <rect
         x="74"
         y="16"
@@ -52,6 +52,7 @@ export function BrandLogo({ size = 40, className, glow = false }: BrandLogoProps
         height="15"
         rx="2.5"
         fill="#C084FC"
+        className="logo-spark"
         transform="rotate(-38 76.5 23.5)"
       />
       <rect
@@ -61,6 +62,7 @@ export function BrandLogo({ size = 40, className, glow = false }: BrandLogoProps
         height="15"
         rx="2.5"
         fill="#6366F1"
+        className="logo-spark logo-spark-2"
         transform="rotate(-10 88.5 21.5)"
       />
       <rect
@@ -70,6 +72,7 @@ export function BrandLogo({ size = 40, className, glow = false }: BrandLogoProps
         height="15"
         rx="2.5"
         fill="#22D3EE"
+        className="logo-spark logo-spark-3"
         transform="rotate(20 99.5 25.5)"
       />
     </svg>
@@ -84,7 +87,7 @@ export function BrandWordmark({
   className?: string;
 }) {
   return (
-    <span className={cn("inline-flex items-center gap-2.5", className)}>
+    <span className={cn("inline-flex items-center gap-2.5 transition-transform duration-200 hover:scale-[1.03]", className)}>
       <BrandLogo size={size} />
       <span className="font-semibold tracking-tight">Confuzzle</span>
     </span>

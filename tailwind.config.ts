@@ -76,10 +76,55 @@ const config: Config = {
           from: { transform: "rotateY(0deg)" },
           to: { transform: "rotateY(180deg)" },
         },
+        "fade-up": {
+          from: { opacity: "0", transform: "translateY(18px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
+        float: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-10px)" },
+        },
+        "glow-pulse": {
+          "0%, 100%": { filter: "drop-shadow(0 10px 22px hsl(266 90% 60% / 0.35))" },
+          "50%": { filter: "drop-shadow(0 16px 36px hsl(190 90% 50% / 0.55))" },
+        },
+        twinkle: {
+          "0%, 100%": { opacity: "1", transform: "scale(1) rotate(0deg)" },
+          "50%": { opacity: "0.7", transform: "scale(1.25) rotate(18deg)" },
+        },
+        shimmer: {
+          "0%": { backgroundPosition: "0% 50%" },
+          "100%": { backgroundPosition: "100% 50%" },
+        },
+        "cta-pulse": {
+          "0%, 100%": { boxShadow: "0 16px 40px -16px rgba(139,92,246,0.7)", transform: "scale(1)" },
+          "50%": { boxShadow: "0 22px 56px -12px rgba(34,211,238,0.55)", transform: "scale(1.015)" },
+        },
+        "panel-breathe": {
+          "0%, 100%": { boxShadow: "0 24px 80px -28px hsl(266 90% 55% / 0.35)" },
+          "50%": { boxShadow: "0 28px 90px -20px hsl(190 90% 50% / 0.45)" },
+        },
+        "chip-pop": {
+          from: { opacity: "0", transform: "scale(0.86) translateY(8px)" },
+          to: { opacity: "1", transform: "scale(1) translateY(0)" },
+        },
+        "hairline-run": {
+          "0%": { backgroundPosition: "0% 50%" },
+          "100%": { backgroundPosition: "200% 50%" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "fade-up": "fade-up 0.7s ease-out both",
+        float: "float 4.5s ease-in-out infinite",
+        "glow-pulse": "glow-pulse 3.2s ease-in-out infinite",
+        twinkle: "twinkle 1.6s ease-in-out infinite",
+        shimmer: "shimmer 4s linear infinite",
+        "cta-pulse": "cta-pulse 2.2s ease-in-out infinite",
+        "panel-breathe": "panel-breathe 3.6s ease-in-out infinite",
+        "chip-pop": "chip-pop 0.55s ease-out both",
+        "hairline-run": "hairline-run 3s linear infinite",
       },
     },
   },

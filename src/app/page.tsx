@@ -13,26 +13,31 @@ export default function HomePage() {
         aria-labelledby="hero-heading"
         className="container flex flex-col items-center pt-10 text-center sm:pt-16"
       >
-        <BrandLogo size={88} glow className="rounded-[22%]" />
-        <p className="mt-6 text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+        <div className="animate-fade-up">
+          <div className="animate-float">
+            <BrandLogo size={88} glow className="rounded-[22%]" />
+          </div>
+        </div>
+        <p className="mt-6 animate-fade-up text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground [animation-delay:80ms]">
           Confuzzle
         </p>
         <h1
           id="hero-heading"
-          className="mt-3 max-w-3xl text-balance text-4xl font-extrabold tracking-tight sm:text-6xl sm:leading-[1.05]"
+          className="mt-3 max-w-3xl animate-fade-up text-balance text-4xl font-extrabold tracking-tight [animation-delay:140ms] sm:text-6xl sm:leading-[1.05]"
         >
           You’re confuzzled. Show it the problem.
         </h1>
-        <p className="mx-auto mt-4 max-w-xl text-pretty text-base text-muted-foreground sm:text-lg">
+        <p className="mx-auto mt-4 max-w-xl animate-fade-up text-pretty text-base text-muted-foreground [animation-delay:220ms] sm:text-lg">
           You’re in the middle of something and it doesn’t make sense. Paste it, import a PDF, or
           scan the page. Confuzzle deciphers it so you can keep going — and you’re no longer
           confuzzled.
         </p>
         <ul className="mt-6 flex flex-wrap items-center justify-center gap-2" aria-label="How you can show Confuzzle the problem">
-          {PROOF.map((item) => (
+          {PROOF.map((item, index) => (
             <li
               key={item}
-              className="rounded-full border border-border/80 bg-background/40 px-3 py-1.5 text-xs font-medium text-muted-foreground backdrop-blur-sm"
+              className="animate-chip-pop rounded-full border border-border/80 bg-background/40 px-3 py-1.5 text-xs font-medium text-muted-foreground backdrop-blur-sm transition-colors hover:border-primary/50 hover:text-foreground"
+              style={{ animationDelay: `${280 + index * 70}ms` }}
             >
               {item}
             </li>
@@ -40,7 +45,7 @@ export default function HomePage() {
         </ul>
         <Link
           href="/honesty"
-          className="mt-4 inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-foreground hover:border-primary/50"
+          className="mt-4 inline-flex animate-fade-up items-center rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-foreground [animation-delay:700ms] hover:border-primary/50"
         >
           We decipher your source. We don’t invent one.
         </Link>
