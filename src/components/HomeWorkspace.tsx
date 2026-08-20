@@ -519,7 +519,7 @@ export function HomeWorkspace() {
             id="source-input"
             value={text}
             onChange={(event) => setText(event.target.value)}
-            placeholder="The thing that has you confuzzled — a note, a PDF, a scan, a form. Drop it here."
+            placeholder="A wiring note. A form you don’t follow. A letter that makes no sense. Whatever has you confuzzled."
             aria-describedby="source-hint source-count"
             className="min-h-[200px] border-0 bg-transparent p-1 shadow-none focus-visible:ring-0 md:text-base"
             onKeyDown={(event) => {

@@ -17,8 +17,15 @@ describe("redact", () => {
     expect(redact("Authorization: Bearer abcdef0123456789")).not.toContain("abcdef0123456789");
   });
 
+  it("removes keys a provider already partly masked", () => {
+    const out = redact("Incorrect API key provided: sk-super*****************7890.");
+    expect(out).not.toContain("sk-super");
+    expect(out).not.toContain("7890");
+  });
+
   it("leaves harmless text alone", () => {
     expect(redact("model_not_found for gpt-4o-mini")).toBe("model_not_found for gpt-4o-mini");
+    expect(redact("429 rate limit on llama-3.3-70b-versatile")).toContain("llama-3.3-70b-versatile");
   });
 });
 

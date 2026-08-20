@@ -6,11 +6,13 @@
  * passing through `redact` first.
  */
 
+// Deliberately loose: a provider that has already masked a key still gets
+// scrubbed, because a partial key is not something we need in a log either.
 const KEY_PATTERNS: RegExp[] = [
-  /\bsk-[A-Za-z0-9_\-]{8,}/g,
-  /\bgsk_[A-Za-z0-9_\-]{8,}/g,
-  /\bBearer\s+[A-Za-z0-9._\-]{8,}/gi,
-  /\b[A-Za-z0-9_\-]{0,10}(?:api[_-]?key|authorization)"?\s*[:=]\s*"?[A-Za-z0-9._\-]{8,}/gi,
+  /\bsk-[A-Za-z0-9_\-*]{4,}/g,
+  /\bgsk_[A-Za-z0-9_\-*]{4,}/g,
+  /\bBearer\s+[A-Za-z0-9._\-*]{4,}/gi,
+  /(?:api[_-]?key|authorization)"?\s*[:=]\s*"?[A-Za-z0-9._\-*]{4,}/gi,
 ];
 
 export function redact(value: string): string {
