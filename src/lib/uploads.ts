@@ -1,3 +1,5 @@
+import { byokHeaders, readByok } from "@/lib/byok";
+
 export async function extractPdfUpload(file: File): Promise<string> {
   const body = new FormData();
   body.append("file", file);
@@ -12,7 +14,11 @@ export async function extractPdfUpload(file: File): Promise<string> {
 export async function transcribeAudioUpload(file: File): Promise<string> {
   const body = new FormData();
   body.append("file", file);
-  const response = await fetch("/api/transcribe", { method: "POST", body });
+  const response = await fetch("/api/transcribe", {
+    method: "POST",
+    headers: byokHeaders(typeof window === "undefined" ? null : readByok(window.localStorage)),
+    body,
+  });
   const payload = (await response.json()) as { success: boolean; text?: string | null; error?: string };
   if (!payload.success || !payload.text) {
     throw new Error(payload.error || "Could not hear that recording.");
@@ -57,10 +63,10 @@ export async function readUploadedFile(file: File): Promise<string> {
     }
   }
   if (marker === "[[input:video]]") {
-    return `[[input:video]]\nVideo: ${file.name}. We cannot play the file. Paste a transcript or the part that has you stuck.`;
+    return `[[input:video]]\nVideo: ${file.name}. Video is not played. Provide a transcript or the passage in question.`;
   }
   if (marker === "[[input:image]]") {
-    return `${marker}\nPhoto: ${file.name}. Add any extra notes. Visible text on the photo is sent with Unconfuzzle.`;
+    return `${marker}\nPhoto: ${file.name}. Add any extra notes. Visible text on the photo is sent with Confuzzle.`;
   }
   if (marker) {
     return `${marker}\nUploaded file: ${file.name} (${file.type || "unknown"}, ${file.size} bytes).\nAdd a transcript or notes. Do not invent what is not here.`;

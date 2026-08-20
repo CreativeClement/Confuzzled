@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 
+import { safeErrorLine } from "@/lib/log-safe";
+import { providerFromRequest } from "@/lib/provider-server";
+import { providerSpec } from "@/lib/providers";
 import { getClientKey, rateLimit } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
@@ -37,15 +40,20 @@ export async function POST(request: Request) {
     );
   }
 
-  const key = process.env.OPENAI_API_KEY ?? "";
-  if (!key || key.includes("your-openai-key")) {
+  const resolved = providerFromRequest(request, { wantsVision: false });
+  if (!resolved.ok) {
+    return NextResponse.json({ success: false, error: resolved.error, text: null }, { status: 400 });
+  }
+
+  const transcribeModel = providerSpec(resolved.provider.id).transcribeModel;
+  if (!transcribeModel) {
     return NextResponse.json(
       {
         success: false,
-        error: "The server is missing OPENAI_API_KEY. Add it to .env.local and restart.",
+        error: `${resolved.provider.label} cannot transcribe audio. Switch to OpenAI or Groq in Settings, or paste the words.`,
         text: null,
       },
-      { status: 500 },
+      { status: 400 },
     );
   }
 
@@ -82,32 +90,45 @@ export async function POST(request: Request) {
   try {
     const body = new FormData();
     body.append("file", file, file.name);
-    body.append("model", "whisper-1");
+    body.append("model", transcribeModel);
     body.append("response_format", "text");
 
-    const response = await fetch("https://api.openai.com/v1/audio/transcriptions", {
+    const response = await fetch(`${resolved.provider.baseUrl}/audio/transcriptions`, {
       method: "POST",
-      headers: { Authorization: `Bearer ${key}` },
+      headers: { Authorization: `Bearer ${resolved.provider.key}` },
       body,
       signal: AbortSignal.timeout(45_000),
     });
     const raw = await response.text();
     if (!response.ok) {
-      console.error("Confuzzle /api/transcribe provider", response.status, raw.slice(0, 400));
-      if (raw.includes("insufficient_quota")) {
+      console.error("Confuzzle /api/transcribe provider", response.status, safeErrorLine(raw));
+      if (raw.includes("insufficient_quota") || raw.includes("insufficient credits")) {
         return NextResponse.json(
           {
             success: false,
-            error:
-              "OpenAI says this key is out of quota. Add billing or credits at platform.openai.com, then try again.",
+            error: `${resolved.provider.label} says this key has no credit left. Add credit, or paste a transcript.`,
             text: null,
           },
-          { status: 502 },
+          { status: 402 },
+        );
+      }
+      if (response.status === 401) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: `${resolved.provider.label} rejected that API key. Check it in Settings.`,
+            text: null,
+          },
+          { status: 401 },
         );
       }
       if (response.status === 429) {
         return NextResponse.json(
-          { success: false, error: "OpenAI is rate-limiting this key. Wait a minute and try again.", text: null },
+          {
+            success: false,
+            error: `${resolved.provider.label} is rate-limiting this key. Wait a minute and try again.`,
+            text: null,
+          },
           { status: 429 },
         );
       }
@@ -132,7 +153,7 @@ export async function POST(request: Request) {
       truncated: clipped,
     });
   } catch (error) {
-    console.error("Confuzzle /api/transcribe failed", error);
+    console.error("Confuzzle /api/transcribe failed:", safeErrorLine(error));
     return NextResponse.json(
       { success: false, error: "Could not hear that recording. Paste a transcript instead.", text: null },
       { status: 500 },

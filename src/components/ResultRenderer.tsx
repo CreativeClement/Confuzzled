@@ -97,7 +97,7 @@ function MermaidBlock({ chart }: { chart: string }) {
           theme: isDark ? "dark" : "neutral",
           fontFamily: "Plus Jakarta Sans, ui-sans-serif, system-ui, sans-serif",
         });
-        const { svg: nextSvg } = await mermaid.render(`confuzzled-${reactId}`, chart);
+        const { svg: nextSvg } = await mermaid.render(`confuzzle-${reactId}`, chart);
         if (!cancelled) {
           setSvg(nextSvg);
         }
@@ -326,7 +326,7 @@ export function ResultRenderer({
                         disabled={waiting}
                         onClick={() => onStuck(item.step, item.text)}
                       >
-                        {waiting ? "Untangling this step…" : followUp ? "Still stuck" : "Stuck on this step"}
+                        {waiting ? "Working…" : followUp ? "Explain again" : "Explain this step"}
                       </Button>
                     ) : null}
                   </div>

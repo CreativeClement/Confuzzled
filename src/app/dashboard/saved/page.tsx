@@ -11,14 +11,14 @@ export default function SavedPage() {
     <main id="main" className="space-y-6">
       <div>
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Pinned</p>
-        <h1 className="text-3xl font-semibold tracking-tight">Keepers</h1>
+        <h1 className="text-3xl font-semibold tracking-[-0.02em]">Worth returning to</h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          Pin a result after you generate it, or from the history page, and it lands here.
+          Pin a result and it is kept here, ready when the same question comes back.
         </p>
       </div>
       <HistoryList
         items={ready ? pinned : []}
-        emptyMessage={ready ? "Nothing pinned yet. Open a result and tap Pin." : "Loading pinned items…"}
+        emptyMessage={ready ? "Nothing pinned yet. Open a result and choose Pin." : "Loading…"}
       />
     </main>
   );

@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import { AlertCircle, Camera, Loader2, Sparkles, Upload, X } from "lucide-react";
 import { toast } from "sonner";
 
-import { HealthBanner } from "@/components/HealthBanner";
+import { KeySetupPanel } from "@/components/KeySetupPanel";
 import { ResultToolbar } from "@/components/ResultFeedback";
 import { SafetyStrip } from "@/components/SafetyStrip";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -87,6 +87,7 @@ export function HomeWorkspace() {
   const [citations, setCitations] = useState<string[]>([]);
   const [showSource, setShowSource] = useState(false);
   const [sessionLoaded, setSessionLoaded] = useState(false);
+  const [needsKey, setNeedsKey] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
   const resultsHeadingRef = useRef<HTMLHeadingElement>(null);
@@ -185,7 +186,7 @@ export function HomeWorkspace() {
             ? current
             : `[[input:image]]\nPhoto: ${file.name}. Add any extra notes.`,
         );
-        toast.success("Scan attached. Unconfuzzle will read visible text.");
+        toast.success("Scan attached. Confuzzle will read visible text.");
         return;
       }
       setImage(null);
@@ -194,11 +195,11 @@ export function HomeWorkspace() {
       setFileName(file.name);
       setError(null);
       if (nextText.includes("Transcript from")) {
-        toast.success("Heard the recording. Add notes if you want, then Unconfuzzle.");
+        toast.success("Heard the recording. Add notes if you want, then tap Confuzzle this.");
       } else if (nextText.includes("We cannot play the file")) {
-        toast.message("Video is not played. Paste the words that have you stuck.");
+        toast.message("Video isn’t played. Paste the passage in question.");
       } else {
-        toast.success("Attached. Add any extra notes, then Unconfuzzle.");
+        toast.success("Attached. Add any extra notes, then tap Confuzzle this.");
       }
     } catch (caught) {
       const message =
@@ -249,13 +250,13 @@ export function HomeWorkspace() {
     });
   };
 
-  const handleUnconfuzzle = async (mode: OutputMode | "auto", replace = false) => {
+  const handleConfuzzle = async (mode: OutputMode | "auto", replace = false) => {
     const content =
       text.trim() ||
       (image ? `[[input:image]]\nPhoto: ${image.name}. Add any extra notes.` : "");
     if (!content) {
-      setError("Show Confuzzle the problem that has you confuzzled.");
-      toast.error("Show Confuzzle the problem that has you confuzzled.");
+      setError("Add something for Confuzzle to read.");
+      toast.error("Add something for Confuzzle to read.");
       return;
     }
 
@@ -307,10 +308,14 @@ export function HomeWorkspace() {
           setHistoryId(null);
           setCitations([]);
         }
+        if (payload.needsKey) {
+          setNeedsKey(true);
+        }
         setError(payload.error || "Something went sideways. Try again.");
         toast.error(payload.error || "Something went sideways. Try again.");
         return;
       }
+      setNeedsKey(false);
 
       setProgress(100);
       setStreamPreview("");
@@ -369,6 +374,9 @@ export function HomeWorkspace() {
         signal: controller.signal,
       });
       if (!payload.success || !payload.data || !isTextOutput(payload.data)) {
+        if (payload.success === false && payload.needsKey) {
+          setNeedsKey(true);
+        }
         toast.error(payload.success === false ? payload.error : "Could not unstick that step.");
         return;
       }
@@ -409,7 +417,7 @@ export function HomeWorkspace() {
       result: SAMPLE_RESULT,
     });
     setHistoryId(saved?.id ?? null);
-    toast.success("Sample loaded. Check steps off, or tap stuck.");
+    toast.success("Sample loaded. Work through it, or open any step.");
     window.requestAnimationFrame(() => {
       resultsHeadingRef.current?.focus();
     });
@@ -474,7 +482,7 @@ export function HomeWorkspace() {
   return (
       <section id="workspace" aria-labelledby="workspace-heading" className="container mx-auto mt-10 max-w-3xl">
         <h2 id="workspace-heading" className="sr-only">
-          Unconfuzzle
+          Confuzzle this
         </h2>
         <div
           ref={dropRef}
@@ -502,27 +510,29 @@ export function HomeWorkspace() {
           )}
         >
           <div className="mb-3 flex items-center justify-between gap-3">
-            <p className="text-sm text-muted-foreground">Paste, scan, import, or drop the problem here.</p>
+            <label htmlFor="source-input" className="text-sm text-muted-foreground">
+              Paste, drop, or import what you’re looking at.
+            </label>
             <Badge variant="outline">{INPUT_TYPE_LABELS[detectedType]}</Badge>
           </div>
           <Textarea
             id="source-input"
             value={text}
             onChange={(event) => setText(event.target.value)}
-            placeholder="The thing that has you confuzzled — a note, a PDF, a scan, a form. Drop it here."
+            placeholder="A wiring diagram. A benefits form. A letter that reads like law."
             aria-describedby="source-hint source-count"
             className="min-h-[200px] border-0 bg-transparent p-1 shadow-none focus-visible:ring-0 md:text-base"
             onKeyDown={(event) => {
               if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
                 event.preventDefault();
                 if (canGenerate) {
-                  void handleUnconfuzzle("auto");
+                  void handleConfuzzle("auto");
                 }
               }
             }}
           />
           <p id="source-hint" className="sr-only">
-            Inputs longer than 4,000 characters are truncated. A photo can be attached and is sent with Unconfuzzle.
+            Inputs longer than 4,000 characters are truncated. A photo can be attached and is sent with Confuzzle.
           </p>
           {image ? (
             <div className="mt-3 flex items-center gap-3 rounded-2xl border bg-background/80 p-3">
@@ -533,7 +543,7 @@ export function HomeWorkspace() {
                 className="h-16 w-16 rounded-xl object-cover"
               />
               <p className="min-w-0 flex-1 text-xs text-muted-foreground">
-                Scan attached. Visible text is sent with Unconfuzzle. Blurry labels stay unread.
+                Scan attached. Visible text is sent with Confuzzle. Blurry labels stay unread.
               </p>
               <Button
                 type="button"
@@ -599,14 +609,18 @@ export function HomeWorkspace() {
             type="button"
             size="lg"
             variant="brand"
-            className="sm:flex-1"
-            onClick={() => void handleUnconfuzzle("auto")}
+            className={cn("sm:flex-1", canGenerate && "animate-cta-pulse")}
+            onClick={() => void handleConfuzzle("auto")}
             disabled={!canGenerate}
             aria-busy={loading}
             aria-keyshortcuts="Control+Enter Meta+Enter"
           >
-            {loading ? <Loader2 className="animate-spin" aria-hidden="true" /> : <Sparkles aria-hidden="true" />}
-            {loading ? "Deciphering…" : "Unconfuzzle this"}
+            {loading ? (
+              <Loader2 className="animate-spin" aria-hidden="true" />
+            ) : (
+              <Sparkles aria-hidden="true" className="animate-twinkle" />
+            )}
+            {loading ? "Working…" : "Confuzzle this"}
           </Button>
           <Button type="button" size="lg" variant="ghost" disabled={loading} onClick={loadSample}>
             Try a sample
@@ -618,11 +632,11 @@ export function HomeWorkspace() {
           ) : null}
         </div>
 
-        <HealthBanner />
+        <KeySetupPanel demanded={needsKey} onConnected={() => setNeedsKey(false)} />
 
         {ready && recent.length > 0 && !result && !loading ? (
           <div className="mt-6 space-y-2">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Recent on this device</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">Recent</p>
             <div className="flex flex-wrap gap-2">
               {recent.map((item) => (
                 <Button
@@ -642,7 +656,7 @@ export function HomeWorkspace() {
         {error ? (
           <Alert variant="destructive" className="mt-6" aria-live="assertive">
             <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Could not decipher</AlertTitle>
+            <AlertTitle>Couldn’t complete that</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         ) : null}
@@ -651,13 +665,15 @@ export function HomeWorkspace() {
           {(loading || result) && (
             <>
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">No longer confuzzled</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+                  Result
+                </p>
                 <h2
                   ref={resultsHeadingRef}
                   tabIndex={-1}
-                  className="text-3xl font-semibold tracking-tight focus:outline-none"
+                  className="text-3xl font-semibold tracking-[-0.02em] focus:outline-none"
                 >
-                  {loading ? "Deciphering…" : "Here’s what to do."}
+                  {loading ? "Working through it…" : "Here’s what to do."}
                 </h2>
               </div>
               {loading && streamPreview && isLivePreviewMode(streamMode ?? resultMode) ? (
@@ -674,7 +690,7 @@ export function HomeWorkspace() {
                     value={resultMode}
                     recommended={recommended}
                     disabled={loading}
-                    onChange={(mode) => void handleUnconfuzzle(mode, true)}
+                    onChange={(mode) => void handleConfuzzle(mode, true)}
                   />
                   <ResultToolbar
                     result={result}

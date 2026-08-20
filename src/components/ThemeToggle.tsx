@@ -11,7 +11,7 @@ function getPreferredTheme(): Theme {
   if (typeof window === "undefined") {
     return "dark";
   }
-  const stored = window.localStorage.getItem("confuzzled-theme");
+  const stored = window.localStorage.getItem("confuzzle-theme");
   if (stored === "light" || stored === "dark") {
     return stored;
   }
@@ -39,7 +39,7 @@ export function ThemeToggle() {
     const next: Theme = theme === "dark" ? "light" : "dark";
     setTheme(next);
     applyTheme(next);
-    window.localStorage.setItem("confuzzled-theme", next);
+    window.localStorage.setItem("confuzzle-theme", next);
   };
 
   return (

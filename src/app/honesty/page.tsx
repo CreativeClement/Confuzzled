@@ -7,18 +7,18 @@ import { Button } from "@/components/ui/button";
 export const metadata: Metadata = {
   title: "Honesty",
   description:
-    "Confuzzle deciphers your situation. It will not invent safety-critical steps that are not in what you showed it.",
+    "What Confuzzle will and will not do. Every figure and instruction traces back to your source, and safety-critical work is never invented.",
 };
 
 export default function HonestyPage() {
   return (
     <MarketingPage
       kicker="Honesty"
-      title="We decipher your source. We don’t invent one."
+      title="Faithful to your source."
       actions={
         <>
           <Button asChild variant="brand">
-            <Link href="/#workspace">Unconfuzzle something</Link>
+            <Link href="/#workspace">Confuzzle this</Link>
           </Button>
           <Button asChild variant="outline">
             <Link href="/about">About</Link>
@@ -30,23 +30,20 @@ export default function HonestyPage() {
       }
     >
       <p>
-        You’re confuzzled about something you’re doing. Confuzzle’s job is to make that situation
-        followable — not to guess a better one. We stay honest to your source. We will not invent
-        safety-critical steps that are not in it.
+        Confuzzle restates what you provide. It does not supply the parts you are missing. Where a
+        detail is absent, unreadable, or ambiguous, it says so rather than filling the gap.
       </p>
+      <p>The specifics:</p>
       <ul className="list-disc space-y-2 pl-5">
-        <li>Numbers, quotes, voltages, dosages, and legal outcomes must come from what you showed us.</li>
-        <li>Electrical, gas, medical, legal, structural, and height work get a visible caution strip.</li>
-        <li>Public http(s) URLs are fetched with SSRF guards. Localhost, private IPs, and credentialed URLs are blocked.</li>
-        <li>Imported PDFs yield selectable text. A scanned page is a photo — snap it so visible words can be read.</li>
-        <li>
-          Photos and scans are sent as pixels. Blurry labels stay unread — we will not guess serials
-          or voltages. The image stays in this browser with that result.
-        </li>
-        <li>Audio is transcribed. We will not invent spoken lines that are not in the transcript.</li>
-        <li>Video is not played. Paste a transcript or the part that has you stuck.</li>
-        <li>History, ratings, and your display name stay in this browser unless you export them.</li>
-        <li>Live Unconfuzzle needs an OpenAI key on the server. Try a sample works without one.</li>
+        <li>Figures, quotations, voltages, dosages, and legal outcomes come from your source alone.</li>
+        <li>Electrical, gas, medical, legal, structural, and height work carries a visible caution.</li>
+        <li>Links are fetched with guards in place. Private addresses and credentialed URLs are refused.</li>
+        <li>PDFs give up their selectable text. A scanned page is an image — photograph it instead.</li>
+        <li>Photographs are read as pixels. An unreadable label stays unread; serial numbers and ratings are never guessed.</li>
+        <li>Audio is transcribed verbatim. Nothing is added to a transcript.</li>
+        <li>Video is not played. Provide a transcript or the passage in question.</li>
+        <li>Your history, ratings, and name remain on this device unless you export them.</li>
+        <li>Confuzzle runs on an API key you control. The sample requires no key at all.</li>
       </ul>
     </MarketingPage>
   );

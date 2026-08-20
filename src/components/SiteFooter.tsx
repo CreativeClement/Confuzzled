@@ -21,9 +21,8 @@ export function SiteFooter() {
           <BrandLogo size={32} />
           Confuzzle
         </Link>
-        <p className="max-w-lg text-sm leading-relaxed text-muted-foreground">
-          You’re confuzzled about something you’re doing. Confuzzle deciphers it — paste, PDF,
-          scan, or import — so you can keep going. Honest to your source. No invented steps.
+        <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
+          Make sense of anything. Faithful to your source, kept on your device, and never invented.
         </p>
         <nav aria-label="Footer" className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm">
           {LINKS.map((link) => (

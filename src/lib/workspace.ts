@@ -7,9 +7,9 @@ import {
 } from "@/lib/input-router";
 import type { FormattedOutput } from "@/lib/output-formatter";
 
-export const WORKSPACE_EVENT = "confuzzled-workspace";
-export const PROFILE_STORAGE_KEY = "confuzzled-profile";
-export const HISTORY_STORAGE_KEY = "confuzzled-history";
+export const WORKSPACE_EVENT = "confuzzle-workspace";
+export const PROFILE_STORAGE_KEY = "confuzzle-profile";
+export const HISTORY_STORAGE_KEY = "confuzzle-history";
 export const MAX_HISTORY_ITEMS = 100;
 
 export const AUDIENCE_ROLES = [
@@ -33,7 +33,7 @@ export const AUDIENCE_ROLE_OPTIONS: readonly {
   { value: "first_timer", label: "First-timer", description: "Assembly, recipes, first-time procedures." },
   { value: "professional", label: "Professional", description: "Policies, emails, contracts, process docs." },
   { value: "student", label: "Student", description: "Lecture notes, readings, exam prep." },
-  { value: "other", label: "Something else", description: "Whatever has you confuzzled." },
+  { value: "other", label: "Something else", description: "Anything that needs explaining." },
 ] as const;
 
 export type WorkspacePlan = "local";
@@ -204,7 +204,7 @@ export function titleFromSource(source: string): string {
     .trim();
   const line = cleaned.split(/\n/)[0]?.trim() ?? "";
   if (!line) {
-    return "Untitled clarification";
+    return "Untitled result";
   }
   return line.length > 80 ? `${line.slice(0, 77)}…` : line;
 }

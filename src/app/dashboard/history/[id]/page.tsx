@@ -54,8 +54,8 @@ export default function HistoryDetailPage() {
   if (ready && !item) {
     return (
       <main id="main" className="space-y-4">
-        <h1 className="text-2xl font-semibold">Clarification not found</h1>
-        <p className="text-sm text-muted-foreground">It may have been deleted, or this is a different browser.</p>
+        <h1 className="text-2xl font-semibold tracking-[-0.02em]">Result not found</h1>
+        <p className="text-sm text-muted-foreground">It may have been deleted, or it lives in another browser.</p>
         <Button asChild variant="outline">
           <Link href="/dashboard/history">Back to history</Link>
         </Button>
@@ -65,8 +65,9 @@ export default function HistoryDetailPage() {
 
   if (!item) {
     return (
-      <main id="main">
-        <p className="text-sm text-muted-foreground">Loading clarification…</p>
+      <main id="main" className="space-y-2">
+        <h1 className="text-2xl font-semibold tracking-[-0.02em]">Opening this result</h1>
+        <p className="text-sm text-muted-foreground">Loading it from this device…</p>
       </main>
     );
   }
@@ -85,11 +86,12 @@ export default function HistoryDetailPage() {
         <Button asChild variant="outline">
           <Link href={`/?id=${item.id}`}>
             <Sparkles aria-hidden="true" />
-            Open in Unconfuzzle
+            Open in Confuzzle
           </Link>
         </Button>
       </div>
       <div className="space-y-2">
+        <h1 className="sr-only">{item.title}</h1>
         <Label htmlFor="clarification-title" className="sr-only">
           Title
         </Label>
@@ -97,8 +99,8 @@ export default function HistoryDetailPage() {
           id="clarification-title"
           value={title}
           onChange={(event) => setTitle(event.target.value)}
-          onBlur={() => {
-            const next = title.trim() || item.title;
+          onBlur={(event) => {
+            const next = event.target.value.trim() || item.title;
             if (next !== item.title) {
               patchClarification(item.id, { title: next });
               toast.success("Title saved.");
@@ -117,8 +119,8 @@ export default function HistoryDetailPage() {
       {photoPreview ? (
         <div className="flex items-center gap-3 rounded-2xl border bg-card p-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={photoPreview} alt="Attached photo for this clarification" className="h-20 w-20 rounded-xl object-cover" />
-          <p className="text-sm text-muted-foreground">Photo kept on this device with this clarification.</p>
+          <img src={photoPreview} alt="Photograph attached to this result" className="h-20 w-20 rounded-xl object-cover" />
+          <p className="text-sm text-muted-foreground">Kept on this device with the result.</p>
         </div>
       ) : null}
       <ResultToolbar
@@ -177,7 +179,7 @@ export default function HistoryDetailPage() {
         type="button"
         variant="destructive"
         onClick={() => {
-          const confirmed = window.confirm("Delete this clarification from this device?");
+          const confirmed = window.confirm("Delete this result from this device?");
           if (!confirmed) {
             return;
           }

@@ -28,6 +28,7 @@ import {
   type WorkspaceExport,
 } from "@/lib/workspace";
 import { clearPhotos, deletePhoto } from "@/lib/photo-store";
+import { migrateLegacyStorage } from "@/lib/storage-migrate";
 
 type WorkspaceContextValue = {
   ready: boolean;
@@ -56,6 +57,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    migrateLegacyStorage(window.localStorage);
     refresh();
     setReady(true);
 

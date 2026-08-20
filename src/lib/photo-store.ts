@@ -1,5 +1,9 @@
 import type { ClarifyImageMime } from "@/lib/image-payload";
 
+/**
+ * Named before the product settled on "Confuzzle". Renaming the database would
+ * orphan every photo already saved on a reader's device, so the name stays.
+ */
 export const PHOTO_DB = "confuzzled";
 export const PHOTO_STORE = "photos";
 

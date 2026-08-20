@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Download, Upload } from "lucide-react";
 import { toast } from "sonner";
 
+import { ProviderKeyForm } from "@/components/ProviderKeyForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -57,7 +58,7 @@ export default function SettingsPage() {
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = url;
-    anchor.download = `confuzzled-workspace-${new Date().toISOString().slice(0, 10)}.json`;
+    anchor.download = `confuzzle-workspace-${new Date().toISOString().slice(0, 10)}.json`;
     anchor.click();
     URL.revokeObjectURL(url);
     toast.success("Workspace exported.");
@@ -87,10 +88,23 @@ export default function SettingsPage() {
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Settings</p>
         <h1 className="text-3xl font-semibold tracking-tight">Your workspace</h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          This is a local profile — name, preferred mode, and history never leave this browser unless
-          you export them. Confuzzle has no cloud account yet.
+          A local profile. Your name, preferred lens, and history stay in this browser unless you
+          export them. There is no account.
         </p>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">AI key</CardTitle>
+          <CardDescription>
+            Confuzzle runs on a key you control. It is held in this browser and passed straight to
+            your provider.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ProviderKeyForm />
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
@@ -128,7 +142,7 @@ export default function SettingsPage() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Preferred lens</CardTitle>
-          <CardDescription>Used when Confuzzle is unsure which lens fits. Unconfuzzle still picks first.</CardDescription>
+          <CardDescription>Used when Confuzzle is unsure which lens fits. Confuzzle still picks first.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
@@ -156,7 +170,7 @@ export default function SettingsPage() {
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="role">What usually has you confuzzled?</Label>
+            <Label htmlFor="role">What usually brings you here?</Label>
             <Select
               value={profile?.role ?? "other"}
               onValueChange={(value) => {

@@ -20,7 +20,7 @@ export default function ErrorPage({
   return (
     <MarketingPage
       kicker="Error"
-      title="Confuzzle hit a snag"
+      title="Something went wrong."
       center
       actions={
         <>
@@ -33,7 +33,7 @@ export default function ErrorPage({
         </>
       }
     >
-      <p>Confuzzle hit an error on this page. Try again, or go back to the homepage.</p>
+      <p>This page ran into an error. Try again, or return to the homepage.</p>
     </MarketingPage>
   );
 }

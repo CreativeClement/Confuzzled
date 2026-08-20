@@ -20,20 +20,20 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-border/50 bg-background/70 backdrop-blur-xl print:hidden">
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-violet-500/0 via-violet-400/50 to-cyan-400/0"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-[length:200%_100%] bg-gradient-to-r from-violet-500/0 via-violet-400/80 to-cyan-400/0 animate-hairline-run"
       />
       <div className="container flex min-h-16 items-center justify-between gap-3 py-3">
         <Link href="/" className="flex min-h-12 items-center font-semibold tracking-tight">
           <BrandWordmark size={36} />
           <span className="ml-2 hidden text-xs font-normal text-muted-foreground sm:inline">
-            for the confuzzled
+            Clarity, on demand
           </span>
         </Link>
         <nav aria-label="Primary" className="flex items-center gap-2">
           <Button asChild variant={pathname === "/" ? "secondary" : "ghost"} className="hidden sm:inline-flex">
             <Link href="/#workspace">
-              <Sparkles aria-hidden="true" />
-              Unconfuzzle
+              <Sparkles aria-hidden="true" className="animate-twinkle" />
+              Confuzzle this
             </Link>
           </Button>
           <Button asChild variant={onDashboard ? "secondary" : "ghost"}>

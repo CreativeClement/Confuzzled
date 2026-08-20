@@ -7,45 +7,46 @@ import { Button } from "@/components/ui/button";
 export const metadata: Metadata = {
   title: "About",
   description:
-    "Confuzzle is for people who are confuzzled about something they are doing. Show it the problem. Get a version you can follow.",
+    "Confuzzle is a clarity engine for the moment you are stuck. Show it what is in front of you and get back a version you can act on.",
 };
 
 export default function AboutPage() {
   return (
     <MarketingPage
       kicker="About"
-      title="For people who are confuzzled"
+      title="For the moment you’re stuck."
       actions={
         <>
           <Button asChild variant="brand">
-            <Link href="/#workspace">Unconfuzzle something</Link>
+            <Link href="/#workspace">Confuzzle this</Link>
           </Button>
           <Button asChild variant="outline">
-            <Link href="/honesty">How we stay honest</Link>
+            <Link href="/honesty">Our commitments</Link>
           </Button>
         </>
       }
     >
       <p>
-        Confuzzle is a tool for when you’re in the middle of something and it doesn’t make sense. A
-        wiring note. A form. A manual. A messy email. A scanned page. You show it the problematic
-        situation — copy-paste, import a PDF, snap a scan — and it deciphers the confusion so you
-        can actually do the next step.
+        Everyone meets it eventually. A wiring diagram. A benefits form. A manual written for
+        somebody else. The information is all there, and none of it is usable.
       </p>
       <p>
-        The people who show up here are confuzzled. The point of Confuzzle is that they don’t stay
-        that way. Electricians, parents, first-timers, professionals, students — if you’re lost in
-        the work, you’re in the right place.
+        Confuzzle closes that gap. Show it the page — paste the text, import a PDF, photograph the
+        panel — and it returns the same information in a form you can act on. Steps you can follow.
+        Plain language instead of jargon. A map when the pieces matter more than the order.
       </p>
       <p>
-        One button: Unconfuzzle. Confuzzle picks a lens (steps, plain English, questions, a map, or
-        flashcards). You can switch after. Check steps off. If one still doesn’t land, tap stuck and
-        we explain only that part from your source.
+        This is not a study tool. Electricians, carers, first-timers, and professionals arrive with
+        the same problem and leave with the same thing: the next move, clearly stated.
       </p>
       <p>
-        We stay honest to what you showed us. We do not invent safety-critical steps. What you
-        Unconfuzzle stays in this browser. There is no cloud account yet. Live Unconfuzzle uses
-        OpenAI when a key is configured on the server.
+        One control does the work. Confuzzle selects the lens it judges best, and you are free to
+        change it. Work through the result line by line. Anything that still doesn’t land gets
+        explained on its own, drawn only from what you provided.
+      </p>
+      <p>
+        Confuzzle runs on an API key you control and keeps your work on your device. There is no
+        account and nothing to sign up for.
       </p>
     </MarketingPage>
   );

@@ -19,11 +19,13 @@ export function MarketingPage({
   return (
     <main id="main" className="container max-w-2xl py-12 sm:py-16">
       <div className={cn(center && "text-center")}>
-        <BrandLogo size={56} className={cn("mb-6", center && "mx-auto")} glow />
+        <div className={cn("mb-6 w-fit animate-float", center && "mx-auto")}>
+          <BrandLogo size={56} glow />
+        </div>
         {kicker ? (
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">{kicker}</p>
+          <p className="animate-fade-up text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">{kicker}</p>
         ) : null}
-        <h1 className="mt-2 text-balance text-4xl font-semibold tracking-tight">{title}</h1>
+        <h1 className="mt-2 animate-fade-up text-balance text-4xl font-semibold tracking-tight [animation-delay:80ms]">{title}</h1>
       </div>
       <div
         className={cn(

@@ -28,8 +28,8 @@ export default function DashboardPage() {
           {ready ? `Hi, ${profile?.displayName || "Guest"}` : "Your workspace"}
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          Clarifications stay in this browser. Pin the ones that got you unconfuzzled, rate what
-          helped, and set a preferred lens in Settings.
+          Every result is kept on this device. Pin the ones worth returning to, rate what helped,
+          and set a preferred lens in Settings.
         </p>
       </div>
 
@@ -72,7 +72,7 @@ export default function DashboardPage() {
         <Button asChild variant="brand">
           <Link href="/#workspace">
             <Sparkles aria-hidden="true" />
-            Unconfuzzle something
+            Confuzzle this
           </Link>
         </Button>
         <Button asChild variant="outline">
@@ -116,8 +116,8 @@ export default function DashboardPage() {
         {ready && recent.length === 0 ? (
           <Card>
             <CardContent className="p-6 text-sm text-muted-foreground">
-              Nothing saved yet. Unconfuzzle something, or tap <strong>Try a sample</strong> on the homepage
-              (no API key needed).
+              Nothing saved yet. Tap <strong>Confuzzle this</strong> on the homepage, or{" "}
+              <strong>Try a sample</strong> to see how a result looks — that one needs no key.
             </CardContent>
           </Card>
         ) : (

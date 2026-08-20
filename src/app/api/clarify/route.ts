@@ -1,8 +1,8 @@
 import { generateText, streamText } from "ai";
-import { openai } from "@ai-sdk/openai";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { BYOK_HEADERS } from "@/lib/byok";
 import { clarifyProviderError } from "@/lib/clarify-errors";
 import {
   COMPLETION_TIMEOUT_MS,
@@ -14,7 +14,10 @@ import {
 } from "@/lib/clarify-prepare";
 import { encodeSse } from "@/lib/clarify-sse";
 import { clarifyImageToBuffer, type ClarifyImage } from "@/lib/image-payload";
+import { safeErrorLine } from "@/lib/log-safe";
 import { formatOutput, isThinOutput } from "@/lib/output-formatter";
+import { providerFromRequest, providerModel } from "@/lib/provider-server";
+import type { ResolvedProvider } from "@/lib/providers";
 import { getClientKey, rateLimit } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
@@ -37,7 +40,17 @@ function corsHeaders(extra?: HeadersInit): Headers {
   const headers = new Headers(extra);
   headers.set("Access-Control-Allow-Origin", "*");
   headers.set("Access-Control-Allow-Methods", "POST, OPTIONS");
-  headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  headers.set(
+    "Access-Control-Allow-Headers",
+    [
+      "Content-Type",
+      "Authorization",
+      BYOK_HEADERS.provider,
+      BYOK_HEADERS.key,
+      BYOK_HEADERS.model,
+      BYOK_HEADERS.baseUrl,
+    ].join(", "),
+  );
   headers.set("Access-Control-Max-Age", "86400");
   headers.set("Cache-Control", "no-store");
   return headers;
@@ -69,14 +82,16 @@ function jsonResponse(
 }
 
 function modelCall(options: {
+  provider: ResolvedProvider;
   system: string;
   prompt: string;
   image: ClarifyImage | null;
   abortSignal: AbortSignal;
 }) {
+  const model = providerModel(options.provider);
   if (options.image) {
     return {
-      model: openai("gpt-4o-mini"),
+      model,
       system: options.system,
       messages: [
         {
@@ -93,7 +108,7 @@ function modelCall(options: {
     };
   }
   return {
-    model: openai("gpt-4o-mini"),
+    model,
     system: options.system,
     prompt: options.prompt,
     maxTokens: MAX_OUTPUT_TOKENS,
@@ -103,6 +118,7 @@ function modelCall(options: {
 }
 
 async function completeClarify(options: {
+  provider: ResolvedProvider;
   system: string;
   prompt: string;
   image: ClarifyImage | null;
@@ -113,7 +129,11 @@ async function completeClarify(options: {
   return result.text;
 }
 
-function streamClarify(prep: ClarifyPrep, rate: ReturnType<typeof rateLimit>): Response {
+function streamClarify(
+  prep: ClarifyPrep,
+  provider: ResolvedProvider,
+  rate: ReturnType<typeof rateLimit>,
+): Response {
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
     async start(controller) {
@@ -129,9 +149,12 @@ function streamClarify(prep: ClarifyPrep, rate: ReturnType<typeof rateLimit>): R
           fetched: prep.fetched,
           seen: Boolean(prep.image),
           warning: prep.fetchWarning,
+          provider: provider.label,
+          model: provider.model,
         });
         const streamed = streamText(
           modelCall({
+            provider,
             system: prep.system,
             prompt: prep.prompt,
             image: prep.image,
@@ -148,6 +171,7 @@ function streamClarify(prep: ClarifyPrep, rate: ReturnType<typeof rateLimit>): R
         if (isThinOutput(data, prep.mode)) {
           send({ type: "retry" });
           raw = await completeClarify({
+            provider,
             system: `${prep.system}\nRETRY: Your previous reply could not be parsed. Match the MODE contract exactly. JSON only when the mode asks for JSON. No markdown fences.`,
             prompt: prep.prompt,
             image: prep.image,
@@ -156,8 +180,8 @@ function streamClarify(prep: ClarifyPrep, rate: ReturnType<typeof rateLimit>): R
         }
         send({ type: "done", ...successPayload(prep, data) });
       } catch (error) {
-        console.error("Confuzzle /api/clarify stream failed", error);
-        const mapped = clarifyProviderError(error);
+        console.error("Confuzzle /api/clarify stream failed:", safeErrorLine(error));
+        const mapped = clarifyProviderError(error, provider.label);
         send({ type: "error", error: mapped.message, status: mapped.status });
       } finally {
         controller.close();
@@ -227,25 +251,28 @@ export async function POST(request: Request) {
     return jsonResponse(failurePayload(prepared.failure), { status: prepared.failure.status, rate });
   }
 
-  if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY.includes("your-openai-key")) {
+  const resolved = providerFromRequest(request, { wantsVision: Boolean(prepared.prep.image) });
+  if (!resolved.ok) {
     return jsonResponse(
       {
         success: false,
-        error: "The server is missing OPENAI_API_KEY. Add it to .env.local and restart.",
+        error: resolved.error,
+        needsKey: true,
         data: null,
         mode: prepared.prep.mode,
         inputType: prepared.prep.inputType,
       },
-      { status: 500, rate },
+      { status: 400, rate },
     );
   }
 
   if (parsed.data.stream && !parsed.data.focus) {
-    return streamClarify(prepared.prep, rate);
+    return streamClarify(prepared.prep, resolved.provider, rate);
   }
 
   try {
     let raw = await completeClarify({
+      provider: resolved.provider,
       system: prepared.prep.system,
       prompt: prepared.prep.prompt,
       image: prepared.prep.image,
@@ -253,6 +280,7 @@ export async function POST(request: Request) {
     let data = formatOutput(raw, prepared.prep.mode);
     if (isThinOutput(data, prepared.prep.mode)) {
       raw = await completeClarify({
+        provider: resolved.provider,
         system: `${prepared.prep.system}\nRETRY: Your previous reply could not be parsed. Match the MODE contract exactly. JSON only when the mode asks for JSON. No markdown fences.`,
         prompt: prepared.prep.prompt,
         image: prepared.prep.image,
@@ -262,8 +290,8 @@ export async function POST(request: Request) {
 
     return jsonResponse(successPayload(prepared.prep, data), { status: 200, rate });
   } catch (error) {
-    console.error("Confuzzle /api/clarify failed", error);
-    const mapped = clarifyProviderError(error);
+    console.error("Confuzzle /api/clarify failed:", safeErrorLine(error));
+    const mapped = clarifyProviderError(error, resolved.provider.label);
     return jsonResponse(
       {
         success: false,

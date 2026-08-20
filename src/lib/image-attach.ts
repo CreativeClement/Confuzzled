@@ -28,6 +28,10 @@ function dataUrlToAttached(name: string, dataUrl: string): AttachedImage {
 }
 
 export async function fileToClarifyImage(file: File): Promise<AttachedImage> {
+  if (file.type === "image/svg+xml" || /\.svg$/i.test(file.name)) {
+    throw new Error("SVG drawings cannot be read as a scan. Export it as PNG or JPEG first.");
+  }
+
   const looksLikeImage =
     file.type.startsWith("image/") || /\.(png|jpe?g|gif|webp|bmp|avif)$/i.test(file.name);
   if (!looksLikeImage) {

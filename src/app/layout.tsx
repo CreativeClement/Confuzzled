@@ -31,7 +31,6 @@ export const metadata: Metadata = {
   },
   keywords: [
     PRODUCT_NAME,
-    "Unconfuzzle",
     "explain confusing instructions",
     "step-by-step AI",
     "jargon translator",
@@ -74,7 +73,7 @@ export const viewport: Viewport = {
 
 const themeBootScript = `(() => {
   try {
-    const stored = localStorage.getItem("confuzzled-theme");
+    const stored = localStorage.getItem("confuzzle-theme") || localStorage.getItem("confuzzled-theme");
     const root = document.documentElement;
     if (stored === "light") {
       root.classList.remove("dark");

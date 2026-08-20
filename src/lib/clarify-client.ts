@@ -1,6 +1,7 @@
 import type { InputType, OutputMode } from "@/lib/input-router";
 import type { ClarifyImage } from "@/lib/image-payload";
 import type { FormattedOutput } from "@/lib/output-formatter";
+import { byokHeaders, readByok, type ByokSettings } from "@/lib/byok";
 import { consumeSse } from "@/lib/clarify-sse";
 
 export type ClarifySuccess = {
@@ -19,6 +20,7 @@ export type ClarifyFailure = {
   success: false;
   error: string;
   data: null;
+  needsKey?: boolean;
 };
 
 export type ClarifyResponse = ClarifySuccess | ClarifyFailure;
@@ -34,6 +36,51 @@ export type ClarifyStreamHandlers = {
   onDelta?: (text: string) => void;
   onRetry?: () => void;
 };
+
+function currentSettings(): ByokSettings | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+  return readByok(window.localStorage);
+}
+
+function requestHeaders(extra?: Record<string, string>): Record<string, string> {
+  return {
+    "Content-Type": "application/json",
+    ...byokHeaders(currentSettings()),
+    ...extra,
+  };
+}
+
+/** Never let a non-JSON error page (proxy 502, captive portal) throw at the caller. */
+async function readJson(response: Response): Promise<ClarifyResponse> {
+  let raw: string;
+  try {
+    raw = await response.text();
+  } catch {
+    return { success: false, error: "The reply was cut off. Try again.", data: null };
+  }
+  try {
+    return JSON.parse(raw) as ClarifyResponse;
+  } catch {
+    return {
+      success: false,
+      error:
+        response.status >= 500
+          ? "The server returned an error page. Try again in a moment."
+          : "The server sent a reply Confuzzle could not read.",
+      data: null,
+    };
+  }
+}
+
+/** A `done` event must actually carry a result before we treat it as success. */
+function asSuccess(event: Record<string, unknown>): ClarifyResponse {
+  if (event.data == null || typeof event.mode !== "string" || typeof event.inputType !== "string") {
+    return { success: false, error: "The reply came back incomplete. Try again.", data: null };
+  }
+  return event as unknown as ClarifySuccess;
+}
 
 function clarifyBody(input: {
   content: string;
@@ -63,11 +110,11 @@ export async function requestClarify(input: {
 }): Promise<ClarifyResponse> {
   const response = await fetch("/api/clarify", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: requestHeaders(),
     body: JSON.stringify(clarifyBody(input)),
     signal: input.signal,
   });
-  return (await response.json()) as ClarifyResponse;
+  return readJson(response);
 }
 
 export async function streamClarify(
@@ -82,14 +129,14 @@ export async function streamClarify(
 ): Promise<ClarifyResponse> {
   const response = await fetch("/api/clarify", {
     method: "POST",
-    headers: { "Content-Type": "application/json", Accept: "text/event-stream" },
+    headers: requestHeaders({ Accept: "text/event-stream" }),
     body: JSON.stringify(clarifyBody({ ...input, stream: true })),
     signal: input.signal,
   });
 
   const type = response.headers.get("content-type") ?? "";
   if (!type.includes("text/event-stream")) {
-    return (await response.json()) as ClarifyResponse;
+    return readJson(response);
   }
 
   if (!response.body) {
@@ -124,7 +171,7 @@ export async function streamClarify(
       } else if (kind === "retry") {
         handlers.onRetry?.();
       } else if (kind === "done") {
-        finalPayload = event as unknown as ClarifySuccess;
+        finalPayload = asSuccess(event);
       } else if (kind === "error") {
         finalPayload = {
           success: false,
@@ -138,12 +185,47 @@ export async function streamClarify(
   return finalPayload ?? { success: false, error: "The stream ended without a result.", data: null };
 }
 
-export async function requestHealth(signal?: AbortSignal): Promise<{ ok: boolean; openai: boolean } | null> {
+/** Returns null when the check itself failed, which is not the same as "no key". */
+export async function requestHealth(
+  signal?: AbortSignal,
+): Promise<{ ok: boolean; serverKey: boolean } | null> {
   try {
     const response = await fetch("/api/health", { signal, cache: "no-store" });
-    const payload = (await response.json()) as { ok?: boolean; openai?: boolean };
-    return { ok: Boolean(payload.ok), openai: Boolean(payload.openai) };
+    if (!response.ok) {
+      return null;
+    }
+    const payload = (await response.json()) as { ok?: boolean; serverKey?: boolean };
+    return { ok: Boolean(payload.ok), serverKey: Boolean(payload.serverKey) };
   } catch {
     return null;
+  }
+}
+
+export type KeyCheckResult =
+  | { ok: true; provider: string; model: string }
+  | { ok: false; error: string };
+
+export async function checkKey(
+  settings: ByokSettings,
+  signal?: AbortSignal,
+): Promise<KeyCheckResult> {
+  try {
+    const response = await fetch("/api/key-check", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...byokHeaders(settings) },
+      signal,
+    });
+    const payload = (await response.json()) as {
+      ok?: boolean;
+      error?: string;
+      provider?: string;
+      model?: string;
+    };
+    if (payload.ok) {
+      return { ok: true, provider: payload.provider ?? "", model: payload.model ?? "" };
+    }
+    return { ok: false, error: payload.error ?? "That key did not work." };
+  } catch {
+    return { ok: false, error: "Could not reach the provider. Check your connection." };
   }
 }

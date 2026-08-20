@@ -1,4 +1,4 @@
-export const DRAFT_STORAGE_KEY = "confuzzled-draft";
+export const DRAFT_STORAGE_KEY = "confuzzle-draft";
 export const MAX_DRAFT_CHARS = 4000;
 
 export type Draft = {
