@@ -16,11 +16,11 @@ export function HelpSheet() {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button type="button" variant="outline" size="icon" aria-label="Who Confuzzle is for">
+        <Button type="button" variant="outline" size="icon" aria-label="Who Confuzzle is for" className="rounded-full">
           <CircleHelp aria-hidden="true" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" className="overflow-y-auto">
+      <SheetContent side="right" className="overflow-y-auto bg-background/95 backdrop-blur-xl">
         <SheetHeader>
           <SheetTitle>You’re confuzzled. That’s the job.</SheetTitle>
           <SheetDescription>

@@ -622,7 +622,7 @@ export function HomeWorkspace() {
 
         {ready && recent.length > 0 && !result && !loading ? (
           <div className="mt-6 space-y-2">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Recent on this device</p>
+            <p className="kicker">Recent on this device</p>
             <div className="flex flex-wrap gap-2">
               {recent.map((item) => (
                 <Button
@@ -651,7 +651,7 @@ export function HomeWorkspace() {
           {(loading || result) && (
             <>
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">No longer confuzzled</p>
+                <p className="kicker">No longer confuzzled</p>
                 <h2
                   ref={resultsHeadingRef}
                   tabIndex={-1}
@@ -661,7 +661,7 @@ export function HomeWorkspace() {
                 </h2>
               </div>
               {loading && streamPreview && isLivePreviewMode(streamMode ?? resultMode) ? (
-                <p className="whitespace-pre-wrap rounded-[1.75rem] border border-border/70 bg-card/80 p-5 text-lg font-medium leading-relaxed">
+                <p className="whitespace-pre-wrap surface-card-static p-5 text-lg font-medium leading-relaxed">
                   {streamPreview}
                 </p>
               ) : loading ? (
