@@ -21,8 +21,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="container flex flex-1 flex-col gap-6 py-8 lg:flex-row">
       <aside className="lg:w-60 print:hidden">
-        <div className="mb-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Workspace</p>
+        <div className="surface-card-static mb-4 p-4">
+          <p className="kicker">Workspace</p>
           <p className="truncate text-base font-semibold">
             {ready ? profile?.displayName || "Guest" : "Loading…"}
           </p>
@@ -37,7 +37,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "inline-flex min-h-12 shrink-0 items-center gap-2 rounded-xl px-4 text-sm font-medium transition-colors",
+                  "inline-flex min-h-12 shrink-0 items-center gap-2 rounded-full px-4 text-sm font-medium transition-colors",
                   active
                     ? "bg-gradient-to-r from-violet-600 to-cyan-600 text-white"
                     : "bg-secondary/70 text-secondary-foreground hover:bg-secondary",
