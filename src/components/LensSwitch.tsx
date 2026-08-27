@@ -16,7 +16,7 @@ export function LensSwitch({
 }) {
   return (
     <div className="space-y-2 print:hidden">
-      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Lens</p>
+      <p className="kicker">Lens</p>
       <div className="flex flex-wrap gap-2" role="group" aria-label="Switch how this is explained">
         {OUTPUT_MODE_OPTIONS.map((option) => {
           const active = option.value === value;
@@ -29,10 +29,10 @@ export function LensSwitch({
               aria-pressed={active}
               onClick={() => onChange(option.value)}
               className={cn(
-                "inline-flex min-h-12 items-center rounded-full border px-4 text-sm font-medium transition-colors",
+                "inline-flex min-h-12 items-center rounded-full border px-4 text-sm font-medium transition-all duration-200",
                 active
-                  ? "border-transparent bg-gradient-to-r from-violet-600 to-cyan-600 text-white"
-                  : "border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground",
+                  ? "border-transparent bg-gradient-to-r from-violet-600 to-cyan-600 text-white shadow-glow"
+                  : "border-input bg-background/70 text-foreground hover:border-primary/30 hover:bg-accent hover:text-accent-foreground",
                 disabled && "cursor-not-allowed opacity-50",
               )}
             >

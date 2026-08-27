@@ -16,7 +16,7 @@ export function HelpSheet() {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button type="button" variant="outline" size="icon" aria-label="Who Confuzzle is for">
+        <Button type="button" variant="ghost" size="icon" className="border border-border/70 bg-background/40" aria-label="Who Confuzzle is for">
           <CircleHelp aria-hidden="true" />
         </Button>
       </SheetTrigger>

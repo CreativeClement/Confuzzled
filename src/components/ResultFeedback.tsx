@@ -112,7 +112,7 @@ export function ResultFeedback({
   onComprehension: (value: Comprehension) => void;
 }) {
   return (
-    <section aria-label="Was this useful?" className="space-y-4 rounded-2xl border bg-card p-5 print:hidden">
+    <section aria-label="Was this useful?" className="space-y-4 rounded-2xl border border-border/80 bg-card/80 p-5 shadow-sm backdrop-blur-sm print:hidden">
       <div>
         <p className="text-sm font-medium">Did this unstick you?</p>
         <div className="mt-2 flex flex-wrap gap-2">
