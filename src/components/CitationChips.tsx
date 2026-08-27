@@ -7,7 +7,7 @@ export function CitationChips({ citations }: { citations: string[] }) {
 
   return (
     <section aria-label="Phrases taken from your source" className="space-y-2">
-      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">From your source</p>
+      <p className="kicker">From your source</p>
       <ul className="flex flex-wrap gap-2">
         {citations.map((citation) => (
           <li key={citation}>

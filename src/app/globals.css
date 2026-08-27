@@ -86,18 +86,118 @@
     background-image:
       radial-gradient(1100px 560px at 12% -12%, hsl(266 90% 58% / 0.22), transparent 58%),
       radial-gradient(820px 460px at 96% -4%, hsl(190 90% 50% / 0.16), transparent 52%),
+      radial-gradient(640px 360px at 78% 18%, hsl(266 90% 60% / 0.08), transparent 60%),
       radial-gradient(700px 380px at 50% 110%, hsl(250 80% 50% / 0.1), transparent 55%);
+  }
+
+  /* Grain stays behind chrome. z-index 80 paints over sheets/dialogs. */
+  body.mesh-bg::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.28;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+  }
+
+  .dark body.mesh-bg::before {
+    opacity: 0.2;
+    mix-blend-mode: soft-light;
   }
 
   .logo-glow {
     filter: drop-shadow(0 10px 28px hsl(266 90% 60% / 0.45));
   }
 
+  .logo-halo {
+    position: relative;
+    display: inline-flex;
+    isolation: isolate;
+    border-radius: 28%;
+  }
+
+  .logo-halo::after {
+    content: "";
+    position: absolute;
+    inset: -18%;
+    z-index: -1;
+    border-radius: 32%;
+    pointer-events: none;
+    background:
+      radial-gradient(circle at 38% 28%, hsl(266 90% 62% / 0.46), transparent 58%),
+      radial-gradient(circle at 72% 78%, hsl(190 90% 50% / 0.3), transparent 55%);
+    filter: blur(14px);
+  }
+
   .glass-panel {
     @apply rounded-[2rem] border border-border/80 bg-card/70 shadow-xl backdrop-blur-xl;
     box-shadow:
       0 24px 80px -28px hsl(266 90% 55% / 0.45),
-      0 0 0 1px hsl(0 0% 100% / 0.04);
+      0 0 0 1px hsl(0 0% 100% / 0.04),
+      inset 0 1px 0 0 hsl(0 0% 100% / 0.08);
+  }
+
+  .header-float {
+    isolation: isolate;
+  }
+
+  .surface-card,
+  .surface-card-static {
+    @apply rounded-[1.75rem] border border-border/70 bg-card/55 shadow-sm backdrop-blur-md;
+    box-shadow:
+      0 18px 50px -28px hsl(266 90% 55% / 0.35),
+      inset 0 1px 0 0 hsl(0 0% 100% / 0.06);
+  }
+
+  .surface-card {
+    @apply transition duration-300;
+  }
+
+  .kicker {
+    @apply text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground;
+  }
+
+  .proof-chip {
+    @apply rounded-full border border-border/80 bg-background/40 px-3 py-1.5 text-xs font-medium text-muted-foreground backdrop-blur-sm;
+  }
+
+  .footer-pill {
+    @apply rounded-full border border-border/70 bg-background/40 px-3.5 py-1.5 text-sm text-muted-foreground backdrop-blur-sm transition-colors hover:border-primary/40 hover:text-foreground;
+  }
+
+  .hairline {
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      hsl(266 90% 60% / 0.55),
+      hsl(190 90% 50% / 0.45),
+      transparent
+    );
+  }
+
+  .pulse-dot {
+    display: inline-block;
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 9999px;
+    background: hsl(190 90% 52%);
+    box-shadow: 0 0 0 0 hsl(190 90% 50% / 0.5);
+    animation: pulse-dot 2.2s ease-out infinite;
+  }
+
+  .footer-orb {
+    position: absolute;
+    left: 50%;
+    top: -48%;
+    width: 560px;
+    height: 240px;
+    transform: translateX(-50%);
+    pointer-events: none;
+    background: radial-gradient(ellipse at center, hsl(266 90% 58% / 0.2), hsl(190 90% 50% / 0.08), transparent 70%);
+    filter: blur(10px);
   }
 }
 
@@ -108,6 +208,28 @@
 
   .text-gradient {
     @apply bg-gradient-to-r from-violet-400 via-indigo-400 to-cyan-300 bg-clip-text text-transparent;
+  }
+}
+
+@keyframes pulse-dot {
+  0% {
+    box-shadow: 0 0 0 0 hsl(190 90% 50% / 0.55);
+  }
+  70% {
+    box-shadow: 0 0 0 8px hsl(190 90% 50% / 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 hsl(190 90% 50% / 0);
+  }
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .surface-card:hover {
+    transform: translateY(-3px);
+    border-color: hsl(266 84% 58% / 0.38);
+    box-shadow:
+      0 28px 60px -24px hsl(266 90% 55% / 0.5),
+      inset 0 1px 0 0 hsl(0 0% 100% / 0.08);
   }
 }
 
@@ -128,6 +250,15 @@
   .logo-glow {
     filter: none;
   }
+
+  .logo-halo::after {
+    filter: none;
+    opacity: 0.45;
+  }
+
+  .pulse-dot {
+    box-shadow: none;
+  }
 }
 
 *:focus-visible {
@@ -138,6 +269,13 @@
 @media print {
   .mesh-bg {
     background: none !important;
+  }
+
+  body.mesh-bg::before,
+  .footer-orb,
+  .logo-halo::after,
+  .hairline {
+    display: none !important;
   }
 
   .logo-glow {

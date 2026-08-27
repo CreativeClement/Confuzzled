@@ -84,7 +84,7 @@ export default function SettingsPage() {
   return (
     <main id="main" className="space-y-8">
       <div>
-        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Settings</p>
+        <p className="kicker">Settings</p>
         <h1 className="text-3xl font-semibold tracking-tight">Your workspace</h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
           This is a local profile — name, preferred mode, and history never leave this browser unless
@@ -92,7 +92,7 @@ export default function SettingsPage() {
         </p>
       </div>
 
-      <Card>
+      <Card className="surface-card-static">
         <CardHeader>
           <CardTitle className="text-base">Profile</CardTitle>
           <CardDescription>How Confuzzle should address you.</CardDescription>
@@ -125,7 +125,7 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="surface-card-static">
         <CardHeader>
           <CardTitle className="text-base">Preferred lens</CardTitle>
           <CardDescription>Used when Confuzzle is unsure which lens fits. Unconfuzzle still picks first.</CardDescription>
@@ -182,7 +182,7 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="surface-card-static">
         <CardHeader>
           <CardTitle className="text-base">Backup</CardTitle>
           <CardDescription>Move this workspace to another browser with a JSON file.</CardDescription>
@@ -210,7 +210,7 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
 
-      <Card className="border-destructive/40">
+      <Card className="surface-card-static border-destructive/40">
         <CardHeader>
           <CardTitle className="text-base">Reset this device</CardTitle>
           <CardDescription>

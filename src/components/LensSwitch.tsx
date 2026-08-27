@@ -16,7 +16,7 @@ export function LensSwitch({
 }) {
   return (
     <div className="space-y-2 print:hidden">
-      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Lens</p>
+      <p className="kicker">Lens</p>
       <div className="flex flex-wrap gap-2" role="group" aria-label="Switch how this is explained">
         {OUTPUT_MODE_OPTIONS.map((option) => {
           const active = option.value === value;
@@ -31,8 +31,8 @@ export function LensSwitch({
               className={cn(
                 "inline-flex min-h-12 items-center rounded-full border px-4 text-sm font-medium transition-colors",
                 active
-                  ? "border-transparent bg-gradient-to-r from-violet-600 to-cyan-600 text-white"
-                  : "border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground",
+                  ? "border-transparent bg-gradient-to-r from-violet-600 to-cyan-600 text-white shadow-[0_12px_28px_-16px_rgba(139,92,246,0.8)]"
+                  : "border-input bg-background/50 text-foreground backdrop-blur-sm hover:bg-accent hover:text-accent-foreground",
                 disabled && "cursor-not-allowed opacity-50",
               )}
             >
