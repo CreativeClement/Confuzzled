@@ -22,11 +22,14 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     <div className="container flex flex-1 flex-col gap-6 py-8 lg:flex-row">
       <aside className="lg:w-60 print:hidden">
         <div className="mb-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Workspace</p>
-          <p className="truncate text-base font-semibold">
+          <p className="kicker">Workspace</p>
+          <p className="mt-2 truncate text-base font-semibold">
             {ready ? profile?.displayName || "Guest" : "Loading…"}
           </p>
-          <p className="text-xs text-muted-foreground">Stays on this device</p>
+          <p className="mt-1 inline-flex items-center gap-2 text-xs text-muted-foreground">
+            <span className="pulse-dot" aria-hidden="true" />
+            Stays on this device
+          </p>
         </div>
         <nav aria-label="Dashboard" className="flex gap-2 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible">
           {NAV.map((item) => {
@@ -37,10 +40,10 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "inline-flex min-h-12 shrink-0 items-center gap-2 rounded-xl px-4 text-sm font-medium transition-colors",
+                  "inline-flex min-h-12 shrink-0 items-center gap-2 rounded-2xl px-4 text-sm font-medium transition-colors",
                   active
-                    ? "bg-gradient-to-r from-violet-600 to-cyan-600 text-white"
-                    : "bg-secondary/70 text-secondary-foreground hover:bg-secondary",
+                    ? "bg-gradient-to-r from-violet-600 to-cyan-600 text-white shadow-[0_12px_28px_-16px_rgba(139,92,246,0.8)]"
+                    : "border border-border/70 bg-background/40 text-secondary-foreground backdrop-blur-sm hover:border-primary/35 hover:bg-secondary",
                 )}
                 aria-current={active ? "page" : undefined}
               >

@@ -283,7 +283,7 @@ export function ResultRenderer({
             <li key={`${item.step}-${item.text}`}>
               <article
                 className={cn(
-                  "rounded-2xl border bg-card p-4 transition-colors sm:p-5",
+                  "surface-card-static p-4 sm:p-5",
                   checked && "border-primary/40 bg-primary/5",
                 )}
               >
