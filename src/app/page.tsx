@@ -13,35 +13,40 @@ export default function HomePage() {
         aria-labelledby="hero-heading"
         className="container flex flex-col items-center pt-10 text-center sm:pt-16"
       >
-        <BrandLogo size={88} glow className="rounded-[22%]" />
-        <p className="mt-6 text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground">
-          Confuzzle
-        </p>
+        <div className="logo-halo fade-up">
+          <BrandLogo size={88} glow className="relative z-[1] animate-float-soft rounded-[22%]" />
+        </div>
+        <p className="kicker fade-up fade-up-delay-1 mt-6">Confuzzle</p>
         <h1
           id="hero-heading"
-          className="mt-3 max-w-3xl text-balance text-4xl font-extrabold tracking-tight sm:text-6xl sm:leading-[1.05]"
+          className="fade-up fade-up-delay-2 mt-3 max-w-3xl text-balance text-4xl font-extrabold tracking-tight sm:text-6xl sm:leading-[1.05]"
         >
-          You’re confuzzled. Show it the problem.
+          You’re <span className="text-gradient">confuzzled</span>. Show it the problem.
         </h1>
-        <p className="mx-auto mt-4 max-w-xl text-pretty text-base text-muted-foreground sm:text-lg">
+        <p className="fade-up fade-up-delay-3 mx-auto mt-4 max-w-xl text-pretty text-base text-muted-foreground sm:text-lg">
           You’re in the middle of something and it doesn’t make sense. Paste it, import a PDF, or
           scan the page. Confuzzle deciphers it so you can keep going — and you’re no longer
           confuzzled.
         </p>
-        <ul className="mt-6 flex flex-wrap items-center justify-center gap-2" aria-label="How you can show Confuzzle the problem">
+        <ul
+          className="fade-up fade-up-delay-4 mt-6 flex flex-wrap items-center justify-center gap-2"
+          aria-label="How you can show Confuzzle the problem"
+        >
           {PROOF.map((item) => (
             <li
               key={item}
-              className="rounded-full border border-border/80 bg-background/40 px-3 py-1.5 text-xs font-medium text-muted-foreground backdrop-blur-sm"
+              className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-background/50 px-3 py-1.5 text-xs font-medium text-muted-foreground shadow-sm backdrop-blur-sm"
             >
+              <span aria-hidden="true" className="pulse-dot" />
               {item}
             </li>
           ))}
         </ul>
         <Link
           href="/honesty"
-          className="mt-4 inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-foreground hover:border-primary/50"
+          className="fade-up fade-up-delay-4 mt-4 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-foreground shadow-[0_0_24px_-8px_hsl(266_90%_55%/0.6)] hover:border-primary/50"
         >
+          <span aria-hidden="true" className="pulse-dot" />
           We decipher your source. We don’t invent one.
         </Link>
       </section>

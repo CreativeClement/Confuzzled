@@ -497,10 +497,11 @@ export function HomeWorkspace() {
             void attachFiles(event.dataTransfer.files);
           }}
           className={cn(
-            "glass-panel p-4 transition-colors sm:p-7",
+            "glass-panel relative p-4 transition-colors sm:p-7",
             dragging && "border-cyan-400/70 bg-primary/10",
           )}
         >
+          <div aria-hidden="true" className="hairline-gradient absolute inset-x-6 top-0" />
           <div className="mb-3 flex items-center justify-between gap-3">
             <p className="text-sm text-muted-foreground">Paste, scan, import, or drop the problem here.</p>
             <Badge variant="outline">{INPUT_TYPE_LABELS[detectedType]}</Badge>
@@ -511,7 +512,7 @@ export function HomeWorkspace() {
             onChange={(event) => setText(event.target.value)}
             placeholder="The thing that has you confuzzled — a note, a PDF, a scan, a form. Drop it here."
             aria-describedby="source-hint source-count"
-            className="min-h-[200px] border-0 bg-transparent p-1 shadow-none focus-visible:ring-0 md:text-base"
+            className="input-well min-h-[200px] border-0 bg-transparent p-3 shadow-none focus-visible:ring-0 md:text-base"
             onKeyDown={(event) => {
               if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
                 event.preventDefault();
@@ -525,7 +526,7 @@ export function HomeWorkspace() {
             Inputs longer than 4,000 characters are truncated. A photo can be attached and is sent with Unconfuzzle.
           </p>
           {image ? (
-            <div className="mt-3 flex items-center gap-3 rounded-2xl border bg-background/80 p-3">
+            <div className="mt-3 flex items-center gap-3 rounded-2xl border border-border/70 bg-background/70 p-3 shadow-sm">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={image.preview}
@@ -622,7 +623,7 @@ export function HomeWorkspace() {
 
         {ready && recent.length > 0 && !result && !loading ? (
           <div className="mt-6 space-y-2">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Recent on this device</p>
+            <p className="kicker">Recent on this device</p>
             <div className="flex flex-wrap gap-2">
               {recent.map((item) => (
                 <Button
@@ -651,7 +652,7 @@ export function HomeWorkspace() {
           {(loading || result) && (
             <>
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">No longer confuzzled</p>
+                <p className="kicker">No longer confuzzled</p>
                 <h2
                   ref={resultsHeadingRef}
                   tabIndex={-1}
@@ -661,7 +662,7 @@ export function HomeWorkspace() {
                 </h2>
               </div>
               {loading && streamPreview && isLivePreviewMode(streamMode ?? resultMode) ? (
-                <p className="whitespace-pre-wrap rounded-[1.75rem] border border-border/70 bg-card/80 p-5 text-lg font-medium leading-relaxed">
+                <p className="whitespace-pre-wrap rounded-[1.75rem] border border-border/70 bg-card/80 p-5 text-lg font-medium leading-relaxed shadow-sm">
                   {streamPreview}
                 </p>
               ) : loading ? (
@@ -693,7 +694,7 @@ export function HomeWorkspace() {
                     }
                   />
                   {showSource ? (
-                    <pre className="whitespace-pre-wrap rounded-2xl border bg-muted/40 p-4 text-sm leading-relaxed text-muted-foreground">
+                    <pre className="whitespace-pre-wrap rounded-2xl border border-border/70 bg-muted/40 p-4 text-sm leading-relaxed text-muted-foreground">
                       {text}
                     </pre>
                   ) : null}

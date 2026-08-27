@@ -24,7 +24,7 @@ export function HealthBanner() {
   }
 
   return (
-    <Alert className="mt-6">
+    <Alert className="mt-6 border-border/70 bg-card/70 backdrop-blur-sm">
       <AlertCircle className="h-4 w-4" />
       <AlertTitle>Live Unconfuzzle is not configured</AlertTitle>
       <AlertDescription>

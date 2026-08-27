@@ -63,6 +63,10 @@ const config: Config = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      boxShadow: {
+        glow: "0 18px 50px -20px hsl(266 90% 55% / 0.55)",
+        lift: "0 20px 44px -24px hsl(266 90% 50% / 0.45)",
+      },
       keyframes: {
         "accordion-down": {
           from: { height: "0" },
@@ -76,10 +80,15 @@ const config: Config = {
           from: { transform: "rotateY(0deg)" },
           to: { transform: "rotateY(180deg)" },
         },
+        "float-soft": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-6px)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "float-soft": "float-soft 5.5s ease-in-out infinite",
       },
     },
   },
