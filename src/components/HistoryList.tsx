@@ -97,7 +97,7 @@ export function HistoryList({
         <ul className="space-y-3">
           {filtered.map((item) => (
             <li key={item.id}>
-              <article className="rounded-2xl border bg-card p-5">
+              <article className="surface-card-static p-5">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0 space-y-2">
                     <div className="flex flex-wrap items-center gap-2">

@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { BrandLogo } from "@/components/BrandLogo";
+import { BrandLogo, LogoHalo } from "@/components/BrandLogo";
 import { HomeWorkspace } from "@/components/HomeWorkspace";
 import { LandingStory } from "@/components/LandingStory";
 
@@ -11,10 +11,13 @@ export default function HomePage() {
     <main id="main" className="pb-8">
       <section
         aria-labelledby="hero-heading"
-        className="container flex flex-col items-center pt-10 text-center sm:pt-16"
+        className="container flex flex-col items-center pt-8 text-center sm:pt-14"
       >
-        <BrandLogo size={88} glow className="rounded-[22%]" />
-        <p className="mt-6 text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+        <LogoHalo>
+          <BrandLogo size={88} glow className="rounded-[22%]" />
+        </LogoHalo>
+        <p className="kicker mt-6 inline-flex items-center gap-2">
+          <span className="pulse-dot" aria-hidden="true" />
           Confuzzle
         </p>
         <h1
@@ -30,17 +33,14 @@ export default function HomePage() {
         </p>
         <ul className="mt-6 flex flex-wrap items-center justify-center gap-2" aria-label="How you can show Confuzzle the problem">
           {PROOF.map((item) => (
-            <li
-              key={item}
-              className="rounded-full border border-border/80 bg-background/40 px-3 py-1.5 text-xs font-medium text-muted-foreground backdrop-blur-sm"
-            >
+            <li key={item} className="proof-chip">
               {item}
             </li>
           ))}
         </ul>
         <Link
           href="/honesty"
-          className="mt-4 inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-foreground hover:border-primary/50"
+          className="mt-4 inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-foreground transition-colors hover:border-primary/50"
         >
           We decipher your source. We don’t invent one.
         </Link>

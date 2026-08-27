@@ -1,6 +1,22 @@
+import type { ReactNode } from "react";
 import { useId } from "react";
 
 import { cn } from "@/lib/utils";
+
+export function LogoHalo({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <span className={cn("logo-halo", className)}>
+      <span aria-hidden="true" className="logo-halo-blob" />
+      {children}
+    </span>
+  );
+}
 
 type BrandLogoProps = {
   size?: number;
@@ -85,7 +101,9 @@ export function BrandWordmark({
 }) {
   return (
     <span className={cn("inline-flex items-center gap-2.5", className)}>
-      <BrandLogo size={size} />
+      <LogoHalo>
+        <BrandLogo size={size} />
+      </LogoHalo>
       <span className="font-semibold tracking-tight">Confuzzle</span>
     </span>
   );
