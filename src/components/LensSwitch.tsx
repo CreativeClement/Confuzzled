@@ -16,7 +16,7 @@ export function LensSwitch({
 }) {
   return (
     <div className="space-y-2 print:hidden">
-      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Lens</p>
+      <p className="kicker tracking-wide">Lens</p>
       <div className="flex flex-wrap gap-2" role="group" aria-label="Switch how this is explained">
         {OUTPUT_MODE_OPTIONS.map((option) => {
           const active = option.value === value;

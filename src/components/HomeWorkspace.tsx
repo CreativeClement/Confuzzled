@@ -622,14 +622,14 @@ export function HomeWorkspace() {
 
         {ready && recent.length > 0 && !result && !loading ? (
           <div className="mt-6 space-y-2">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Recent on this device</p>
+            <p className="kicker tracking-wide">Recent on this device</p>
             <div className="flex flex-wrap gap-2">
               {recent.map((item) => (
                 <Button
                   key={item.id}
                   type="button"
                   variant="outline"
-                  className="max-w-full"
+                  className="max-w-full rounded-full border-border/90 bg-background/80"
                   onClick={() => loadHistoryItem(item.id)}
                 >
                   <span className="truncate">{item.title}</span>
@@ -651,7 +651,7 @@ export function HomeWorkspace() {
           {(loading || result) && (
             <>
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">No longer confuzzled</p>
+                <p className="kicker tracking-wide">No longer confuzzled</p>
                 <h2
                   ref={resultsHeadingRef}
                   tabIndex={-1}

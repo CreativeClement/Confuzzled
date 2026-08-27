@@ -84,20 +84,139 @@
   .mesh-bg {
     background-color: hsl(var(--background));
     background-image:
-      radial-gradient(1100px 560px at 12% -12%, hsl(266 90% 58% / 0.22), transparent 58%),
-      radial-gradient(820px 460px at 96% -4%, hsl(190 90% 50% / 0.16), transparent 52%),
-      radial-gradient(700px 380px at 50% 110%, hsl(250 80% 50% / 0.1), transparent 55%);
+      radial-gradient(1100px 560px at 12% -12%, hsl(266 90% 58% / 0.28), transparent 58%),
+      radial-gradient(820px 460px at 96% -4%, hsl(190 90% 50% / 0.2), transparent 52%),
+      radial-gradient(700px 380px at 50% 110%, hsl(250 80% 50% / 0.14), transparent 55%);
+  }
+
+  .dark .mesh-bg {
+    background-image:
+      radial-gradient(1100px 560px at 12% -12%, hsl(266 90% 58% / 0.58), transparent 58%),
+      radial-gradient(820px 460px at 96% -4%, hsl(190 90% 50% / 0.46), transparent 52%),
+      radial-gradient(700px 380px at 50% 110%, hsl(250 80% 50% / 0.32), transparent 55%);
+  }
+
+  body.mesh-bg::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.028;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.5 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+
+  .dark body.mesh-bg::before {
+    opacity: 0.04;
   }
 
   .logo-glow {
     filter: drop-shadow(0 10px 28px hsl(266 90% 60% / 0.45));
   }
 
+  .logo-halo {
+    position: relative;
+    display: inline-flex;
+    isolation: isolate;
+  }
+
+  .logo-halo::before {
+    content: "";
+    position: absolute;
+    inset: -22%;
+    z-index: -1;
+    border-radius: 36%;
+    background: radial-gradient(circle, hsl(266 90% 60% / 0.5), hsl(190 90% 50% / 0.18) 42%, transparent 70%);
+    filter: blur(10px);
+  }
+
   .glass-panel {
-    @apply rounded-[2rem] border border-border/80 bg-card/70 shadow-xl backdrop-blur-xl;
+    @apply relative rounded-[2rem] border border-border/80 bg-card/70 shadow-xl backdrop-blur-xl;
     box-shadow:
       0 24px 80px -28px hsl(266 90% 55% / 0.45),
       0 0 0 1px hsl(0 0% 100% / 0.04);
+  }
+
+  .glass-panel::after {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(180deg, hsl(0 0% 100% / 0.08), transparent 28%);
+  }
+
+  .header-float {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    padding-top: calc(0.7rem + env(safe-area-inset-top));
+    padding-bottom: 0.7rem;
+    padding-left: max(1.5rem, env(safe-area-inset-left));
+    padding-right: max(1.5rem, env(safe-area-inset-right));
+  }
+
+  @media (min-width: 640px) {
+    .header-float {
+      padding-left: max(2rem, env(safe-area-inset-left));
+      padding-right: max(2rem, env(safe-area-inset-right));
+    }
+  }
+
+  .header-float-inner {
+    @apply relative mx-auto flex min-h-16 max-w-[1120px] items-center justify-between gap-3 rounded-[1.75rem] border border-border/80 bg-card/75 px-3 py-2 shadow-xl backdrop-blur-xl sm:px-4;
+    box-shadow:
+      0 18px 50px -24px hsl(266 90% 55% / 0.5),
+      0 0 0 1px hsl(0 0% 100% / 0.05);
+  }
+
+  .surface-card {
+    @apply rounded-[1.75rem] border border-border/70 bg-card/50 shadow-sm backdrop-blur-sm transition-colors;
+  }
+
+  .surface-card:hover {
+    border-color: hsl(var(--primary) / 0.35);
+    background-color: hsl(var(--card) / 0.72);
+  }
+
+  .surface-card-static {
+    @apply rounded-[1.75rem] border border-border/70 bg-card/50 shadow-sm backdrop-blur-sm;
+  }
+
+  .kicker {
+    @apply text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground;
+  }
+
+  .proof-chip {
+    @apply rounded-full border border-border/80 bg-background/40 px-3 py-1.5 text-xs font-medium text-muted-foreground backdrop-blur-sm;
+  }
+
+  .hairline {
+    @apply pointer-events-none absolute inset-x-0 h-px bg-gradient-to-r from-violet-500/0 via-violet-400/70 to-cyan-400/0;
+  }
+
+  .pulse-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    flex-shrink: 0;
+    border-radius: 9999px;
+    background: #22d3ee;
+    box-shadow:
+      0 0 0 3px rgb(34 211 238 / 0.28),
+      0 0 12px rgb(34 211 238 / 0.7);
+  }
+
+  .footer-orb {
+    pointer-events: none;
+    position: absolute;
+    left: 50%;
+    top: 0;
+    height: 240px;
+    width: 560px;
+    transform: translate(-50%, -42%);
+    background: radial-gradient(circle, hsl(266 90% 55% / 0.28), hsl(190 90% 50% / 0.12) 42%, transparent 70%);
+    filter: blur(12px);
   }
 }
 
@@ -125,7 +244,8 @@
     scroll-behavior: auto !important;
   }
 
-  .logo-glow {
+  .logo-glow,
+  .logo-halo::before {
     filter: none;
   }
 }
@@ -138,6 +258,13 @@
 @media print {
   .mesh-bg {
     background: none !important;
+  }
+
+  body.mesh-bg::before,
+  .logo-halo::before,
+  .footer-orb,
+  .hairline {
+    display: none;
   }
 
   .logo-glow {
