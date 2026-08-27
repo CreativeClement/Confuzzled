@@ -20,7 +20,7 @@ export function HelpSheet() {
           <CircleHelp aria-hidden="true" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" className="overflow-y-auto">
+      <SheetContent side="right" className="overflow-y-auto border-border/70 bg-background/90 backdrop-blur-xl">
         <SheetHeader>
           <SheetTitle>You’re confuzzled. That’s the job.</SheetTitle>
           <SheetDescription>
