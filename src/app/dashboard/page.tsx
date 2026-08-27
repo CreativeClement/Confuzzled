@@ -23,7 +23,7 @@ export default function DashboardPage() {
   return (
     <main id="main" className="space-y-8">
       <div>
-        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Dashboard</p>
+        <p className="kicker">Dashboard</p>
         <h1 className="text-3xl font-semibold tracking-tight">
           {ready ? `Hi, ${profile?.displayName || "Guest"}` : "Your workspace"}
         </h1>
@@ -41,25 +41,25 @@ export default function DashboardPage() {
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Card>
+          <Card className="surface-card-static">
             <CardHeader>
               <CardDescription>Saved here</CardDescription>
               <CardTitle className="text-3xl">{stats.total}</CardTitle>
             </CardHeader>
           </Card>
-          <Card>
+          <Card className="surface-card-static">
             <CardHeader>
               <CardDescription>Pinned</CardDescription>
               <CardTitle className="text-3xl">{stats.pinned}</CardTitle>
             </CardHeader>
           </Card>
-          <Card>
+          <Card className="surface-card-static">
             <CardHeader>
               <CardDescription>Rated</CardDescription>
               <CardTitle className="text-3xl">{stats.rated}</CardTitle>
             </CardHeader>
           </Card>
-          <Card>
+          <Card className="surface-card-static">
             <CardHeader>
               <CardDescription>Marked “I get it”</CardDescription>
               <CardTitle className="text-3xl">{stats.gotIt}</CardTitle>
@@ -124,10 +124,7 @@ export default function DashboardPage() {
           <ul className="space-y-3">
             {recent.map((item) => (
               <li key={item.id}>
-                <Link
-                  href={`/dashboard/history/${item.id}`}
-                  className="block rounded-2xl border bg-card p-5 transition-colors hover:border-primary/40"
-                >
+                <Link href={`/dashboard/history/${item.id}`} className="surface-card block p-5">
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="font-medium">{item.title}</p>
                     <Badge variant="outline">{modeLabel(item.mode)}</Badge>

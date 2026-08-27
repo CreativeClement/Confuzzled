@@ -21,9 +21,9 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="container flex flex-1 flex-col gap-6 py-8 lg:flex-row">
       <aside className="lg:w-60 print:hidden">
-        <div className="mb-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Workspace</p>
-          <p className="truncate text-base font-semibold">
+        <div className="surface-card-static mb-4 p-4">
+          <p className="kicker">Workspace</p>
+          <p className="mt-2 truncate text-base font-semibold">
             {ready ? profile?.displayName || "Guest" : "Loading…"}
           </p>
           <p className="text-xs text-muted-foreground">Stays on this device</p>
