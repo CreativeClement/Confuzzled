@@ -497,10 +497,11 @@ export function HomeWorkspace() {
             void attachFiles(event.dataTransfer.files);
           }}
           className={cn(
-            "glass-panel p-4 transition-colors sm:p-7",
+            "glass-panel relative overflow-hidden p-4 transition-colors sm:p-7",
             dragging && "border-cyan-400/70 bg-primary/10",
           )}
         >
+          <div aria-hidden="true" className="hairline top-0" />
           <div className="mb-3 flex items-center justify-between gap-3">
             <p className="text-sm text-muted-foreground">Paste, scan, import, or drop the problem here.</p>
             <Badge variant="outline">{INPUT_TYPE_LABELS[detectedType]}</Badge>
@@ -622,7 +623,7 @@ export function HomeWorkspace() {
 
         {ready && recent.length > 0 && !result && !loading ? (
           <div className="mt-6 space-y-2">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Recent on this device</p>
+            <p className="kicker">Recent on this device</p>
             <div className="flex flex-wrap gap-2">
               {recent.map((item) => (
                 <Button
@@ -651,7 +652,7 @@ export function HomeWorkspace() {
           {(loading || result) && (
             <>
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">No longer confuzzled</p>
+                <p className="kicker">No longer confuzzled</p>
                 <h2
                   ref={resultsHeadingRef}
                   tabIndex={-1}
