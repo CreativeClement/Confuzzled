@@ -89,8 +89,47 @@
       radial-gradient(700px 380px at 50% 110%, hsl(250 80% 50% / 0.1), transparent 55%);
   }
 
+  .dark .mesh-bg {
+    background-image:
+      radial-gradient(1100px 560px at 12% -12%, hsl(266 90% 62% / 0.58), transparent 58%),
+      radial-gradient(820px 460px at 96% -4%, hsl(190 90% 55% / 0.46), transparent 52%),
+      radial-gradient(700px 380px at 50% 110%, hsl(250 80% 55% / 0.32), transparent 55%);
+  }
+
+  body.mesh-bg::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.045;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 180px 180px;
+  }
+
+  .dark body.mesh-bg::before {
+    opacity: 0.04;
+  }
+
   .logo-glow {
     filter: drop-shadow(0 10px 28px hsl(266 90% 60% / 0.45));
+  }
+
+  .logo-halo {
+    position: relative;
+    display: inline-flex;
+    isolation: isolate;
+  }
+
+  .logo-halo::after {
+    content: "";
+    position: absolute;
+    inset: -22%;
+    z-index: -1;
+    pointer-events: none;
+    border-radius: 36%;
+    background: radial-gradient(circle, hsl(266 90% 62% / 0.38), hsl(190 90% 50% / 0.12) 42%, transparent 70%);
   }
 
   .glass-panel {
@@ -98,6 +137,89 @@
     box-shadow:
       0 24px 80px -28px hsl(266 90% 55% / 0.45),
       0 0 0 1px hsl(0 0% 100% / 0.04);
+  }
+
+  .header-float {
+    position: sticky;
+    top: 1rem;
+    z-index: 40;
+    margin-left: max(1rem, env(safe-area-inset-left));
+    margin-right: max(1rem, env(safe-area-inset-right));
+    border-radius: 1.75rem;
+    border: 1px solid hsl(var(--border) / 0.75);
+    background: hsl(var(--background) / 0.78);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    box-shadow:
+      0 18px 48px -28px hsl(266 90% 55% / 0.45),
+      0 0 0 1px hsl(0 0% 100% / 0.06);
+  }
+
+  @media (min-width: 640px) {
+    .header-float {
+      margin-left: max(1.25rem, env(safe-area-inset-left));
+      margin-right: max(1.25rem, env(safe-area-inset-right));
+    }
+  }
+
+  .surface-card {
+    @apply rounded-[1.75rem] border border-border/70 bg-card/55 shadow-sm backdrop-blur-sm;
+    transition:
+      border-color 200ms ease,
+      box-shadow 200ms ease,
+      transform 200ms ease,
+      background-color 200ms ease;
+  }
+
+  .surface-card:hover {
+    border-color: hsl(var(--primary) / 0.4);
+    background-color: hsl(var(--card) / 0.78);
+    box-shadow: 0 18px 40px -24px hsl(266 90% 55% / 0.45);
+    transform: translateY(-2px);
+  }
+
+  .surface-card-static {
+    @apply rounded-[1.75rem] border border-border/70 bg-card/55 shadow-sm backdrop-blur-sm;
+  }
+
+  .kicker {
+    @apply text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground;
+  }
+
+  .pulse-dot {
+    position: relative;
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    flex-shrink: 0;
+    border-radius: 9999px;
+    background-color: #22d3ee;
+    box-shadow: 0 0 8px #22d3ee;
+  }
+
+  .pulse-dot::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 9999px;
+    background-color: #22d3ee;
+    animation: pulse-dot 2s ease-out infinite;
+  }
+
+  .proof-chip {
+    @apply rounded-full border border-border/80 bg-background/40 px-3 py-1.5 text-xs font-medium text-muted-foreground backdrop-blur-sm;
+  }
+
+  .hairline {
+    @apply pointer-events-none absolute inset-x-0 h-px bg-gradient-to-r from-violet-500/0 via-violet-400/50 to-cyan-400/0;
+  }
+
+  .footer-orb {
+    pointer-events: none;
+    position: absolute;
+    inset: auto -10% -55% -10%;
+    height: 220px;
+    background: radial-gradient(ellipse at center, hsl(266 90% 55% / 0.18), hsl(190 90% 50% / 0.08) 42%, transparent 70%);
   }
 }
 
@@ -108,6 +230,18 @@
 
   .text-gradient {
     @apply bg-gradient-to-r from-violet-400 via-indigo-400 to-cyan-300 bg-clip-text text-transparent;
+  }
+}
+
+@keyframes pulse-dot {
+  0% {
+    transform: scale(1);
+    opacity: 0.65;
+  }
+
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
   }
 }
 
@@ -128,6 +262,14 @@
   .logo-glow {
     filter: none;
   }
+
+  .logo-halo::after {
+    opacity: 0.55;
+  }
+
+  .surface-card:hover {
+    transform: none;
+  }
 }
 
 *:focus-visible {
@@ -138,6 +280,13 @@
 @media print {
   .mesh-bg {
     background: none !important;
+  }
+
+  body.mesh-bg::before,
+  .logo-halo::after,
+  .footer-orb,
+  .header-float {
+    display: none !important;
   }
 
   .logo-glow {
