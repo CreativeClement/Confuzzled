@@ -17,11 +17,8 @@ export function SiteHeader() {
   const onDashboard = pathname.startsWith("/dashboard");
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/50 bg-background/70 backdrop-blur-xl print:hidden">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-violet-500/0 via-violet-400/50 to-cyan-400/0"
-      />
+    <header className="header-float print:hidden">
+      <div aria-hidden="true" className="hairline bottom-0" />
       <div className="container flex min-h-16 items-center justify-between gap-3 py-3">
         <Link href="/" className="flex min-h-12 items-center font-semibold tracking-tight">
           <BrandWordmark size={36} />

@@ -115,7 +115,7 @@ export default function HistoryDetailPage() {
       </div>
       {safety ? <SafetyStrip notice={safety} /> : null}
       {photoPreview ? (
-        <div className="flex items-center gap-3 rounded-2xl border bg-card p-3">
+        <div className="flex items-center gap-3 surface-card-static p-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={photoPreview} alt="Attached photo for this clarification" className="h-20 w-20 rounded-xl object-cover" />
           <p className="text-sm text-muted-foreground">Photo kept on this device with this clarification.</p>
@@ -134,7 +134,7 @@ export default function HistoryDetailPage() {
         }}
       />
       {showSource ? (
-        <pre className="whitespace-pre-wrap rounded-2xl border bg-muted/40 p-4 text-sm leading-relaxed text-muted-foreground">
+        <pre className="whitespace-pre-wrap surface-card-static p-4 text-sm leading-relaxed text-muted-foreground">
           {item.source}
         </pre>
       ) : null}

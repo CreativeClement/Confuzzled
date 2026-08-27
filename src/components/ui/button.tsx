@@ -11,7 +11,7 @@ const buttonVariants = cva(
       variant: {
         default: "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90",
         brand:
-          "border-0 bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-600 text-white shadow-[0_16px_40px_-16px_rgba(139,92,246,0.8)] hover:brightness-110",
+          "border-0 bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-600 text-white shadow-[0_16px_40px_-16px_rgba(139,92,246,0.8)] hover:brightness-110 active:brightness-95",
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         outline:
           "border border-input bg-background/60 shadow-sm hover:bg-accent hover:text-accent-foreground",

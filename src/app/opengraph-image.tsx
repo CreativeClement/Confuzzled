@@ -18,8 +18,34 @@ export default function OpenGraphImage() {
           justifyContent: "center",
           background: "#07070a",
           color: "white",
+          position: "relative",
+          overflow: "hidden",
         }}
       >
+        <div
+          style={{
+            display: "flex",
+            position: "absolute",
+            width: 720,
+            height: 420,
+            top: -120,
+            left: -80,
+            borderRadius: 999,
+            background: "radial-gradient(circle, rgba(139,92,246,0.38), transparent 70%)",
+          }}
+        />
+        <div
+          style={{
+            display: "flex",
+            position: "absolute",
+            width: 560,
+            height: 360,
+            top: -80,
+            right: -60,
+            borderRadius: 999,
+            background: "radial-gradient(circle, rgba(34,211,238,0.22), transparent 70%)",
+          }}
+        />
         <div
           style={{
             display: "flex",

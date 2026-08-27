@@ -173,7 +173,7 @@ function Flashcard({
           flipped && "[transform:rotateY(180deg)]",
         )}
       >
-        <span className="absolute inset-0 flex flex-col justify-between rounded-2xl border bg-card p-4 shadow-sm ring-offset-background group-hover:border-primary/40 group-focus-visible:ring-2 group-focus-visible:ring-ring [backface-visibility:hidden]">
+        <span className="absolute inset-0 flex flex-col justify-between rounded-2xl border border-border/70 bg-card/80 p-4 shadow-sm backdrop-blur-sm ring-offset-background group-hover:border-primary/40 group-focus-visible:ring-2 group-focus-visible:ring-ring [backface-visibility:hidden]">
           <Badge variant="secondary">Front</Badge>
           <span className="text-base font-medium leading-snug">{front}</span>
           <span className="text-xs text-muted-foreground">Tap to flip</span>
@@ -283,7 +283,7 @@ export function ResultRenderer({
             <li key={`${item.step}-${item.text}`}>
               <article
                 className={cn(
-                  "rounded-2xl border bg-card p-4 transition-colors sm:p-5",
+                  "surface-card-static p-4 sm:p-5",
                   checked && "border-primary/40 bg-primary/5",
                 )}
               >

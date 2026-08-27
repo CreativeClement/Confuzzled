@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { BrandLogo } from "@/components/BrandLogo";
+import { BrandLogo, LogoHalo } from "@/components/BrandLogo";
 import { cn } from "@/lib/utils";
 
 export function MarketingPage({
@@ -18,11 +18,11 @@ export function MarketingPage({
 }) {
   return (
     <main id="main" className="container max-w-2xl py-12 sm:py-16">
-      <div className={cn(center && "text-center")}>
-        <BrandLogo size={56} className={cn("mb-6", center && "mx-auto")} glow />
-        {kicker ? (
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">{kicker}</p>
-        ) : null}
+      <div className={cn(center && "flex flex-col items-center text-center")}>
+        <LogoHalo className="mb-6">
+          <BrandLogo size={56} glow />
+        </LogoHalo>
+        {kicker ? <p className="kicker">{kicker}</p> : null}
         <h1 className="mt-2 text-balance text-4xl font-semibold tracking-tight">{title}</h1>
       </div>
       <div
