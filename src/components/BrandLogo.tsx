@@ -1,4 +1,4 @@
-import { useId } from "react";
+import { useId, type ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -76,6 +76,16 @@ export function BrandLogo({ size = 40, className, glow = false }: BrandLogoProps
   );
 }
 
+export function LogoHalo({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return <span className={cn("logo-halo inline-flex shrink-0", className)}>{children}</span>;
+}
+
 export function BrandWordmark({
   size = 36,
   className,
@@ -85,7 +95,9 @@ export function BrandWordmark({
 }) {
   return (
     <span className={cn("inline-flex items-center gap-2.5", className)}>
-      <BrandLogo size={size} />
+      <LogoHalo>
+        <BrandLogo size={size} />
+      </LogoHalo>
       <span className="font-semibold tracking-tight">Confuzzle</span>
     </span>
   );
