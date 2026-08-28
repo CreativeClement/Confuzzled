@@ -17,15 +17,13 @@ export function SiteHeader() {
   const onDashboard = pathname.startsWith("/dashboard");
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/50 bg-background/70 backdrop-blur-xl print:hidden">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-violet-500/0 via-violet-400/50 to-cyan-400/0"
-      />
-      <div className="container flex min-h-16 items-center justify-between gap-3 py-3">
+    <header className="header-float print:hidden">
+      <div aria-hidden="true" className="hairline pointer-events-none absolute inset-x-5 bottom-0" />
+      <div className="mx-auto flex min-h-16 max-w-[1120px] items-center justify-between gap-3 px-4 py-3 sm:px-6">
         <Link href="/" className="flex min-h-12 items-center font-semibold tracking-tight">
           <BrandWordmark size={36} />
-          <span className="ml-2 hidden text-xs font-normal text-muted-foreground sm:inline">
+          <span className="ml-2 hidden items-center gap-2 text-xs font-normal text-muted-foreground sm:inline-flex">
+            <span className="pulse-dot" aria-hidden="true" />
             for the confuzzled
           </span>
         </Link>
