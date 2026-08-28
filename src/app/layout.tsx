@@ -97,7 +97,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Skip to content
         </a>
         <WorkspaceProvider>
-          <div className="flex min-h-dvh flex-col">
+          <div className="relative z-[1] flex min-h-dvh flex-col">
             <SiteHeader />
             <div className="flex-1">{children}</div>
             <SiteFooter />
