@@ -9,7 +9,7 @@ export default function HistoryPage() {
   return (
     <main id="main" className="space-y-6">
       <div>
-        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">History</p>
+        <p className="kicker">History</p>
         <h1 className="text-3xl font-semibold tracking-tight">Every clarification</h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
           Up to 100 recent clarifications stay on this device. Pin the ones you want to keep handy.
