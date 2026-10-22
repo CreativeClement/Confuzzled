@@ -84,7 +84,7 @@ export default function SettingsPage() {
   return (
     <main id="main" className="space-y-8">
       <div>
-        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Settings</p>
+        <p className="kicker">Settings</p>
         <h1 className="text-3xl font-semibold tracking-tight">Your workspace</h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
           This is a local profile — name, preferred mode, and history never leave this browser unless
